@@ -1,0 +1,219 @@
+body {
+    background-color: white;
+    background-image: url('/BCS_FloraGames/img/flora.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    margin:0;
+    font-family: "Montserrat", sans-serif;
+    position: relative;
+    min-height: 100vh;
+
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.form-container { /* Login */
+    background: white;
+   
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    z-index: 2;
+}
+
+.form-fields{
+    padding: 30px;
+}
+h2 {
+    color: #1a73e8;
+    text-align: center;
+    margin-bottom: 30px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #202124;
+}
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="email"],
+.form-group input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.form-group.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.form-group.checkbox input[type="checkbox"] {
+    margin: 0;
+}
+.button {
+    width: 100%;
+    padding: 12px;
+    background-color: #246741;
+    color: white;
+    border: none;
+    border-radius: 5rem;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.button:hover {
+    background-color: #5ED646;
+}
+.switch-form {
+    text-align: center;
+    margin-top: 20px;
+    color: #5f6368;
+}
+.switch-form a {
+    color: #246741;
+    text-decoration: none;
+}
+.switch-form a:hover {
+    text-decoration: underline;
+}
+.alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 30px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    animation: slideDown 0.5s ease-out;
+}
+.alert.success {
+    background-color: #34a853;
+}
+.alert.error {
+    background-color: #ea4335;
+}
+@keyframes slideDown {
+    from {
+        top: -100px;
+        opacity: 0;
+    }
+    to {
+        top: 20px;
+        opacity: 1;
+    }
+}
+
+header, footer {
+    background-color: #2E8B57;
+    margin: 0;
+    padding: 0.5rem;
+    display: flex;
+    z-index: 2;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+.contenedor {
+    z-index: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin: 5rem;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+    margin: 10px 20px;
+}
+
+.footer-section h3 {
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.footer-section p, .footer-section a {
+    color: var(--text-color);
+    margin-bottom: 8px;
+    display: block;
+    text-decoration: none;
+}
+
+.footer-section a:hover {
+    color: var(--secondary-color);
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+.social-icons a {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+    
+}
+
+.social-icons a:hover {
+    color: #5a3924;
+}
+
+.copyright {
+    background-color: white;
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    z-index: 2;
+    position: relative;
+}
+header{
+    padding: 0 2rem;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Espacio entre elementos */
+  }
+
+.dropdown {
+    border: none;
+}
