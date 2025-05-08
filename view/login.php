@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="switch-form">
-                    <a href="#" onclick="">Recuperar mi contraseña</a>
+                    <a href="#" onclick="">Olvidé mi contraseña</a>
                 </div>
                 <br>
                 <button type="submit" class=" button btnActions">Aceptar</button>
@@ -80,7 +80,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="reg_confirm_password">Confirmar Contraseña</label>
+                    <label for="reg_confirm_password">Confirmar contraseña</label>
                     <div style="position: relative;">
                         <input type="password" id="reg_confirm_password" name="confirm_password" required>
                         <input type="checkbox" id="showRegConfirmPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
