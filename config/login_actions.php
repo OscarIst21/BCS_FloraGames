@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'connection/database.php';
+require_once '../connection/database.php';
 
 $db = new Database();
 $conn = $db->getConnection();
@@ -25,11 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ]);
 
             $_SESSION['success'] = "¡Registro exitoso! Ahora puedes iniciar sesión.";
-            header("Location: login.php");
+            header("Location: ../view/login.php");
             exit();
         } catch (PDOException $e) {
             $_SESSION['error'] = "Error al registrar: " . $e->getMessage();
-            header("Location: login.php");
+            header("Location: ../view/login.php");
             exit();
         }
     }
@@ -49,21 +49,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if ($user && password_verify($password, $user['contrasena'])) {
                 $_SESSION['success'] = "¡Bienvenido, " . $user['nombre'] . "!";
                 $_SESSION['user'] = $user;
-                header("Location: index.php");
+                header("Location: ../index.php");
                 exit();
             } else {
                 $_SESSION['error'] = "Nombre/Correo o contraseña incorrectos.";
-                header("Location: login.php");
+                header("Location: ../view/login.php");
                 exit();
             }
         } catch (PDOException $e) {
             $_SESSION['error'] = "Error al iniciar sesión: " . $e->getMessage();
-            header("Location: login.php");
+            header("Location: ../view/login.php");
             exit();
         }
     } else {
         $_SESSION['error'] = "Datos incompletos.";
-        header("Location: login.php");
+        header("Location: ../view/login.php");
         exit();
     }
 }

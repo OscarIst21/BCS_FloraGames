@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
 
 </head>
 <body>
@@ -27,7 +28,7 @@
     <div class="contenedor">
         <div class="form-container" id="loginForm">
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Iniciar Sesión</h2>
-            <form action="login_actions.php" method="post" class="form-fields">
+            <form action="../config/login_actions.php" method="post" class="form-fields">
                 <div class="form-group">
                     <label for="username">Usuario</label>
                     <input type="text" id="username" name="username" required>
@@ -53,7 +54,7 @@
 
         <div class="form-container" id="registerForm" style="display: none;">
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Registrarse</h2>
-            <form action="login_actions.php" method="post" onsubmit="return validatePasswords()" class="form-fields">
+            <form action="../config/login_actions.php" method="post" onsubmit="return validatePasswords()" class="form-fields">
                 <div class="form-group">
                     <label for="reg_name">Nombre</label>
                     <input type="text" id="reg_name" name="name" required>
