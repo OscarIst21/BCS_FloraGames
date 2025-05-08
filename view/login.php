@@ -30,7 +30,7 @@
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Iniciar Sesión</h2>
             <form action="../config/login_actions.php" method="post" class="form-fields">
                 <div class="form-group">
-                    <label for="username">Usuario</label>
+                    <label for="username">Correo electrónico</label>
                     <input type="text" id="username" name="username" required>
                 </div>
                 <div class="form-group">
@@ -42,8 +42,13 @@
                 </div>
                 <div class="form-group checkbox">
                     <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Recordar usuario</label>
+                    <label for="remember">Mnatener sesión iniciada</label>
                 </div>
+
+                <div class="switch-form">
+                    <a href="#" onclick="">Recuperar mi contraseña</a>
+                </div>
+                <br>
                 <button type="submit" class=" button btnActions">Aceptar</button>
                 <div class="switch-form">
                     ¿No tienes cuenta? <a href="#" onclick="toggleForm('register')">Haz click aquí</a>
@@ -56,7 +61,7 @@
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Registrarse</h2>
             <form action="../config/login_actions.php" method="post" onsubmit="return validatePasswords()" class="form-fields">
                 <div class="form-group">
-                    <label for="reg_name">Nombre</label>
+                    <label for="reg_name">Nombre o apodo</label>
                     <input type="text" id="reg_name" name="name" required>
                 </div>
                 <div class="form-group">
