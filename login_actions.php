@@ -36,22 +36,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Si no venía del formulario de registro, entonces es login
     elseif (isset($_POST['username']) && isset($_POST['password'])) {
-        $correo = $_POST['username'];
+        $login = $_POST['username']; // This can be either email or name
         $password = $_POST['password'];
 
         try {
-            $query = "SELECT * FROM usuarios WHERE correo_electronico = :correo";
+            // Modified query to check both email and name
+            $query = "SELECT * FROM usuarios WHERE correo_electronico = :login OR nombre = :login";
             $stmt = $conn->prepare($query);
-            $stmt->execute([':correo' => $correo]);
+            $stmt->execute([':login' => $login]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['contrasena'])) {
                 $_SESSION['success'] = "¡Bienvenido, " . $user['nombre'] . "!";
                 $_SESSION['user'] = $user;
-                header("Location: index.php"); // Aquí pon tu página de inicio
+                header("Location: index.php");
                 exit();
             } else {
-                $_SESSION['error'] = "Correo o contraseña incorrectos.";
+                $_SESSION['error'] = "Nombre/Correo o contraseña incorrectos.";
                 header("Location: login.php");
                 exit();
             }

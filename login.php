@@ -128,12 +128,13 @@
             <div class="form-group">
                 <label for="username">Usuario</label>
                 <input type="text" id="username" name="username" required>
-
-
             </div>
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" required>
+                <div style="position: relative;">
+                    <input type="password" id="password" name="password" required>
+                    <input type="checkbox" id="showPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                </div>
             </div>
             <div class="form-group checkbox">
                 <input type="checkbox" id="remember" name="remember">
@@ -148,7 +149,7 @@
 
     <div class="form-container" id="registerForm" style="display: none;">
         <h2>Registro</h2>
-        <form action="login_actions.php" method="post">
+        <form action="login_actions.php" method="post" onsubmit="return validatePasswords()">
             <div class="form-group">
                 <label for="reg_name">Nombre</label>
                 <input type="text" id="reg_name" name="name" required>
@@ -160,12 +161,20 @@
             <div class="form-group">
                 <label for="reg_email">Correo electrónico</label>
                 <input type="email" id="reg_email" name="email" required>
-
-
             </div>
             <div class="form-group">
                 <label for="reg_password">Contraseña</label>
-                <input type="password" id="reg_password" name="password" required>
+                <div style="position: relative;">
+                    <input type="password" id="reg_password" name="password" required>
+                    <input type="checkbox" id="showRegPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="reg_confirm_password">Confirmar Contraseña</label>
+                <div style="position: relative;">
+                    <input type="password" id="reg_confirm_password" name="confirm_password" required>
+                    <input type="checkbox" id="showRegConfirmPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                </div>
             </div>
             <button type="submit" class="button">Aceptar</button>
             <div class="switch-form">
@@ -175,6 +184,7 @@
     </div>
 
     <script>
+        // Existing toggle form function
         function toggleForm(form) {
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
@@ -186,6 +196,35 @@
                 loginForm.style.display = 'block';
                 registerForm.style.display = 'none';
             }
+        }
+
+        // Password visibility toggle for login
+        document.getElementById('showPassword').addEventListener('change', function() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = this.checked ? 'text' : 'password';
+        });
+
+        // Password visibility toggle for registration
+        document.getElementById('showRegPassword').addEventListener('change', function() {
+            const passwordInput = document.getElementById('reg_password');
+            passwordInput.type = this.checked ? 'text' : 'password';
+        });
+
+        document.getElementById('showRegConfirmPassword').addEventListener('change', function() {
+            const passwordInput = document.getElementById('reg_confirm_password');
+            passwordInput.type = this.checked ? 'text' : 'password';
+        });
+
+        // Password validation for registration
+        function validatePasswords() {
+            const password = document.getElementById('reg_password').value;
+            const confirmPassword = document.getElementById('reg_confirm_password').value;
+
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return false;
+            }
+            return true;
         }
     </script>
 </body>
