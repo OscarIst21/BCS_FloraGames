@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="switch-form">
-                    <a href="#" onclick="">Olvidé mi contraseña</a>
+                    <a href="recuperatePassword.php" onclick="">Olvidé mi contraseña</a>
                 </div>
                 <br>
                 <button type="submit" class=" button btnActions">Aceptar</button>

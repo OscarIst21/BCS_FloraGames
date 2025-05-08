@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $fecha_nacimiento = $_POST['birthdate'];
         $correo = $_POST['email'];
         $contrasena = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
+ 
         try {
             $query = "INSERT INTO usuarios (nombre, fecha_de_nacimiento, correo_electronico, contrasena, puntos_ganados, nivel_de_usuario_id, juegos_ganados, plantas_aprendidas, musica_activada, foto_perfil)
                       VALUES (:nombre, :fecha_nacimiento, :correo, :contrasena, 0, 1, 0, 0, 1, '')";
