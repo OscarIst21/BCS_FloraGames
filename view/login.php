@@ -5,24 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de sesión - Fauna Games</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
-
+    <style>
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777;
+            background: none;
+            border: none;
+            padding: 0;
+            z-index: 2;
+        }
+        .password-toggle:hover {
+            color: #333;
+        }
+        .password-container {
+            position: relative;
+        }
+    </style>
 </head>
 <body>
     <?php include '../components/header.php'; ?>
 
     <?php
     session_start();
-    if (isset($_SESSION['success'])) {
-        echo '<div class="alert success">' . $_SESSION['success'] . '</div>';
-        unset($_SESSION['success']);
-    }
-    if (isset($_SESSION['error'])) {
-        echo '<div class="alert error">' . $_SESSION['error'] . '</div>';
-        unset($_SESSION['error']);
+    if (isset($_SESSION['sweet_alert'])) {
+        $alert = $_SESSION['sweet_alert'];
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-center',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: '" . $alert['type'] . "',
+                    title: '" . $alert['title'] . "',
+                    text: '" . $alert['text'] . "'
+                });
+            });
+        </script>";
+        unset($_SESSION['sweet_alert']);
     }
     ?>
     <div class="contenedor">
@@ -35,69 +73,53 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Contraseña</label>
-                    <div style="position: relative;">
+                    <div class="password-container">
                         <input type="password" id="password" name="password" required>
-                        <input type="checkbox" id="showPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="form-group checkbox">
                     <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Mnatener sesión iniciada</label>
+                    <label for="remember">Mantener sesión iniciada</label>
                 </div>
 
                 <div class="switch-form">
-                    <a href="recuperatePassword.php" onclick="">Olvidé mi contraseña</a>
+                    <a href="recuperatePassword.php">Olvidé mi contraseña</a>
                 </div>
                 <br>
-                <button type="submit" class=" button btnActions">Aceptar</button>
+                <button type="submit" class="button btnActions">Aceptar</button>
                 <div class="switch-form">
-                    ¿No tienes cuenta? <a href="#" onclick="toggleForm('register')">Haz click aquí</a>
-                </div>
-            </form>
-        </div>
-    
-
-        <div class="form-container" id="registerForm" style="display: none;">
-            <h2 style="background-color: #246741; padding: 1rem; color: white;">Registrarse</h2>
-            <form action="../config/login_actions.php" method="post" onsubmit="return validatePasswords()" class="form-fields">
-                <div class="form-group">
-                    <label for="reg_name">Nombre o apodo</label>
-                    <input type="text" id="reg_name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg_birthdate">Fecha de nacimiento</label>
-                    <input type="date" id="reg_birthdate" name="birthdate" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg_email">Correo electrónico</label>
-                    <input type="email" id="reg_email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg_password">Contraseña</label>
-                    <div style="position: relative;">
-                        <input type="password" id="reg_password" name="password" required>
-                        <input type="checkbox" id="showRegPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="reg_confirm_password">Confirmar contraseña</label>
-                    <div style="position: relative;">
-                        <input type="password" id="reg_confirm_password" name="confirm_password" required>
-                        <input type="checkbox" id="showRegConfirmPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
-                    </div>
-                </div>
-                <button type="submit" class="button">Aceptar</button>
-                <div class="switch-form">
-                    ¿Tienes cuenta? <a href="#" onclick="toggleForm('login')">Inicia sesión</a>
+                    ¿No tienes cuenta? <a href="register.php">Haz click aquí</a>
                 </div>
             </form>
         </div>
     </div>
 
     <?php include '../components/footer.php'; ?>
-    <script src="../js/login.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        
+        if (toggleButton && passwordInput) {
+            toggleButton.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+            console.log('Toggle de contraseña configurado correctamente');
+        } else {
+            console.error('No se encontraron los elementos necesarios');
+        }
+    });
+    </script>
 </body>
-
-
 </html>

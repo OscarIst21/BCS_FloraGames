@@ -3,17 +3,98 @@ session_start();
 require_once '../connection/database.php';
 require_once 'enviarCorreo.php';
 
-
 $db = new Database();
 $conn = $db->getConnection();
 
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['name']) && isset($_POST['birthdate']) && isset($_POST['email']) && isset($_POST['password'])) {
-        $nombre = $_POST['name'];
+        // Guardar datos del formulario en sesión para mostrarlos de nuevo si hay error
+        $_SESSION['form_data'] = [
+            'name' => $_POST['name'],
+            'birthdate' => $_POST['birthdate'],
+            'email' => $_POST['email']
+        ];
+
+        $nombre = trim($_POST['name']);
         $fecha_nacimiento = $_POST['birthdate'];
-        $correo = $_POST['email'];
-        $contrasena = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $correo = trim($_POST['email']);
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+
+        // Validate name
+        if (strlen($nombre) < 2) {
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error de validación',
+                'text' => 'El nombre debe tener al menos 2 caracteres'
+            ];
+            header("Location: ../view/register.php");
+            exit();
+        }
+
+        // Validate email format
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error de validación',
+                'text' => 'Por favor, ingresa un correo electrónico válido'
+            ];
+            header("Location: ../view/register.php");
+            exit();
+        }
+
+        // Check if email already exists
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM usuarios WHERE correo_electronico = ?");
+        $stmt->execute([$correo]);
+        if ($stmt->fetchColumn() > 0) {
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error de registro',
+                'text' => 'Este correo electrónico ya está registrado'
+            ];
+            header("Location: ../view/register.php");
+            exit();
+        }
+
+        // Validate passwords match
+        if ($password !== $confirm_password) {
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error de validación',
+                'text' => 'Las contraseñas no coinciden'
+            ];
+            header("Location: ../view/register.php");
+            exit();
+        }
+
+        // Validate password length
+        if (strlen($password) < 6) {
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error de validación',
+                'text' => 'La contraseña debe tener al menos 6 caracteres'
+            ];
+            header("Location: ../view/register.php");
+            exit();
+        }
+
+        // Validate birthdate
+        $birthDate = new DateTime($fecha_nacimiento);
+        $today = new DateTime();
+        $age = $birthDate->diff($today)->y;
+        
+        if ($birthDate > $today || $age < 5) {
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error de validación',
+                'text' => 'Fecha de naciemiento no valida'
+            ];
+            header("Location: ../view/register.php");
+            exit();
+        }
+
+        // If all validations pass, proceed with registration
+        $contrasena = password_hash($password, PASSWORD_DEFAULT);
 
         try {
             $query = "INSERT INTO usuarios (nombre, fecha_de_nacimiento, correo_electronico, contrasena, puntos_ganados, nivel_de_usuario_id, juegos_ganados, plantas_aprendidas, musica_activada, foto_perfil)
@@ -27,29 +108,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ]);
 
             // Enviar correo de bienvenida
-            require_once 'enviarCorreo.php';
             $correoEnviado = enviarCorreoBienvenida($correo, $nombre);
 
             if (!$correoEnviado) {
                 error_log("Fallo al enviar el correo de bienvenida a $correo");
             }
 
+            // Limpiar datos del formulario guardados
+            unset($_SESSION['form_data']);
 
-            $_SESSION['success'] = "¡Registro exitoso! Ahora puedes iniciar sesión.";
-            header("Location: ../view/login.php");
+            $_SESSION['sweet_alert'] = [
+                'type' => 'success',
+                'title' => '¡Registro exitoso!',
+                'text' => 'Ahora puedes iniciar sesión.'
+            ];
+            header("Location: ../index.php");
             exit();
         } catch (PDOException $e) {
-            $_SESSION['error'] = "Error al registrar: " . $e->getMessage();
-            header("Location: ../view/login.php");
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error al registrar',
+                'text' => 'Ocurrió un error al crear la cuenta. Por favor, intenta nuevamente.'
+            ];
+            header("Location: ../view/register.php");
             exit();
         }
     }
-
-
-    // Si no venía del formulario de registro, entonces es login
+    // Login section
     elseif (isset($_POST['username']) && isset($_POST['password'])) {
-        $login = $_POST['username']; // This can be either email or name
-        $password = $_POST['password'];
+        $login = trim($_POST['username']);
+        $password = trim($_POST['password']);
+
+        // Validate empty fields
+        if (empty($login) || empty($password)) {
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error',
+                'text' => 'Por favor, completa todos los campos'
+            ];
+            header("Location: ../view/login.php");
+            exit();
+        }
 
         try {
             // Modified query to check both email and name
@@ -59,12 +158,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['contrasena'])) {
-                $_SESSION['success'] = "¡Bienvenido, " . $user['nombre'] . "!";
+                $_SESSION['sweet_alert'] = [
+                    'type' => 'success',
+                    'title' => '¡Bienvenido!',
+                    'text' => '¡Hola, ' . $user['nombre'] . '!'
+                ];
                 $_SESSION['user'] = $user;
                 header("Location: ../index.php");
                 exit();
             } else {
-                $_SESSION['error'] = "Nombre/Correo o contraseña incorrectos.";
+                $_SESSION['sweet_alert'] = [
+                    'type' => 'error',
+                    'title' => 'Error',
+                    'text' => 'El Correo o contraseña son incorrectos'
+                ];
                 header("Location: ../view/login.php");
                 exit();
             }
@@ -79,4 +186,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit();
     }
 }
+// In the registration validation sections, update all error redirects like this:
+$_SESSION['sweet_alert'] = [
+    'type' => 'error',
+    'title' => 'Error de validación',
+    'text' => 'Mensaje de error aquí'
+];
+header("Location: ../view/login.php?form=register");
+exit();
 ?>

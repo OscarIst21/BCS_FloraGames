@@ -218,3 +218,46 @@ header{
 .dropdown {
     border: none;
 }
+.error-input {
+    border: 1px solid red !important;
+}
+.error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: none;
+}
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777;
+    background: none;
+    border: none;
+    padding: 0;
+}
+.password-toggle:hover {
+    color: #333;
+}
+.password-container {
+    position: relative;
+}
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777;
+    background: none;
+    border: none;
+    padding: 0;
+}
+.password-toggle:hover {
+    color: #333;
+}
+.password-container {
+    position: relative;
+}

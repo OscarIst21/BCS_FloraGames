@@ -53,4 +53,36 @@ function enviarCorreoBienvenida($destinatario, $nombre) {
         return false;
     }
 }
+
+function enviarCorreoToken($destinatario, $nombre, $token) {
+    $mail = new PHPMailer(true);
+
+    $mail->CharSet = 'UTF-8';
+    $mail->Encoding = 'base64';
+
+    $mail->isSMTP();
+    $mail->Host = 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'floragamesinc@gmail.com';
+    $mail->Password = 'FloraGamesInc#1';
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = 587;
+
+    $mail->setFrom('floragamesinc@gmail.com', 'FloraGames 🌿');
+    $mail->addAddress($destinatario, $nombre);
+
+    $mail->isHTML(true);
+    $mail->Subject = 'Recuperación de contraseña - FloraGames';
+    $mail->Body    = "
+        Hola <strong>$nombre</strong>,<br><br>
+        Tu código para recuperar tu cuenta es:<br><br>
+        <h2 style='color:green;'>$token</h2><br>
+        Úsalo pronto, tiene validez limitada.<br><br>
+        🌿 Saludos del equipo FloraGames.
+    ";
+    $mail->AltBody = "Hola $nombre,\n\nTu código para recuperar tu cuenta es: $token\n\nSaludos de FloraGames.";
+
+    $mail->send();
+}
+
 ?>
