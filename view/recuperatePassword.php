@@ -51,7 +51,7 @@
                     <label for="email">Correo electrónico</label>
                     <input type="email" id="email" name="email" required>
                 </div>  
-                <button type="submit" name="send_code" class="button btnActions">Enviar código de recuperación</button>
+                <button type="submit" name="send_code" class="button">Enviar código de recuperación</button>
                 <div class="switch-form">
                     Recordé mi contraseña, <a href="login.php">Inicia sesión</a>
                 </div>
@@ -67,7 +67,7 @@
                     <label for="token">Ingrese el código de 6 dígitos</label>
                     <input type="text" id="token" name="token" pattern="\d{6}" maxlength="6" required>
                 </div>
-                <button type="submit" name="verify_code" class="button btnActions">Verificar código</button>
+                <button type="submit" name="verify_code" class="button">Verificar código</button>
                 <div class="switch-form">
                     <a href="#" id="resend-code">Enviar código nuevamente</a>
                 </div>
@@ -99,7 +99,7 @@
                     </div>
                     <div class="error-message" id="password-error"></div>
                 </div>
-                <button type="submit" name="reset_password" class="button btnActions">Cambiar contraseña</button>
+                <button type="submit" name="reset_password" class="button">Cambiar contraseña</button>
             </form>
         </div>
     </div>

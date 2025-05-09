@@ -79,9 +79,10 @@ h2 {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-.button:hover {
+.button:hover, .btnActions:hover {
     background-color: #5ED646;
 }
+
 .switch-form {
     text-align: center;
     margin-top: 20px;
@@ -260,4 +261,66 @@ header{
 }
 .password-container {
     position: relative;
+}
+
+
+/* MENU DE JUEGOS*/
+.card {
+    width: 300px;   
+}
+.card-head {
+    padding: 20px 20px  0px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #E3FFE6;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.card-head img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+.card-body {
+    padding: 10px 15px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    background-color: #E3FFE6;
+}
+.card-title {
+    color: #2B432C;
+    text-align: center;
+    margin-bottom: 12px;
+}
+.card-content {
+    color: #47362C;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.btnActions{
+    width: 60%;
+    padding: 0.5rem;
+    background-color: #246741;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.games-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    justify-items: center;
+}
+
+.play-button {
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    color: white;
 }

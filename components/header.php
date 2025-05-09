@@ -6,7 +6,7 @@
                 <a href="" style="color: white;"><i class="fa-solid fa-bars"></i></a>
             </button>
             <ul class="dropdown-menu dropdown-menu">
-                <li><a class="dropdown-item active" href="#">Aprendizaje</a></li>
+                <li><a class="dropdown-item active" href="../index.php">Aprendizaje</a></li>
                 <li><a class="dropdown-item" href="#">Juegos</a></li>
                 <li><a class="dropdown-item" href="#">Mis logros</a></li>
                 <li><hr class="dropdown-divider"></li>

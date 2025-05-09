@@ -89,7 +89,7 @@
                     <a href="recuperatePassword.php">Olvidé mi contraseña</a>
                 </div>
                 <br>
-                <button type="submit" class="button btnActions">Aceptar</button>
+                <button type="submit" class="button">Aceptar</button>
                 <div class="switch-form">
                     ¿No tienes cuenta? <a href="register.php">Haz click aquí</a>
                 </div>

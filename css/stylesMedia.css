@@ -1,0 +1,21 @@
+/* MENU DE JUEGOS - VERSIÓN MOBILE FIRST (Desktop por defecto) */
+
+/* Tablet (2 columnas) */
+@media (max-width: 1024px) {
+    .games-grid{
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile (1 columna) */
+@media (max-width: 600px) {
+    .games-grid{
+        grid-template-columns: repeat(1, 1fr);
+        gap: 15px;
+        padding: 10px;
+    }
+    
+    .card {
+        max-width: 100%;
+    }
+}
