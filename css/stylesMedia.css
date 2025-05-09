@@ -19,3 +19,57 @@
         max-width: 100%;
     }
 }
+
+
+/*Mi perfil*/
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 20px 10px;
+        padding: 20px;
+    }
+
+    .info-item {
+       /* flex-direction: column;*/
+        align-items: flex-start;
+        font-size: 120%;
+        padding: 10px 15px;
+    }
+
+    .info-label,
+    .info-value {
+        width: 100%;
+    }
+
+    .profile-pic {
+        width: 120px;
+        height: 120px;
+    }
+
+    .edit-pic-btn {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 15px;
+    }
+
+    .info-item {
+        font-size: 100%;
+        padding: 8px 10px;
+    }
+
+    .profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+
+    .edit-pic-btn {
+        bottom: 0;
+        right: 0;
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+}

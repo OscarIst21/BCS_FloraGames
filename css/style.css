@@ -12,6 +12,11 @@ body {
 
 }
 
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body::before {
     content: "";
     position: absolute;
@@ -31,6 +36,7 @@ body::before {
     width: 100%;
     max-width: 400px;
     z-index: 2;
+    min-width: 250px;
 }
 
 .form-fields{
@@ -122,6 +128,14 @@ h2 {
         top: 20px;
         opacity: 1;
     }
+}
+
+.page-container { /*Usar afura del contenedor si su contenido es muy corto, sirve para ubicar footer*/
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+    position: relative;
+    z-index: 1;
 }
 
 header, footer {
@@ -323,4 +337,86 @@ header{
     text-decoration: none;
     transition: background-color 0.3s ease;
     color: white;
+}
+
+/* Estilos específicos para la página de perfil */
+.profile-container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border: 3px solid #436745;
+     min-width: 300px;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-header h1 {
+    color: #2e8b57;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+.profile-info {
+    margin-bottom: 30px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    gap: 10px;
+    font-size: 150%;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #2e8b57;
+}
+
+.info-value {
+    color: #495057;
+}
+
+.info-item a .fa-solid:hover {
+    color: #29302c;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 5px solid #e3ffe6;
+    margin: 0 auto 20px;
+    display: block;
+}
+
+.profile-pic-container {
+    position: relative;
+    display: inline-block;
+}
+
+.edit-pic-btn {
+    position: absolute;
+    bottom: 5px;
+    right: -13px;
+    background-color: #2e8b57;
+    color: white;
+    padding: 10px 12px;
+    border-radius: 50%;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.edit-pic-btn:hover {
+    background-color: #246741;
 }

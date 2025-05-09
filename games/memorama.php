@@ -29,7 +29,7 @@ if (!isset($_SESSION['memorama_cards'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memorama - BCS Fauna Games</title>
+    <title>Memorama - BCS Flora Games</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -105,7 +105,7 @@ if (!isset($_SESSION['memorama_cards'])) {
 <body>
     <div class="container">
         <a href="../index.php" class="back-button">← Volver al menú</a>
-        <h1>Memorama de Fauna BCS</h1>
+        <h1>Memorama de Flora BCS</h1>
         <div class="game-info">
             <p>Movimientos: <span id="moves"><?php echo $_SESSION['memorama_moves']; ?></span></p>
         </div>

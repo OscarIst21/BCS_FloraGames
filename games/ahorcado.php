@@ -28,7 +28,7 @@ if (!isset($_SESSION['ahorcado_word'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ahorcado - BCS Fauna Games</title>
+    <title>Ahorcado - BCS Flora Games</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -115,7 +115,7 @@ if (!isset($_SESSION['ahorcado_word'])) {
 <body>
     <div class="container">
         <a href="../index.php" class="back-button">← Volver al menú</a>
-        <h1>Ahorcado de Fauna BCS</h1>
+        <h1>Ahorcado de Flora BCS</h1>
 
         <div class="game-container">
             <div class="hangman-display">

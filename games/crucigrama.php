@@ -24,7 +24,7 @@ if (!isset($_SESSION['crucigrama_board'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crucigrama - BCS Fauna Games</title>
+    <title>Crucigrama - BCS Flora Games</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -117,7 +117,7 @@ if (!isset($_SESSION['crucigrama_board'])) {
 <body>
     <div class="container">
         <a href="../index.php" class="back-button">← Volver al menú</a>
-        <h1>Crucigrama de Fauna BCS</h1>
+        <h1>Crucigrama de Flora BCS</h1>
 
         <div class="game-board">
             <div class="definitions">

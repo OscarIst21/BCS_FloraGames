@@ -37,7 +37,7 @@ if (!isset($_SESSION['loteria_board'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotería - BCS Fauna Games</title>
+    <title>Lotería - BCS Flora Games</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -134,7 +134,7 @@ if (!isset($_SESSION['loteria_board'])) {
 <body>
     <div class="container">
         <a href="../index.php" class="back-button">← Volver al menú</a>
-        <h1>Lotería de Fauna BCS</h1>
+        <h1>Lotería de Flora BCS</h1>
 
         <div class="game-controls">
             <button id="drawCard" class="button">Sacar Carta</button>

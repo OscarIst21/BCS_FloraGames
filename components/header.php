@@ -6,17 +6,16 @@
                 <a href="" style="color: white;"><i class="fa-solid fa-bars"></i></a>
             </button>
             <ul class="dropdown-menu dropdown-menu">
-                <li><a class="dropdown-item active" href="../index.php">Aprendizaje</a></li>
-                <li><a class="dropdown-item" href="#">Juegos</a></li>
-                <li><a class="dropdown-item" href="#">Mis logros</a></li>
+                <li><a class="dropdown-item" href="/BCS_FloraGames/index.php">Aprendizaje</a></li>
+                <li><a class="dropdown-item" href="/BCS_FloraGames/view/gamesMenu.php">Juegos</a></li>
+                <li><a class="dropdown-item" href="/BCS_FloraGames/view/mySuccesses.php">Mis logros</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Mi perfil</a></li>
+                <li><a class="dropdown-item" href="/BCS_FloraGames/view/myProfile.php">Mi perfil</a></li>
                 <li><a class="dropdown-item" href="#">Cerrar sesión</a></li>
             </ul>
         </div>
-
         <div>
-            <img style="max-width: 18rem; margin-bottom: 8px;" src="/BCS_FloraGames/img/logoFG.png" alt="">
+            <img style="max-width: 12rem; margin-bottom: 8px;" src="/BCS_FloraGames/img/logoFG.png" alt="">
         </div>
     </div>
           
