@@ -54,35 +54,49 @@ function enviarCorreoBienvenida($destinatario, $nombre) {
     }
 }
 
-function enviarCorreoToken($destinatario, $nombre, $token) {
-    $mail = new PHPMailer(true);
 
+function enviarCodigoRecuperacion($email, $token) {
+    $mail = new PHPMailer(true);
     $mail->CharSet = 'UTF-8';
     $mail->Encoding = 'base64';
 
-    $mail->isSMTP();
-    $mail->Host = 'smtp.gmail.com';
-    $mail->SMTPAuth = true;
-    $mail->Username = 'floragamesinc@gmail.com';
-    $mail->Password = 'FloraGamesInc#1';
-    $mail->SMTPSecure = 'tls';
-    $mail->Port = 587;
+    try {
+        // Configuración del servidor SMTP
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'floragamesinc@gmail.com';
+        $mail->Password = 'miph ihup lclt fydq';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
 
-    $mail->setFrom('floragamesinc@gmail.com', 'FloraGames 🌿');
-    $mail->addAddress($destinatario, $nombre);
+        // Remitente y destinatario
+        $mail->setFrom('floragamesinc@gmail.com', 'FloraGames 🌿');
+        $mail->addAddress($email);
 
-    $mail->isHTML(true);
-    $mail->Subject = 'Recuperación de contraseña - FloraGames';
-    $mail->Body    = "
-        Hola <strong>$nombre</strong>,<br><br>
-        Tu código para recuperar tu cuenta es:<br><br>
-        <h2 style='color:green;'>$token</h2><br>
-        Úsalo pronto, tiene validez limitada.<br><br>
-        🌿 Saludos del equipo FloraGames.
-    ";
-    $mail->AltBody = "Hola $nombre,\n\nTu código para recuperar tu cuenta es: $token\n\nSaludos de FloraGames.";
+        // Contenido del correo
+        $mail->isHTML(true);
+        $mail->Subject = 'Código de recuperación - FloraGames';
+        
+        $mail->Body = "
+            <h2 style='color: #246741;'>Recuperación de contraseña</h2>
+            <p>Has solicitado restablecer tu contraseña en FloraGames.</p>
+            <p>Tu código de verificación es:</p>
+            <div style='font-size: 24px; font-weight: bold; color: #246741; margin: 20px 0;'>$token</div>
+            <p>Este código es válido por 15 minutos. Si no solicitaste este cambio, por favor ignora este mensaje.</p>
+            <p>Saludos,<br>El equipo de FloraGames 🌿</p>
+        ";
+        
+        $mail->AltBody = "Recuperación de contraseña\n\nTu código de verificación es: $token\n\nEste código es válido por 15 minutos.\n\nSaludos,\nEl equipo de FloraGames";
 
-    $mail->send();
+        $mail->send();
+        error_log("Correo de recuperación enviado a: $email");
+        return true;
+    } catch (Exception $e) {
+        error_log("Error al enviar correo de recuperación: " . $mail->ErrorInfo);
+        return false;
+    }
 }
 
+// Remove or comment out the old enviarCorreoToken function as it's no longer needed
 ?>
