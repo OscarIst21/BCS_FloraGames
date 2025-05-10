@@ -51,7 +51,7 @@
     <div class="contenedor">
         <div class="form-container" id="registerForm">
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Registrarse</h2>
-            <form action="../config/login_actions.php" method="post" class="form-fields" id="registrationForm">
+            <form action="../config/loginActions.php" method="post" class="form-fields" id="registrationForm">
                 <div class="form-group">
                     <label for="reg_name">Nombre o apodo</label>
                     <input type="text" id="reg_name" name="name" value="<?php echo htmlspecialchars($formData['name'] ?? ''); ?>" required>

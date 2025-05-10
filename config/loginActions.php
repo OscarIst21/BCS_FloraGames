@@ -107,6 +107,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ':contrasena' => $contrasena
             ]);
 
+            // Obtener el ID del usuario recién insertado (corregido para PDO)
+            $userId = $conn->lastInsertId();
+            
+            // Iniciar sesión automáticamente
+            $_SESSION['usuario_id'] = $userId;
+            $_SESSION['user'] = $nombre;
+            $_SESSION['email'] = $correo;
+            $_SESSION['nivel_id'] = 1; // Nivel inicial para nuevos usuarios
+
             // Enviar correo de bienvenida
             $correoEnviado = enviarCorreoBienvenida($correo, $nombre);
 
@@ -120,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION['sweet_alert'] = [
                 'type' => 'success',
                 'title' => '¡Registro exitoso!',
-                'text' => 'Ahora puedes iniciar sesión.'
+                'text' => 'Bienvenido/a a Flora Games, ' . $nombre
             ];
             header("Location: ../index.php");
             exit();
@@ -151,19 +160,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         try {
-            // Modified query to check both email and name
             $query = "SELECT * FROM usuarios WHERE correo_electronico = :login OR nombre = :login";
             $stmt = $conn->prepare($query);
             $stmt->execute([':login' => $login]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['contrasena'])) {
+                // Establecer la sesión del usuario
+                $_SESSION['usuario_id'] = $user['id'];
+                $_SESSION['user'] = $user['nombre'];
+                $_SESSION['email'] = $user['correo_electronico'];
+                $_SESSION['nivel_id'] = $user['nivel_de_usuario_id'];
+                
+                // Configurar cookie de "recordarme" si está marcado
+                if (isset($_POST['remember']) && $_POST['remember'] == 'on') {
+                    $cookie_value = $user['id'] . ':' . hash('sha256', $user['contrasena']);
+                    setcookie('remember_me', $cookie_value, time() + 86400 * 30, "/"); // 30 días
+                }
+                
                 $_SESSION['sweet_alert'] = [
                     'type' => 'success',
                     'title' => '¡Bienvenido!',
                     'text' => '¡Hola, ' . $user['nombre'] . '!'
                 ];
-                $_SESSION['user'] = $user;
                 header("Location: ../index.php");
                 exit();
             } else {
@@ -176,22 +195,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 exit();
             }
         } catch (PDOException $e) {
-            $_SESSION['error'] = "Error al iniciar sesión: " . $e->getMessage();
+            error_log("Error de login: " . $e->getMessage());
+            $_SESSION['sweet_alert'] = [
+                'type' => 'error',
+                'title' => 'Error',
+                'text' => 'Ocurrió un error al iniciar sesión. Por favor, inténtalo nuevamente.'
+            ];
             header("Location: ../view/login.php");
             exit();
         }
-    } else {
-        $_SESSION['error'] = "Datos incompletos.";
-        header("Location: ../view/login.php");
-        exit();
     }
 }
-// In the registration validation sections, update all error redirects like this:
-$_SESSION['sweet_alert'] = [
-    'type' => 'error',
-    'title' => 'Error de validación',
-    'text' => 'Mensaje de error aquí'
-];
-header("Location: ../view/login.php?form=register");
-exit();
 ?>

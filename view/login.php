@@ -1,3 +1,13 @@
+<?php
+if(!isset($_SESSION)) {
+    session_start();
+}
+
+if(isset($_SESSION['user'])) {
+    header("Location: /BCS_FloraGames/index.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -34,7 +44,7 @@
     <?php include '../components/header.php'; ?>
 
     <?php
-    session_start();
+    // Eliminar esta línea: session_start();
     if (isset($_SESSION['sweet_alert'])) {
         $alert = $_SESSION['sweet_alert'];
         echo "
@@ -66,7 +76,7 @@
     <div class="contenedor">
         <div class="form-container" id="loginForm">
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Iniciar Sesión</h2>
-            <form action="../config/login_actions.php" method="post" class="form-fields">
+            <form action="../config/loginActions.php" method="post" class="form-fields">
                 <div class="form-group">
                     <label for="username">Correo electrónico</label>
                     <input type="text" id="username" name="username" required>
