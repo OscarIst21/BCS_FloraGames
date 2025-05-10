@@ -61,7 +61,7 @@ require_once __DIR__.'/../config/init.php';
 
         <div class="contenedor-secundario">
             <div class="level-card-container">
-                <div class="level-image"><img src="../img/niveles/semillaJoven.png" alt=""></div>
+                <div class="level-image"><img src="../img/niveles/1.png" alt=""></div>
                 <div class="level-content">
                     <h2 class="level-title">¡Buen trabajo!</h2>
                     <p class="level-message">
