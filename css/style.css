@@ -420,3 +420,71 @@ header{
 .edit-pic-btn:hover {
     background-color: #246741;
 }
+
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.avatar-option {
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    transition: all 0.3s;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.avatar-option.selected {
+    border-color: #246741;
+    box-shadow: 0 0 10px rgba(36, 103, 65, 0.5);
+}
+.avatar-option img {
+    max-width: 100%;
+    height: auto;
+}
+.color-options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #ddd;
+}
+.color-option.selected {
+    border-color: #246741;
+    transform: scale(1.2);
+}
+.upload-section {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+#avatarPreview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+#avatarPreview img {
+    max-width: 100%;
+    height: auto;
+}

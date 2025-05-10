@@ -50,7 +50,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-                <div class="card-head"><img src="../img/logosJuegos/memorama.png" alt="Ahorcado"></div>
+                <div class="card-head"><img src="../img/logosJuegos/ahorcado.png" alt="Ahorcado"></div>
                 <div class="card-body">
                     <h3 class="card-title">Ahorcado</h3>
                     <form action="../games/ahorcado.php" method="get">
@@ -61,7 +61,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-                <div class="card-head"><img src="../img/logosJuegos/sopaLetras.png" alt="Loteria"></div>
+                <div class="card-head"><img src="../img/logosJuegos/loteria.png" alt="Loteria"></div>
                 <div class="card-body">
                     <h3 class="card-title">Loteria</h3>
                     <form action="../games/loteria.php" method="get">
