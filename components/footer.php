@@ -2,7 +2,7 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Contacto</h3>
-                <p><i class="fas fa-phone"></i> 01-800-1234</p> 
+                <p><i class="fas fa-envelope"></i> floragamesinc@gmail.com</p> 
             </div>
 
             <div class="footer-section">

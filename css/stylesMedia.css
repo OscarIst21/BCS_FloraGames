@@ -73,3 +73,138 @@
         font-size: 12px;
     }
 }
+
+
+/* Mis logros */
+ @media (max-width: 768px) {
+.leaderboard-container {
+    padding: 1rem;
+    max-height: 600px;
+}
+
+.badges-container {
+    min-height: 400px;
+}
+
+.leaderboard-title {
+    font-size: 2rem;
+}
+
+.leaderboard-item {
+    padding: 0.8rem 1rem;
+}
+
+.leaderboard-position {
+    font-size: 1.2rem;
+    min-width: 40px;
+}
+
+.leaderboard-user {
+    font-size: 1rem;
+    padding: 0 1rem;
+}
+}
+
+/* Media Queries para Responsividad */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .level-card-container {
+        flex-direction: column;
+        min-height: auto;
+    }
+    
+    .level-image {
+        flex: 0 0 300px;
+        width: 100%;
+        min-height: 300px;
+    }
+    
+    .level-content {
+        padding: 1.5rem;
+    }
+    
+    .level-title {
+        font-size: 1.8rem;
+    }
+    
+    .level-stats {
+        gap: 1rem;
+    }
+}
+
+/* Móvil (hasta 767px) */
+@media (max-width: 767px) {
+    .level-card-container {
+        border-radius: 10px;
+
+    }
+    
+    .level-image {
+        flex: 0 0 250px;
+        min-height: 250px;
+        padding: 0.5rem;
+    }
+
+    .level-image img {
+    max-width: 100%;
+}
+    
+    .level-content {
+        padding: 1.2rem;
+    }
+    
+    .level-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .level-message {
+        font-size: 1rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .level-stats {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .stat-item {
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+        flex-direction: row-reverse
+    }
+    
+    .stat-value, .stat-label {
+        font-size: 1rem;
+    }
+}
+
+/* Pequeños móviles (hasta 480px) */
+@media (max-width: 480px) {
+    .level-image {
+        flex: 0 0 200px;
+        min-height: 200px;
+    }
+    
+    .level-content {
+        padding: 1rem;
+    }
+    
+    .level-title {
+        font-size: 1.3rem;
+    }
+    
+    .progress-label {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .level-image img {
+    max-width: 100%;
+}
+}

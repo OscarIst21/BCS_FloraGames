@@ -488,3 +488,309 @@ header{
     max-width: 100%;
     height: auto;
 }
+/*Mis logros*/
+.leaderboard-container {
+    width: 600px;
+    max-width: 800px;
+    padding: 3rem;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    height: 750px;
+}
+
+.leaderboard-header {
+    text-align: center;
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--light-color);
+    padding-bottom: 1rem;
+}
+
+.leaderboard-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.leaderboard-subtitle {
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+}
+
+.leaderboard-list {
+    list-style: none;
+    padding: 0;
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border-left: 5px solid transparent;
+}
+
+.leaderboard-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-left: 5px solid var(--primary-color);
+}
+
+.leaderboard-position {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 50px;
+    text-align: center;
+}
+
+.leaderboard-user {
+    flex-grow: 1;
+    font-size: 1.2rem;
+    padding: 0 1.5rem;
+}
+
+.leaderboard-score {
+    font-weight: 600;
+    color: var(--secondary-color);
+    background-color: var(--light-color);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.top-three {
+    background-color: rgba(46, 139, 87, 0.1);
+}
+
+.top-three .leaderboard-position {
+    font-size: 2rem;
+}
+
+.first-place {
+    background-color: rgba(255, 215, 0, 0.2);
+    border-left: 5px solid gold;
+}
+
+.second-place {
+    background-color: rgba(192, 192, 192, 0.2);
+    border-left: 5px solid silver;
+}
+
+.third-place {
+    background-color: rgba(205, 127, 50, 0.2);
+    border-left: 5px solid #cd7f32;
+}
+
+.user-badge {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #2E8B57;
+    color: white;
+    text-align: center;
+    line-height: 40px;
+    margin-right: 1rem;
+    font-weight: bold;
+}
+
+
+
+.level-card-container {
+    max-width: 800px;
+    padding: 0;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    height: auto;
+    min-height: 400px;
+}
+
+.level-image {
+    flex: 0 0 40%;
+    min-height: 400px;
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.level-image img {
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.level-content {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.level-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.level-message {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.progress-container {
+    width: 100%;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.level-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+
+.contenedor-secundario{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.badges-container {
+            max-width: 1000px;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            height: 300px;
+        }
+        
+        .badges-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .badges-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .view-collection {
+            background-color: #246741;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .view-collection:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .badge-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--light-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .badge-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+        
+        .badge-date {
+            font-size: 0.7rem;
+            color: #777;
+            margin-top: 0.3rem;
+        }
+        
+        .locked-badge {
+            filter: grayscale(100%);
+            opacity: 0.7;
+        }
+        
+        .locked-badge::after {
+            content: "\f023";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+        
