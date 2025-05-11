@@ -79,11 +79,11 @@
  @media (max-width: 768px) {
 .leaderboard-container {
     padding: 1rem;
-    max-height: 600px;
+    max-height: 650px;
 }
 
 .badges-container {
-    min-height: 400px;
+    min-height: 800px;
 }
 
 .leaderboard-title {
@@ -208,3 +208,31 @@
     max-width: 100%;
 }
 }
+
+@media (max-width: 600px) {
+        .stats-card {
+            margin: 1rem;
+        }
+        
+        .stats-header h2 {
+            font-size: 1.3rem;
+        }
+        
+        .stat-title, .stat-value {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .stats-header {
+            padding: 0.8rem 1rem;
+        }
+        
+        .stats-body {
+            padding: 1rem;
+        }
+        
+        .stat-item {
+            margin-bottom: 1.2rem;
+        }
+    }

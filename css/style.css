@@ -794,3 +794,66 @@ header{
             font-size: 1.5rem;
         }
         
+
+.stats-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+        width: 100%;
+        margin: 2rem auto;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .stats-header {
+        background-color: #2E8B57;
+        color: white;
+        padding: 1rem 1.5rem;
+    }
+    
+    .stats-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .stats-body {
+        padding: 1.5rem;
+    }
+    
+    .stat-item {
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-title {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .stat-value {
+        font-weight: 600;
+        color: #2E8B57;
+    }
+    
+    .progress-containers {
+        width: 100%;
+        height: 8px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-bars {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }        

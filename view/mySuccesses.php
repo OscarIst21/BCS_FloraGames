@@ -7,7 +7,6 @@ require_once __DIR__.'/../config/init.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis logros - Flora Games</title>
-   
     <link rel="stylesheet" href="../css/style.css">
      <link rel="stylesheet" href="../css/stylesMedia.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
@@ -90,59 +89,102 @@ require_once __DIR__.'/../config/init.php';
             </div>
 
             <div class="badges-container">
-        <div class="badges-header">
-            <h1 class="badges-title">Mis Insignias</h1>
-            <a href="" class="view-collection">
-                Ver colección
-            </a>
-        </div>
+                <div class="badges-header">
+                    <h1 class="badges-title">Mis Insignias</h1>
+                    <a href="" class="view-collection">
+                        Ver colección
+                    </a>
+                </div>
         
-        <div class="badges-grid">
-            <!-- Insignia 1 - Desbloqueada -->
-            <div class="badge-item">
-                <div class="badge-icon">
-                    <img src="../img/insignias/Botánico_novato.png" alt="Botanico novato">
-                </div>
-                <span class="badge-name">Botánico novato I</span>
-                <span class="badge-date">15/05/2023</span>
-            </div>
+                <div class="badges-grid">
+                    <div class="badge-item">
+                        <div class="badge-icon">
+                            <img src="../img/insignias/Botánico_novato.png" alt="Botanico novato">
+                        </div>
+                        <span class="badge-name">Botánico novato I</span>
+                        <span class="badge-date">15/05/2023</span>
+                    </div>
             
-            <!-- Insignia 2 - Desbloqueada -->
-            <div class="badge-item">
-                <div class="badge-icon">
-                    <img src="../img/insignias/Botánico_novatoII.png" alt="Botanico novato II">
-                </div>
-                <span class="badge-name">Botánico novato II</span>
-                <span class="badge-date">22/06/2023</span>
-            </div>
+                    <div class="badge-item">
+                        <div class="badge-icon">
+                            <img src="../img/insignias/Botánico_novatoII.png" alt="Botanico novato II">
+                        </div>
+                        <span class="badge-name">Botánico novato II</span>
+                        <span class="badge-date">22/06/2023</span>
+                    </div>
             
-            <!-- Insignia 3 - Desbloqueada -->
-            <div class="badge-item">
-                <div class="badge-icon">
-                    <img src="../img/insignias/Semilla_curiosa.png" alt="Semilla curiosa">
-                </div>
-                <span class="badge-name">Semilla curiosa</span>
-                <span class="badge-date">10/07/2023</span>
-            </div>
+                    <div class="badge-item">
+                        <div class="badge-icon">
+                            <img src="../img/insignias/Semilla_curiosa.png" alt="Semilla curiosa">
+                        </div>
+                        <span class="badge-name">Semilla curiosa</span>
+                        <span class="badge-date">10/07/2023</span>
+                    </div>
             
-            <!-- Insignia 4 - Bloqueada -->
-            <div class="badge-item">
-                <div class="badge-icon">
-                    <img src="../img/insignias/Semilla_curiosaII.png" alt="Semilla curiosa II">
-                </div>
-                <span class="badge-name">Semilla curiosa II</span>
-                <span class="badge-date">---</span>
-            </div>
-            
+                    <div class="badge-item">
+                        <div class="badge-icon">
+                            <img src="../img/insignias/Semilla_curiosaII.png" alt="Semilla curiosa II">
+                        </div>
+                        <span class="badge-name">Semilla curiosa II</span>
+                        <span class="badge-date">---</span>
+                    </div>
            
-            
+                </div>
+            </div>
         </div>
     </div>
-        </div>
-    </div>
-    <br>
     <div class="contenedor">
-        
+        <div class="stats-card">
+            <div class="stats-header">
+                <h2><i class="fas fa-chart-line"></i> Mis estadísticas</h2>
+            </div>
+            
+            <div class="stats-body">
+                <!-- Porcentaje de juegos ganados -->
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <span class="stat-title">Porcentaje de juegos ganados</span>
+                        <span class="stat-value">75%</span>
+                    </div>
+                    <div class="progress-containers">
+                        <div class="progress-bars" style="width: 75%; background-color: #2E8B57;"></div>
+                    </div>
+                </div>
+                
+                <!-- Tiempo promedio -->
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <span class="stat-title">Tiempo promedio por juego</span>
+                        <span class="stat-value">12 min 34s</span>
+                    </div>
+                    <div class="progress-containers">
+                        <div class="progress-bars" style="width: 60%; background-color: #588157;"></div>
+                    </div>
+                </div>
+                
+                <!-- Plantas aprendidas -->
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <span class="stat-title">Plantas aprendidas</span>
+                        <span class="stat-value">24/50</span>
+                    </div>
+                    <div class="progress-containers">
+                        <div class="progress-bars" style="width: 48%; background-color: #3A5A40;"></div>
+                    </div>
+                </div>
+                
+                <!-- Juegos jugados -->
+                <div class="stat-item">
+                    <div class="stat-info">
+                        <span class="stat-title">Juegos jugados</span>
+                        <span class="stat-value">156</span>
+                    </div>
+                    <div class="progress-containers">
+                        <div class="progress-bars" style="width: 100%; background-color: #344E41;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 
