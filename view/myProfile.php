@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__.'/../config/init.php';
-require_once __DIR__.'/../connection/database.php';
+require_once __DIR__ . '/../config/init.php';
+require_once __DIR__ . '/../connection/database.php';
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user'])) {
@@ -16,24 +16,23 @@ try {
     // Usar la clase Database para la conexión
     $db = new Database();
     $conn = $db->getConnection();
-    
+
     $stmt = $conn->prepare("SELECT nombre, correo_electronico as email, foto_perfil, color_fondo FROM usuarios WHERE id = :id");
     $stmt->bindParam(':id', $userId);
     $stmt->execute();
-    
+
     $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     // Si no hay foto de perfil, usar la predeterminada
     if (empty($userData['foto_perfil'])) {
         $userData['foto_perfil'] = 'usuario0.png';
     }
-    
+
     // Si no hay color de fondo, usar el predeterminado
     if (empty($userData['color_fondo'])) {
         $userData['color_fondo'] = '#f0f0f0';
     }
-    
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     // Error silencioso, usar datos de sesión como respaldo
     $userData = [
         'nombre' => $_SESSION['user'] ?? 'Usuario',
@@ -44,6 +43,7 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,8 +54,9 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
-    
+
 </head>
+
 <body>
     <?php include '../components/header.php'; ?>
     <div class="page-container">
@@ -64,14 +65,14 @@ try {
                 <div class="profile-header">
                     <h1>Mi Perfil</h1>
                     <div class="profile-pic-container">
-                        <img src="../img/foto_de_perfil/<?php echo htmlspecialchars($userData['foto_perfil']); ?>" 
-                             alt="Foto de perfil" 
-                             class="profile-pic"
-                             style="background-color: <?php echo htmlspecialchars($userData['color_fondo']); ?>">
+                        <img src="../img/foto_de_perfil/<?php echo htmlspecialchars($userData['foto_perfil']); ?>"
+                            alt="Foto de perfil"
+                            class="profile-pic"
+                            style="background-color: <?php echo htmlspecialchars($userData['color_fondo']); ?>">
                         <a href="#" class="edit-pic-btn" id="cambiarFoto" data-bs-toggle="modal" data-bs-target="#avatarModal"><i class="fa-solid fa-pencil"></i></a>
                     </div>
                 </div>
-                
+
                 <div class="profile-info">
                     <form action="../config/updateProfile.php" method="post" enctype="multipart/form-data" id="profileForm">
                         <div class="info-item">
@@ -80,7 +81,7 @@ try {
                             <a href="#" id="editarNombre" style="color: #436745;"><i class="fa-solid fa-pencil"></i></a>
                             <input type="text" name="nombre" id="nombreInput" value="<?php echo htmlspecialchars($userData['nombre']); ?>" style="display: none; width: 100%;" class="form-control">
                         </div>
-                        
+
                         <div class="info-item">
                             <span class="info-label">Correo electrónico: </span>
                             <span class="info-value"><?php echo htmlspecialchars($userData['email']); ?></span>
@@ -91,7 +92,7 @@ try {
                         <input type="hidden" name="avatar_seleccionado" id="avatarSeleccionado" value="">
                         <input type="hidden" name="color_fondo" id="colorFondo" value="#f0f0f0">
                         <input type="hidden" name="tipo_avatar" id="tipoAvatar" value="predefinido">
-                        
+
                         <div class="text-center mt-4">
                             <button type="submit" class="btnActions">Guardar cambios</button>
                         </div>
@@ -115,16 +116,16 @@ try {
                             <img src="../img/foto_de_perfil/<?php echo htmlspecialchars($userData['foto_perfil']); ?>" alt="Vista previa">
                         </div>
                     </div>
-                    
+
                     <h6 class="text-center mb-3">Avatares predefinidos</h6>
                     <div class="avatar-grid">
-                        <?php for($i = 0; $i <= 6; $i++): ?>
-                        <div class="avatar-option" data-avatar="usuario<?php echo $i; ?>.png">
-                            <img src="../img/foto_de_perfil/usuario<?php echo $i; ?>.png" alt="Avatar <?php echo $i; ?>">
-                        </div>
+                        <?php for ($i = 0; $i <= 7; $i++): ?>
+                            <div class="avatar-option" data-avatar="usuario<?php echo $i; ?>.png">
+                                <img src="../img/foto_de_perfil/usuario<?php echo $i; ?>.png" alt="Avatar <?php echo $i; ?>">
+                            </div>
                         <?php endfor; ?>
                     </div>
-                    
+
                     <h6 class="text-center mb-2">Color de fondo</h6>
                     <div class="color-options">
                         <div class="color-option selected" style="background-color: #f0f0f0;" data-color="#f0f0f0"></div>
@@ -134,7 +135,7 @@ try {
                         <div class="color-option" style="background-color: #fff9c4;" data-color="#fff9c4"></div>
                         <div class="color-option" style="background-color: #e1bee7;" data-color="#e1bee7"></div>
                     </div>
-                    
+
                     <div class="upload-section">
                         <p>¿Prefieres usar tu propia imagen?</p>
                         <button type="button" class="btn btn-outline-success" id="subirImagenBtn">Subir imagen</button>
@@ -152,6 +153,8 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
     <script src="../js/profile.js"></script>
 </body>
+
 </html>
 </body>
+
 </html>

@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $birthDate = new DateTime($fecha_nacimiento);
         $today = new DateTime();
         $age = $birthDate->diff($today)->y;
-        
+
         if ($birthDate > $today || $age < 5) {
             $_SESSION['sweet_alert'] = [
                 'type' => 'error',
@@ -97,8 +97,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $contrasena = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            $query = "INSERT INTO usuarios (nombre, fecha_de_nacimiento, correo_electronico, contrasena, puntos_ganados, nivel_de_usuario_id, juegos_ganados, plantas_aprendidas, musica_activada, foto_perfil)
-                      VALUES (:nombre, :fecha_nacimiento, :correo, :contrasena, 0, 1, 0, 0, 1, '')";
+            $query = "INSERT INTO usuarios (nombre, fecha_de_nacimiento, correo_electronico, contrasena, puntos_ganados, nivel_de_usuario_id, juegos_ganados, plantas_aprendidas, musica_activada, foto_perfil, color_fondo)
+                      VALUES (:nombre, :fecha_nacimiento, :correo, :contrasena, 0, 1, 0, 0, 1, '', '')";
             $stmt = $conn->prepare($query);
             $stmt->execute([
                 ':nombre' => $nombre,
@@ -109,7 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // Obtener el ID del usuario recién insertado (corregido para PDO)
             $userId = $conn->lastInsertId();
-            
+
             // Iniciar sesión automáticamente
             $_SESSION['usuario_id'] = $userId;
             $_SESSION['user'] = $nombre;
@@ -171,13 +171,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION['user'] = $user['nombre'];
                 $_SESSION['email'] = $user['correo_electronico'];
                 $_SESSION['nivel_id'] = $user['nivel_de_usuario_id'];
-                
+
                 // Configurar cookie de "recordarme" si está marcado
                 if (isset($_POST['remember']) && $_POST['remember'] == 'on') {
                     $cookie_value = $user['id'] . ':' . hash('sha256', $user['contrasena']);
                     setcookie('remember_me', $cookie_value, time() + 86400 * 30, "/"); // 30 días
                 }
-                
+
                 $_SESSION['sweet_alert'] = [
                     'type' => 'success',
                     'title' => '¡Bienvenido!',
@@ -206,4 +206,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 }
-?>
