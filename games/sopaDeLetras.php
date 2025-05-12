@@ -34,8 +34,8 @@
         }
         
         .reset-btn {
-            background-color: #f8f9fa;
-            color: #246741;
+            color: #f8f9fa;
+            background-color: #246741;
             border: none;
             padding: 8px 15px;
             border-radius: 5px;
@@ -45,7 +45,7 @@
         }
         
         .reset-btn:hover {
-            background-color: #e2e6ea;
+            background-color: #5ED646;
         }
         
         .level {
@@ -101,7 +101,6 @@
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
-            margin-top: 20px;
         }
         
         .word-item {
@@ -142,6 +141,59 @@
             background-color: #246741;
             color: white;
         }
+
+        .header-box{
+            background-color: #246741;
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            border-radius: 10px 10px 0px 0px;
+        }
+        .box{
+            background-color: white;
+            min-height: 50px;
+            border-radius: 0px 0px 10px 10px;
+            padding: 1rem;
+        }
+
+        .victory-stats {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.victory-stats p {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-header.bg-success {
+    background-color: #246741 !important;
+}
+
+#retry-btn {
+    background-color: #246741;
+    color: white;
+    border: none;
+}
+
+#retry-btn:hover {
+    background-color: #1a4d30;
+}
+
+#exit-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+#exit-btn:hover {
+    background-color: #5a6268;
+}
         
         @media (max-width: 576px) {
             .letter-cell {
@@ -159,15 +211,25 @@
 </head>
 <body>
     <?php include '../components/header.php'; ?>
+
+    <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <button class="reset-btn"><i class="fa-solid fa-volume-high"></i></button>
+            <h4><i class="fa-solid fa-clock"></i></h4>
+            <div class="timer" id="timer"> 00:00</div>
+        </div>
+        <div style="text-align:center">          
+            <h5>Sopa de letras</h5>
+            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
+        </div>
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <div><h4>0/10</h4></div>
+        <button class="reset-btn btn-success" id="reset-btn"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+        </div>
+    </div>
     
     <div class="page-container">
         <div class="game-container">
-            <div class="navbar">
-                <div class="level">Nivel: <span id="level-display">1</span></div>
-                <h2>Sopa de Letras</h2>
-                <div class="timer" id="timer">00:00</div>
-                <button class="reset-btn" id="reset-btn">Reiniciar</button>
-            </div>
             
             <div class="board-container">
                 <div class="letter-board" id="letter-board">
@@ -175,8 +237,16 @@
                 </div>
             </div>
             
-            <div class="word-list" id="word-list">
+            
+
+            <div class="box-list">
+                <div class="header-box">Palabras</div>
+                <div class="box">
+                    <div class="word-list" id="word-list">
                 <!-- Las palabras se generarán con JavaScript -->
+            </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -216,6 +286,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de victoria -->
+<div class="modal fade" id="victoryModal" tabindex="-1" aria-labelledby="victoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="victoryModalLabel">¡Bien hecho!</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p>Has completado esta partida</p>
+                <div class="victory-stats">
+                    <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
+                    <p><i class="fas fa-trophy me-2"></i> Nivel: <span id="victory-level">1</span></p>
+                    <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">100</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="retry-btn">Continuar</button>
+                <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
+            </div>
+        </div>
+    </div>
+</div>
     
     <?php include '../components/footer.php'; ?>
     
@@ -643,7 +736,7 @@
                 if (timeLimit > 0 && timeLimit - timeElapsed <= 30) {
                     timerElement.style.color = '#ff5252';
                 } else {
-                    timerElement.style.color = 'white';
+                    timerElement.style.color = '#246741';
                 }
             }
             
@@ -651,11 +744,34 @@
             function levelComplete() {
                 clearInterval(timerInterval);
                 
-                // Mostrar mensaje de éxito
-                alert(`¡Nivel ${levels[currentLevel].level} completado!`);
+                 // Calcular puntos (ajustar esta fórmula)
+                const points = Math.max(100, 500 - timeElapsed * 2);
+    
+                // Actualizar información en el modal
+                document.getElementById('victory-time').textContent = timerElement.textContent;
+                document.getElementById('victory-level').textContent = levels[currentLevel].level;
+                document.getElementById('victory-points').textContent = points;
+                
+                // Mostrar modal de victoria
+                const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+                victoryModal.show();
+                
+                // Configurar botones del modal
+                document.getElementById('retry-btn').addEventListener('click', function() {
+                    victoryModal.hide();
+                    if (currentLevel < levels.length - 1) {
+                    currentLevel++;
+                    initGame();
+                    }
+                });
+                
+                document.getElementById('exit-btn').addEventListener('click', function() {
+                    victoryModal.hide();
+                    window.location.href = '../view/gamesMenu.php'; 
+                });
                 
                 // Avanzar al siguiente nivel si existe
-                if (currentLevel < levels.length - 1) {
+              /*  if (currentLevel < levels.length - 1) {
                     currentLevel++;
                     initGame();
                 } else {
@@ -665,7 +781,7 @@
                     
                     // Mostrar modal de dificultad nuevamente
                     difficultyModal.show();
-                }
+                }*/
             }
             
             // Función para cuando se acaba el tiempo
