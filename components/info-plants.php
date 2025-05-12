@@ -84,6 +84,7 @@
     .plant-info {
         font-size: 1rem;
         line-height: 1.6;
+        text-align:start;
     }
     
     .plant-info strong {
