@@ -16,18 +16,7 @@
             margin: 0 auto;
             padding: 20px;
         }
-        
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #246741;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
+         
         .timer {
             font-size: 1.5rem;
             font-weight: bold;
@@ -230,15 +219,12 @@
     
     <div class="page-container">
         <div class="game-container">
-            
             <div class="board-container">
                 <div class="letter-board" id="letter-board">
                     <!-- Las letras se generarán con JavaScript -->
                 </div>
             </div>
             
-            
-
             <div class="box-list">
                 <div class="header-box">Palabras</div>
                 <div class="box">

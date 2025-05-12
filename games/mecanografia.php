@@ -17,25 +17,14 @@
             padding: 20px;
         }
         
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #246741;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
         .timer {
             font-size: 1.5rem;
             font-weight: bold;
         }
         
         .reset-btn {
-            background-color: #f8f9fa;
-            color: #246741;
+            color: #f8f9fa;
+            background-color: #246741;
             border: none;
             padding: 8px 15px;
             border-radius: 5px;
@@ -45,7 +34,7 @@
         }
         
         .reset-btn:hover {
-            background-color: #e2e6ea;
+            background-color: #5ED646;
         }
         
         .level {
@@ -236,19 +225,67 @@
                 width: 150px;
             }
         }
+
+        .victory-stats {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.victory-stats p {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-header.bg-success {
+    background-color: #246741 !important;
+}
+
+#continue-btn {
+    background-color: #246741;
+    color: white;
+    border: none;
+}
+
+#continue-btn:hover {
+    background-color: #1a4d30;
+}
+
+#exit-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+#exit-btn:hover {
+    background-color: #5a6268;
+}
     </style>
 </head>
 <body>
     <?php include '../components/header.php'; ?>
     
+<div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <button class="reset-btn"><i class="fa-solid fa-volume-high"></i></button>
+            <h4><i class="fa-solid fa-clock"></i></h4>
+            <div class="timer" id="timer"> 00:00</div>
+        </div>
+        <div style="text-align:center">          
+            <h5>Mecanografía</h5>
+            <div class="level">Modo <span id="level-display"></span></div>
+        </div>
+        <div style="display:flex; flex-direction:row; gap:10px">
+        <button class="reset-btn btn-success" id="reset-btn"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+        </div>
+    </div>
+
     <div class="page-container">
         <div class="game-container">
-            <div class="navbar">
-                <div class="level">Nivel: <span id="level-display">Fácil</span></div>
-                <h2>Mecanografía</h2>
-                <div class="timer" id="timer">00:00</div>
-                <button class="reset-btn" id="reset-btn">Reiniciar</button>
-            </div>
             
             <div class="typing-area">
                 <div class="word-display" id="word-display"></div>
@@ -346,6 +383,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de victoria -->
+<div class="modal fade" id="victoryModal" tabindex="-1" aria-labelledby="victoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="victoryModalLabel">¡Bien hecho!</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p>Has completado esta ronda</p>
+                <div class="victory-stats">
+                    <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
+                    <p><i class="fas fa-trophy me-2"></i> Modo: <span id="victory-mode">Fácil</span></p>
+                    <p><i class="fas fa-keyboard me-2"></i> PPM: <span id="victory-wpm">0</span></p>
+                    <p><i class="fas fa-bullseye me-2"></i> Precisión: <span id="victory-accuracy">100%</span></p>
+                    <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">0</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="continue-btn">Continuar</button>
+                <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
+            </div>
+        </div>
+    </div>
+</div>
     
     <?php include '../components/footer.php'; ?>
     
