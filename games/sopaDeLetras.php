@@ -42,6 +42,7 @@ if (isset($_SESSION['user'])) {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            margin: 60px auto 20px
         }
 
         .timer {
@@ -50,10 +51,9 @@ if (isset($_SESSION['user'])) {
         }
 
         .reset-btn {
-            color: #f8f9fa;
-            background-color: #246741;
+            color: #246741;
+            background-color: white;
             border: none;
-            padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
@@ -61,7 +61,8 @@ if (isset($_SESSION['user'])) {
         }
 
         .reset-btn:hover {
-            background-color: #5ED646;
+            background-color: #246741;
+            color:white;
         }
 
         .level {
@@ -232,14 +233,16 @@ if (isset($_SESSION['user'])) {
 
     <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
         <div style="display:flex; flex-direction:row; gap:10px">
+            <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'">
+               <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
+            </button>
             <button class="reset-btn" id="musicToggle">
-                <i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i>
+                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i></h5>
             </button>
             <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
                 <source src="../assets/musica.mp3" type="audio/mp3">
             </audio>
-            <h4><i class="fa-solid fa-clock"></i></h4>
-            <div class="timer" id="timer"> 00:00</div>
+            <button class="reset-btn btn-success" id="reset-btn"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
             <h5>Sopa de letras</h5>
@@ -249,9 +252,10 @@ if (isset($_SESSION['user'])) {
             <div>
                 <div style="display:flex; flex-direction:row; gap:10px">
                     <div>
-                        <h4><span id="found-words-count">0</span>/<span id="total-words-count">0</span></h4>
+                        <h5><span id="found-words-count">0</span>/<span id="total-words-count">0</span></h5>
                     </div>
-                    <button class="reset-btn btn-success" id="reset-btn"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+                    <h5><i class="fa-solid fa-clock"></i></h5>
+            <div class="timer"> <h5 id="timer"> 00:00</h5></div>
                 </div>
             </div>
         </div>
@@ -323,9 +327,9 @@ if (isset($_SESSION['user'])) {
                 <div class="modal-body text-center">
                     <p>Has completado esta partida</p>
                     <div class="victory-stats">
-                        <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
-                        <p><i class="fas fa-trophy me-2"></i> Nivel: <span id="victory-level">1</span></p>
-                        <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">100</span></p>
+                        <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time" style="margin-left: 5px;">00:00</span></p>
+                        <p><i class="fas fa-trophy me-2"></i> Nivel: <span id="victory-level" style="margin-left: 5px;">1</span></p>
+                        <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points" style="margin-left: 5px;">100</span></p>
                     </div>
                 </div>
                 <div class="modal-footer">

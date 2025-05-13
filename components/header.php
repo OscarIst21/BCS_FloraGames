@@ -20,5 +20,18 @@
         <div>
             <img style="max-width: 12rem; margin-bottom: 8px;" src="/BCS_FloraGames/img/logoFG.png" alt="">
         </div>
+<!--
+        <div>
+             if (isset($_SESSION['id_cliente'])) {
+            // Si la sesión está activa, mostrar el nombre del usuario en el botón de acceso
+            echo '
+            <a href="inicio.php" class="btnAcceder-gen">' . htmlspecialchars($_SESSION['nombre']) . ' <span><i class="fa-regular fa-circle-user"></i></span></a>';
+        } else {
+            // Si la sesión no está activa, mostrar el botón de "Acceder"
+            echo '
+            <a href="login.php" class="btnAcceder-gen">Acceder <span><i class="fa-regular fa-circle-user"></i></span></a>';
+        }
+        </div>
+                -->
     </div>
 </header>

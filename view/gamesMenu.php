@@ -74,7 +74,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-            <div class="card-head"><img src="../img/logosJuegos/puzzle.png" alt="Mecanografia"></div>
+            <div class="card-head"><img src="../img/logosJuegos/meca.png" alt="Mecanografia"></div>
             <div class="card-body">
                 <h3 class="card-title">Mecanografía</h3>
                 <form action="../games/mecanografia.php" method="get">

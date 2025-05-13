@@ -41,6 +41,7 @@ if (isset($_SESSION['user'])) {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            margin: 60px auto 20px
         }
 
         .timer {
@@ -49,10 +50,9 @@ if (isset($_SESSION['user'])) {
         }
 
         .reset-btn {
-            color: #f8f9fa;
-            background-color: #246741;
+            color: #246741;
+            background-color: white;
             border: none;
-            padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
@@ -60,7 +60,8 @@ if (isset($_SESSION['user'])) {
         }
 
         .reset-btn:hover {
-            background-color: #5ED646;
+            background-color: #246741;
+            color:white;
         }
 
         .level {
@@ -304,22 +305,27 @@ if (isset($_SESSION['user'])) {
     <?php include '../components/header.php'; ?>
 
     <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
-        <div style="display:flex; flex-direction:row; gap:10px">
+        <div style="display:flex; flex-direction:row; gap:5px">
+            <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'">
+                <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
+            </button>
             <button class="reset-btn" id="musicToggle">
-                <i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i>
+                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i></h5>
             </button>
             <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
                 <source src="../assets/musica.mp3" type="audio/mp3">
             </audio>
-            <h4><i class="fa-solid fa-clock"></i></h4>
-            <div class="timer" id="timer"> 00:00</div>
+
+            <button class="reset-btn btn-success" id="reset-btn"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
             <h5>Mecanografía</h5>
             <div class="level">Modo <span id="level-display"></span></div>
         </div>
         <div style="display:flex; flex-direction:row; gap:10px">
-            <button class="reset-btn btn-success" id="reset-btn"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+            
+            <h5><i class="fa-solid fa-clock"></i></h5>
+            <div class="timer"> <h5 id="timer"> 00:00</h5></div>
         </div>
     </div>
 
@@ -433,11 +439,11 @@ if (isset($_SESSION['user'])) {
                 <div class="modal-body text-center">
                     <p>Has completado esta ronda</p>
                     <div class="victory-stats">
-                        <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
-                        <p><i class="fas fa-trophy me-2"></i> Modo: <span id="victory-mode">Fácil</span></p>
-                        <p><i class="fas fa-keyboard me-2"></i> PPM: <span id="victory-wpm">0</span></p>
-                        <p><i class="fas fa-bullseye me-2"></i> Precisión: <span id="victory-accuracy">100%</span></p>
-                        <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">0</span></p>
+                        <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time" style="margin-left: 5px;"> 00:00</span></p>
+                        <p><i class="fas fa-trophy me-2"></i> Modo: <span id="victory-mode" style="margin-left: 5px;"> Fácil</span></p>
+                        <p><i class="fas fa-keyboard me-2"></i> PPM: <span id="victory-wpm" style="margin-left: 5px;"> 0</span></p>
+                        <p><i class="fas fa-bullseye me-2"></i> Precisión: <span id="victory-accuracy" style="margin-left: 5px;"> 100%</span></p>
+                        <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points" style="margin-left: 5px;"> 0</span></p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -451,389 +457,6 @@ if (isset($_SESSION['user'])) {
     <?php include '../components/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Palabras y frases para el juego
-            const words = {
-                easy: [
-                    'MARGARITA', 'GIRASOL', 'TULIPAN', 'ORQUIDEA', 'CRISANTEMO',
-                    'BEGONIA', 'GERANIO', 'AZUCENA', 'HORTENSIA', 'JAZMIN',
-                    'LAVANDA', 'MAGNOLIA', 'NARCISO', 'PETUNIA', 'VIOLETA',
-                    'AMAPOLA', 'DALIA', 'GARDENIA', 'HIBISCO', 'LIRIO'
-                ],
-                hard: [
-                    'Las plantas necesitan luz solar para crecer',
-                    'El girasol sigue la dirección del sol',
-                    'Las orquídeas son flores muy delicadas',
-                    'Los cactus almacenan agua en su tallo',
-                    'Las rosas tienen espinas para protegerse',
-                    'Los árboles producen oxígeno para respirar',
-                    'Las plantas carnívoras atrapan pequeños insectos',
-                    'El bambú es una de las plantas más rápidas',
-                    'Las flores atraen a abejas y mariposas',
-                    'Los helechos crecen mejor en la sombra'
-                ],
-                notime: [
-                    'MARGARITA', 'GIRASOL', 'ORQUIDEA', 'JAZMIN',
-                    'Las plantas necesitan luz solar',
-                    'El girasol sigue al sol',
-                    'Las rosas tienen espinas',
-                    'Los cactus almacenan agua'
-                ]
-            };
-
-            // Variables del juego
-            let currentWord = '';
-            let currentWords = [];
-            let currentWordIndex = 0;
-            let currentLetterIndex = 0;
-            let correctLetters = 0;
-            let incorrectLetters = 0;
-            let totalWords = 0;
-            let startTime = null;
-            let timerInterval = null;
-            let timeElapsed = 0;
-            let gameMode = 'easy'; // Por defecto
-
-            // Elementos del DOM
-            const wordDisplay = document.getElementById('word-display');
-            const progressBar = document.getElementById('progress');
-            const timerElement = document.getElementById('timer');
-            const resetButton = document.getElementById('reset-btn');
-            const wordsCount = document.getElementById('words-count');
-            const accuracyElement = document.getElementById('accuracy');
-            const wpmElement = document.getElementById('wpm');
-            const levelDisplay = document.getElementById('level-display');
-            const keys = document.querySelectorAll('.key');
-
-            // Modales
-            const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
-            const instructionsModal = new bootstrap.Modal(document.getElementById('instructionsModal'));
-
-            // Mostrar modal de dificultad al cargar la página
-            difficultyModal.show();
-
-            // Configurar botones de dificultad
-            const difficultyButtons = document.querySelectorAll('.difficulty-btn');
-            difficultyButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Quitar selección anterior
-                    difficultyButtons.forEach(btn => btn.classList.remove('selected'));
-                    // Añadir selección actual
-                    this.classList.add('selected');
-
-                    // Establecer modo de juego
-                    gameMode = this.dataset.difficulty;
-                    levelDisplay.textContent = this.textContent;
-
-                    // Cerrar modal de dificultad
-                    difficultyModal.hide();
-
-                    // Verificar si es la primera vez que se juega
-                    if (!localStorage.getItem('mecanografiaInstructionsShown')) {
-                        instructionsModal.show();
-                    } else {
-                        // Iniciar juego
-                        initGame();
-                    }
-                });
-            });
-
-            // Configurar botones de instrucciones
-            document.getElementById('skipInstructions').addEventListener('click', function() {
-                instructionsModal.hide();
-                initGame();
-            });
-
-            document.getElementById('dontShowAgain').addEventListener('click', function() {
-                localStorage.setItem('mecanografiaInstructionsShown', 'true');
-                instructionsModal.hide();
-                initGame();
-            });
-
-            // Función para inicializar el juego
-            function initGame() {
-                // Reiniciar variables
-                currentIndex = 0;
-                correctLetters = 0;
-                incorrectLetters = 0;
-                timeElapsed = 0;
-
-                // Mostrar nueva palabra
-                showNewWord();
-
-                // Iniciar temporizador
-                startTimer();
-
-                // Enfocar el juego para capturar teclas
-                window.focus();
-
-                // Configurar evento de reinicio
-                resetButton.addEventListener('click', resetGame);
-
-                // Configurar evento de teclado
-                document.addEventListener('keydown', handleKeyPress);
-            }
-
-            // Función para mostrar una nueva palabra o frase
-            function showNewWord() {
-                // Seleccionar palabra aleatoria según el modo de juego
-                const wordList = words[gameMode];
-                const randomIndex = Math.floor(Math.random() * wordList.length);
-                const selectedText = wordList[randomIndex].toUpperCase();
-
-                // Dividir en palabras si es una frase
-                currentWords = selectedText.split(' ');
-                currentWordIndex = 0;
-                currentLetterIndex = 0;
-
-                // Limpiar display
-                wordDisplay.innerHTML = '';
-
-                // Crear contenedores para cada palabra
-                for (let i = 0; i < currentWords.length; i++) {
-                    const wordContainer = document.createElement('div');
-                    wordContainer.className = 'word-container';
-
-                    // Solo la primera palabra está activa al inicio
-                    if (i === 0) {
-                        wordContainer.classList.add('active');
-                    }
-
-                    // Crear elementos para cada letra de la palabra
-                    for (let j = 0; j < currentWords[i].length; j++) {
-                        const letterElement = document.createElement('span');
-                        letterElement.className = 'letter';
-                        letterElement.textContent = currentWords[i][j];
-
-                        // La primera letra de la primera palabra es la actual
-                        if (i === 0 && j === 0) {
-                            letterElement.classList.add('current');
-                        }
-
-                        wordContainer.appendChild(letterElement);
-                    }
-
-                    // Añadir un espacio visual después de cada palabra (excepto la última)
-                    if (i < currentWords.length - 1) {
-                        const spaceIndicator = document.createElement('span');
-                        spaceIndicator.className = 'space-indicator';
-                        wordContainer.appendChild(spaceIndicator);
-                    }
-
-                    wordDisplay.appendChild(wordContainer);
-                }
-
-                // Reiniciar barra de progreso
-                progressBar.style.width = '0%';
-
-                // Actualizar palabra actual
-                currentWord = currentWords[0];
-            }
-
-            // Función para manejar las pulsaciones de teclas
-            function handleKeyPress(e) {
-                // Ignorar teclas especiales
-                if (e.ctrlKey || e.altKey || e.metaKey) return;
-
-                // Prevenir el comportamiento predeterminado para la tecla de espacio
-                if (e.key === ' ' || e.code === 'Space') {
-                    e.preventDefault();
-                }
-
-                // Obtener la tecla presionada
-                const key = e.key.toUpperCase();
-
-                // Animar tecla en el teclado virtual
-                animateKey(key.toLowerCase());
-
-                // Si ya completamos todas las palabras, mostrar una nueva frase
-                if (currentWordIndex >= currentWords.length) {
-                    totalWords += currentWords.length;
-                    wordsCount.textContent = totalWords;
-                    showNewWord();
-                    return;
-                }
-
-                // Obtener los contenedores de palabras y las letras de la palabra actual
-                const wordContainers = wordDisplay.querySelectorAll('.word-container');
-                const currentWordContainer = wordContainers[currentWordIndex];
-                const letterElements = currentWordContainer.querySelectorAll('.letter');
-                const spaceIndicator = currentWordContainer.querySelector('.space-indicator');
-
-                // Verificar si hemos completado la palabra actual y necesitamos un espacio
-                if (currentLetterIndex >= currentWord.length && currentWordIndex < currentWords.length - 1) {
-                    // Si hay un indicador de espacio, marcarlo como actual
-                    if (spaceIndicator && !spaceIndicator.classList.contains('current')) {
-                        spaceIndicator.classList.add('current');
-                    }
-
-                    // Si se presiona espacio, avanzar a la siguiente palabra
-                    if (key === ' ') {
-                        // Quitar la marca actual del espacio
-                        if (spaceIndicator) {
-                            spaceIndicator.classList.remove('current');
-                        }
-
-                        currentWordIndex++;
-                        currentLetterIndex = 0;
-                        currentWord = currentWords[currentWordIndex];
-
-                        // Activar la siguiente palabra
-                        wordContainers[currentWordIndex].classList.add('active');
-
-                        // Marcar la primera letra de la siguiente palabra como actual
-                        const nextLetterElements = wordContainers[currentWordIndex].querySelectorAll('.letter');
-                        if (nextLetterElements.length > 0) {
-                            nextLetterElements[0].classList.add('current');
-                        }
-
-                        correctLetters++; // Contar el espacio como letra correcta
-
-                        // Actualizar barra de progreso
-                        const totalLetters = currentWords.join(' ').length;
-                        const completedLetters = currentWords.slice(0, currentWordIndex).join(' ').length + 1; // +1 por el espacio
-                        const progress = (completedLetters / totalLetters) * 100;
-                        progressBar.style.width = `${progress}%`;
-
-                        // Actualizar estadísticas
-                        updateStats();
-                        return;
-                    } else {
-                        // Tecla incorrecta cuando se esperaba un espacio
-                        incorrectLetters++;
-                        // Actualizar estadísticas
-                        updateStats();
-                        return;
-                    }
-                }
-
-                // Verificar si la tecla es correcta para la letra actual
-                const currentLetter = currentWord[currentLetterIndex];
-
-                if (key === currentLetter) {
-                    // Letra correcta
-                    letterElements[currentLetterIndex].classList.remove('current');
-                    letterElements[currentLetterIndex].classList.add('correct');
-
-                    currentLetterIndex++;
-                    correctLetters++;
-
-                    // Si completamos la palabra actual
-                    if (currentLetterIndex >= currentWord.length) {
-                        // Si no es la última palabra, mostrar el indicador de espacio
-                        if (currentWordIndex < currentWords.length - 1 && spaceIndicator) {
-                            spaceIndicator.classList.add('current');
-                        } else if (currentWordIndex === currentWords.length - 1) {
-                            // Si es la última palabra y la completamos, mostrar nueva frase
-                            setTimeout(() => {
-                                totalWords += currentWords.length;
-                                wordsCount.textContent = totalWords;
-                                showNewWord();
-                            }, 500);
-                        }
-                    } else {
-                        // Marcar la siguiente letra como actual
-                        letterElements[currentLetterIndex].classList.add('current');
-                    }
-
-                    // Actualizar barra de progreso
-                    const totalLetters = currentWords.join(' ').length;
-                    const completedLetters = currentWords.slice(0, currentWordIndex).join(' ').length + currentLetterIndex;
-                    const progress = (completedLetters / totalLetters) * 100;
-                    progressBar.style.width = `${progress}%`;
-                } else {
-                    // Letra incorrecta
-                    letterElements[currentLetterIndex].classList.add('incorrect');
-                    incorrectLetters++;
-                }
-
-                // Actualizar estadísticas
-                updateStats();
-            }
-
-            // Función para animar tecla en el teclado virtual
-            function animateKey(key) {
-                // Normalizar la tecla (para espacio y otros caracteres especiales)
-                if (key === ' ') key = ' ';
-
-                // Buscar la tecla en el teclado virtual
-                const keyElement = document.querySelector(`.key[data-key="${key}"]`);
-
-                if (keyElement) {
-                    // Añadir clase activa
-                    keyElement.classList.add('active');
-
-                    // Quitar clase después de un breve tiempo
-                    setTimeout(() => {
-                        keyElement.classList.remove('active');
-                    }, 100);
-                }
-            }
-
-            // Función para actualizar estadísticas
-            function updateStats() {
-                // Calcular precisión
-                const totalLetters = correctLetters + incorrectLetters;
-                const accuracy = totalLetters > 0 ? Math.round((correctLetters / totalLetters) * 100) : 100;
-                accuracyElement.textContent = `${accuracy}%`;
-
-                // Calcular palabras por minuto (PPM)
-                if (startTime) {
-                    const minutes = (Date.now() - startTime) / 60000;
-                    const wpm = minutes > 0 ? Math.round(totalWords / minutes) : 0;
-                    wpmElement.textContent = wpm;
-                }
-            }
-
-            // Función para iniciar el temporizador
-            function startTimer() {
-                // Registrar tiempo de inicio
-                startTime = Date.now();
-
-                // Detener temporizador anterior si existe
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                }
-
-                // Si es modo sin tiempo, mostrar un guión
-                if (gameMode === 'notime') {
-                    timerElement.textContent = '--:--';
-                    return;
-                }
-
-                // Actualizar temporizador cada segundo
-                timerInterval = setInterval(() => {
-                    timeElapsed++;
-                    updateTimerDisplay();
-                }, 1000);
-            }
-
-            // Función para actualizar la visualización del temporizador
-            function updateTimerDisplay() {
-                const minutes = Math.floor(timeElapsed / 60);
-                const seconds = timeElapsed % 60;
-                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-
-            // Función para reiniciar el juego
-            function resetGame() {
-                // Detener temporizador
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                }
-
-                // Reiniciar estadísticas
-                totalWords = 0;
-                wordsCount.textContent = totalWords;
-                accuracyElement.textContent = '100%';
-                wpmElement.textContent = '0';
-
-                // Reiniciar juego
-                initGame();
-            }
-        });
-    </script>
 </body>
 
 </html>
@@ -971,11 +594,12 @@ if (isset($_SESSION['user'])) {
         document.getElementById('continue-btn').addEventListener('click', function() {
             const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
             victoryModal.hide();
+            document.querySelector('.modal-backdrop')?.remove();
             resetGame();
         });
         
         document.getElementById('exit-btn').addEventListener('click', function() {
-            window.location.href = '../index.php';
+            window.location.href = '../view/gamesMenu.php';
         });
 
         document.getElementById('dontShowAgain').addEventListener('click', function() {
