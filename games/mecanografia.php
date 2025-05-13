@@ -2,25 +2,25 @@
 require_once __DIR__ . '/../config/init.php';
 require_once __DIR__ . '/../connection/database.php';
 
-// Verify user authentication
-if (!isset($_SESSION['user'])) {
-    header("Location: /BCS_FloraGames/view/login.php");
-    exit();
-}
+// Variables para usuarios no autenticados
+$userId = null;
+$musicEnabled = true; // Valor predeterminado
 
-// Get music preference from database
-$userId = $_SESSION['usuario_id'];
-$musicEnabled = true; // Default value
-
-try {
-    $db = new Database();
-    $conn = $db->getConnection();
-    $stmt = $conn->prepare("SELECT musica_activada FROM usuarios WHERE id = ?");
-    $stmt->execute([$userId]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $musicEnabled = (bool)$result['musica_activada'];
-} catch (PDOException $e) {
-    error_log("Error fetching music preference: " . $e->getMessage());
+// Verificar si el usuario está autenticado
+if (isset($_SESSION['user'])) {
+    // Obtener preferencia de música de la base de datos
+    $userId = $_SESSION['usuario_id'];
+    
+    try {
+        $db = new Database();
+        $conn = $db->getConnection();
+        $stmt = $conn->prepare("SELECT musica_activada FROM usuarios WHERE id = ?");
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $musicEnabled = (bool)$result['musica_activada'];
+    } catch (PDOException $e) {
+        error_log("Error fetching music preference: " . $e->getMessage());
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -863,14 +863,16 @@ try {
 
         // Function to update music preference
         function updateMusicPreference(enabled) {
+            <?php if (isset($_SESSION['user'])): ?>
             fetch('../config/updateMusicPreference.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `music_enabled=${enabled}`
-                })
-                .catch(error => console.error('Error updating music preference:', error));
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `music_enabled=${enabled}`
+            })
+            .catch(error => console.error('Error updating music preference:', error));
+            <?php endif; ?>
         }
 
         // Palabras y frases para el juego
@@ -963,6 +965,17 @@ try {
         document.getElementById('skipInstructions').addEventListener('click', function() {
             instructionsModal.hide();
             initGame();
+        });
+        
+        // Configurar botones del modal de victoria
+        document.getElementById('continue-btn').addEventListener('click', function() {
+            const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
+            victoryModal.hide();
+            resetGame();
+        });
+        
+        document.getElementById('exit-btn').addEventListener('click', function() {
+            window.location.href = '../index.php';
         });
 
         document.getElementById('dontShowAgain').addEventListener('click', function() {
@@ -1204,6 +1217,33 @@ try {
                 const wpm = minutes > 0 ? Math.round(totalWords / minutes) : 0;
                 wpmElement.textContent = wpm;
             }
+            
+            // Verificar si se ha completado el juego (10 palabras)
+            if (totalWords >= 10 && gameMode !== 'notime') {
+                handleVictory();
+            }
+        }
+        
+        // Función para calcular precisión actual
+        function calculateAccuracy() {
+            const totalLetters = correctLetters + incorrectLetters;
+            return totalLetters > 0 ? Math.round((correctLetters / totalLetters) * 100) : 100;
+        }
+        
+        // Función para calcular PPM actual
+        function calculateWPM() {
+            if (startTime) {
+                const minutes = (Date.now() - startTime) / 60000;
+                return minutes > 0 ? Math.round(totalWords / minutes) : 0;
+            }
+            return 0;
+        }
+        
+        // Función para formatear el tiempo
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
 
         // Función para iniciar el temporizador
@@ -1251,6 +1291,83 @@ try {
 
             // Reiniciar juego
             initGame();
+        }
+        
+        // Función para manejar la victoria
+        function handleVictory() {
+            // Detener el temporizador
+            clearInterval(timerInterval);
+            
+            // Calcular estadísticas finales
+            const finalWpm = calculateWPM();
+            const finalAccuracy = calculateAccuracy();
+            
+            // Calcular puntos basados en precisión y velocidad
+            const points = calculatePoints(finalWpm, finalAccuracy, gameMode);
+            
+            // Actualizar estadísticas en el modal de victoria
+            document.getElementById('victory-time').textContent = formatTime(timeElapsed);
+            document.getElementById('victory-mode').textContent = gameMode === 'easy' ? 'Fácil' : 
+                                                                 gameMode === 'hard' ? 'Difícil' : 'Sin tiempo';
+            document.getElementById('victory-wpm').textContent = finalWpm;
+            document.getElementById('victory-accuracy').textContent = finalAccuracy + '%';
+            document.getElementById('victory-points').textContent = points;
+            
+            // Mostrar modal de victoria
+            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+            victoryModal.show();
+            
+            // Si el usuario está autenticado, guardar puntos
+            <?php if (isset($_SESSION['usuario_id'])): ?>
+            savePoints(points);
+            <?php endif; ?>
+        }
+        
+        // Función para calcular puntos basados en precisión y velocidad
+        function calculatePoints(wpm, accuracy, gameMode) {
+            // Base de puntos según el modo de juego
+            let basePoints = 100;
+            if (gameMode === 'hard') {
+                basePoints = 200;
+            } else if (gameMode === 'notime') {
+                basePoints = 150;
+            }
+            
+            // Multiplicador de precisión (0.5 a 1.5)
+            const accuracyMultiplier = Math.max(0.5, Math.min(1.5, accuracy / 100 * 1.5));
+            
+            // Multiplicador de velocidad (0.5 a 2.0)
+            const wpmMultiplier = Math.max(0.5, Math.min(2.0, wpm / 50));
+            
+            // Calcular puntos totales
+            return Math.round(basePoints * accuracyMultiplier * wpmMultiplier);
+        }
+        
+        // Función para guardar puntos en la base de datos
+        function savePoints(points) {
+            console.log('Intentando guardar puntos:', points);
+            
+            fetch('../config/updatePoints.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `points=${points}&game=mecanografia`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error('Error al actualizar puntos: ' + text);
+                    });
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log('Puntos actualizados correctamente:', data);
+            })
+            .catch(error => {
+                console.error('Error completo:', error);
+            });
         }
     });
 </script>

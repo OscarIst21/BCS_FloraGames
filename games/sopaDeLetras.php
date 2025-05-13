@@ -2,26 +2,27 @@
 require_once __DIR__ . '/../config/init.php';
 require_once __DIR__ . '/../connection/database.php';
 
-// Verify user authentication
-if (!isset($_SESSION['user'])) {
-    header("Location: /BCS_FloraGames/view/login.php");
-    exit();
+// Variables para usuarios no autenticados
+$userId = null;
+$musicEnabled = true; // Valor predeterminado
+
+// Verificar si el usuario está autenticado
+if (isset($_SESSION['user'])) {
+    // Obtener preferencia de música de la base de datos
+    $userId = $_SESSION['usuario_id'];
+    
+    try {
+        $db = new Database();
+        $conn = $db->getConnection();
+        $stmt = $conn->prepare("SELECT musica_activada FROM usuarios WHERE id = ?");
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $musicEnabled = (bool)$result['musica_activada'];
+    } catch (PDOException $e) {
+        error_log("Error fetching music preference: " . $e->getMessage());
+    }
 }
 
-// Get music preference from database
-$userId = $_SESSION['usuario_id'];
-$musicEnabled = true; // Default value
-
-try {
-    $db = new Database();
-    $conn = $db->getConnection();
-    $stmt = $conn->prepare("SELECT musica_activada FROM usuarios WHERE id = ?");
-    $stmt->execute([$userId]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $musicEnabled = (bool)$result['musica_activada'];
-} catch (PDOException $e) {
-    error_log("Error fetching music preference: " . $e->getMessage());
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -807,32 +808,27 @@ try {
                 const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
                 victoryModal.show();
 
-                // Configurar botones del modal
+                // Configurar botones del modal de victoria
                 document.getElementById('retry-btn').addEventListener('click', function() {
-                    victoryModal.hide();
+                    // Cerrar modal
+                    bootstrap.Modal.getInstance(document.getElementById('victoryModal')).hide();
+                    
+                    // Avanzar al siguiente nivel o reiniciar si es el último
                     if (currentLevel < levels.length - 1) {
                         currentLevel++;
-                        initGame();
+                    } else {
+                        currentLevel = 0;
                     }
+                    
+                    // Reiniciar juego con el nuevo nivel
+                    initGame();
                 });
-
+                
                 document.getElementById('exit-btn').addEventListener('click', function() {
-                    victoryModal.hide();
+                    // Redirigir al menú de juegos
                     window.location.href = '../view/gamesMenu.php';
                 });
 
-                // Avanzar al siguiente nivel si existe
-                /*  if (currentLevel < levels.length - 1) {
-                      currentLevel++;
-                      initGame();
-                  } else {
-                      // Juego completado
-                      alert('¡Felicidades! Has completado todos los niveles.');
-                      currentLevel = 0;
-                      
-                      // Mostrar modal de dificultad nuevamente
-                      difficultyModal.show();
-                  }*/
             }
 
             // Función para cuando se acaba el tiempo
@@ -872,6 +868,7 @@ try {
 
         // Function to update music preference in database
         function updateMusicPreference(enabled) {
+            <?php if (isset($_SESSION['user'])): ?>
             fetch('../config/updateMusicPreference.php', {
                     method: 'POST',
                     headers: {
@@ -880,20 +877,82 @@ try {
                     body: `music_enabled=${enabled}`
                 })
                 .catch(error => console.error('Error updating music preference:', error));
+            <?php endif; ?>
         }
 
-        // Function to save points to database
+        // Función para guardar puntos
+        // Función para guardar puntos
         function savePoints(points) {
+            console.log('Intentando guardar puntos:', points); // Añadir para depuración
+            
             fetch('../config/updatePoints.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `points=${points}&game=sopaletras`
+                    body: `points=${points}&game=sopaDeLetras`
                 })
-                .catch(error => console.error('Error saving points:', error));
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('Error al actualizar puntos: ' + text);
+                        });
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log('Puntos actualizados correctamente:', data);
+                })
+                .catch(error => {
+                    console.error('Error completo:', error);
+                });
         }
+
+        // Función para calcular puntos
+        function calculatePoints() {
+            // Base de puntos según el nivel
+            const basePoints = currentLevel  + 100;
+            
+            // Bonificación por tiempo restante (solo en modos con tiempo)
+            let timeBonus = 0;
+            if (gameMode !== 'notime' && timeLimit > 0) {
+                // Porcentaje de tiempo restante
+                const timePercentage = 1 - (timeElapsed / timeLimit);
+                timeBonus = Math.round(basePoints * timePercentage * 0.5);
+            }
+            
+            // Bonificación por dificultad
+            let difficultyMultiplier = 1;
+            if (gameMode === 'hard') {
+                difficultyMultiplier = 1.5;
+            }
+            
+            return Math.round((basePoints + timeBonus) * difficultyMultiplier);
+        }
+
+        // Función para manejar la victoria
+        function handleVictory() {
+            // Detener el temporizador
+            clearInterval(timerInterval);
+            
+            // Actualizar estadísticas de victoria
+            document.getElementById('victory-time').textContent = formatTime(timeElapsed);
+            document.getElementById('victory-level').textContent = levels[currentLevel].level;
+
+            // Calcular puntos basados en el tiempo y nivel
+            let points = calculatePoints();
+            document.getElementById('victory-points').textContent = points;
+
+            // Mostrar modal de victoria
+            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+            victoryModal.show();
+
+            // Si el usuario está autenticado, guardar puntos
+            <?php if (isset($_SESSION['user'])): ?>
+            savePoints(points);
+            <?php endif; ?>
+        }
+        
     </script>
 </body>
-
 </html>

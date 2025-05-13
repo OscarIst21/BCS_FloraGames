@@ -2,34 +2,36 @@
 session_start();
 require_once __DIR__ . '/../connection/database.php';
 
-if (!isset($_SESSION['usuario_id']) || !isset($_POST['points']) || !isset($_POST['game'])) {
-    http_response_code(400);
-    exit('Invalid request');
+// Verificar si el usuario está autenticado
+if (!isset($_SESSION['usuario_id'])) {
+    http_response_code(401);
+    echo "Usuario no autenticado";
+    exit;
 }
+
+// Verificar si se recibieron los parámetros necesarios
+if (!isset($_POST['points']) || !isset($_POST['game'])) {
+    http_response_code(400);
+    echo "Faltan parámetros requeridos";
+    exit;
+}
+
+$userId = $_SESSION['usuario_id'];
+$points = intval($_POST['points']);
+$game = $_POST['game'];
 
 try {
     $db = new Database();
     $conn = $db->getConnection();
-
-    // Insert game points record
-    $stmt = $conn->prepare("INSERT INTO puntuaciones (usuario_id, juego, puntos, fecha) VALUES (?, ?, ?, NOW())");
-    $stmt->execute([
-        $_SESSION['usuario_id'],
-        $_POST['game'],
-        (int)$_POST['points']
-    ]);
-
-    // Update user's total points
-    $stmt = $conn->prepare("UPDATE usuarios SET puntos = puntos + ? WHERE id = ?");
-    $stmt->execute([
-        (int)$_POST['points'],
-        $_SESSION['usuario_id']
-    ]);
-
-    http_response_code(200);
-    echo 'Success';
+    
+    // Actualizar puntos ganados del usuario
+    $stmt = $conn->prepare("UPDATE usuarios SET puntos_ganados = puntos_ganados + ? WHERE id = ?");
+    $stmt->execute([$points, $userId]);
+    
+    echo "Puntos actualizados correctamente";
 } catch (PDOException $e) {
-    error_log("Error updating points: " . $e->getMessage());
     http_response_code(500);
-    echo 'Error updating points';
+    echo "Error al actualizar puntos: " . $e->getMessage();
+    exit;
 }
+?>
