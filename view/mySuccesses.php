@@ -1,5 +1,41 @@
 <?php
 require_once __DIR__.'/../config/init.php';
+require_once __DIR__.'/../connection/database.php'; // Añadir esta línea
+
+// Obtener datos del ranking
+$rankingData = [];
+$userRank = null;
+$currentUserId = isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null;
+
+try {
+    $db = new Database();
+    $conn = $db->getConnection();
+    
+    // Consultar el top 5 del ranking
+    $stmt = $conn->prepare("
+        SELECT r.usuario_id, r.posicion, r.puntos_ganados, u.nombre 
+        FROM ranking r
+        JOIN usuarios u ON r.usuario_id = u.id
+        ORDER BY r.posicion ASC
+        LIMIT 5
+    ");
+    $stmt->execute();
+    $rankingData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Consultar la posición del usuario actual si está autenticado
+    if ($currentUserId) {
+        $stmt = $conn->prepare("
+            SELECT r.posicion, r.puntos_ganados
+            FROM ranking r
+            WHERE r.usuario_id = ?
+        ");
+        $stmt->execute([$currentUserId]);
+        $userRank = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+} catch (PDOException $e) {
+    // Manejar error de base de datos
+    error_log("Error al obtener ranking: " . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -25,37 +61,59 @@ require_once __DIR__.'/../config/init.php';
                 <p class="leaderboard-subtitle">Los mejores jugadores de Flora Games</p>
             </div>  
             <ul class="leaderboard-list">
-                <li class="leaderboard-item first-place top-three">
-                    <span class="leaderboard-position">1</span>
-                    <div class="user-badge"><i class="fas fa-crown"></i></div>
-                    <span class="leaderboard-user">USERNAME_01</span>
-                    <span class="leaderboard-score">1250 pts</span>
-                </li>
-                <li class="leaderboard-item second-place top-three">
-                    <span class="leaderboard-position">2</span>
-                    <div class="user-badge"><i class="fas fa-medal"></i></div>
-                    <span class="leaderboard-user">USERNAME_02</span>
-                    <span class="leaderboard-score">1150 pts</span>
-                </li>
-                <li class="leaderboard-item third-place top-three">
-                    <span class="leaderboard-position">3</span>
-                    <div class="user-badge"><i class="fas fa-medal"></i></div>
-                    <span class="leaderboard-user">USERNAME_03</span>
-                    <span class="leaderboard-score">1050 pts</span>
-                </li>
-                <li class="leaderboard-item">
-                    <span class="leaderboard-position">4</span>
-                    <div class="user-badge">4</div>
-                    <span class="leaderboard-user">USERNAME_04</span>
-                    <span class="leaderboard-score">950 pts</span>
-                </li>
-                <li class="leaderboard-item">
-                    <span class="leaderboard-position">5</span>
-                    <div class="user-badge">5</div>
-                    <span class="leaderboard-user">USERNAME_05</span>
-                    <span class="leaderboard-score">850 pts</span>
-                </li>
+                <?php if (empty($rankingData)): ?>
+                    <li class="leaderboard-item">
+                        <span class="leaderboard-position">-</span>
+                        <div class="user-badge"><i class="fas fa-user"></i></div>
+                        <span class="leaderboard-user">No hay datos disponibles</span>
+                        <span class="leaderboard-score">0 pts</span>
+                    </li>
+                <?php else: ?>
+                    <?php foreach ($rankingData as $index => $player): ?>
+                        <?php 
+                            $position = $player['posicion'];
+                            $isCurrentUser = ($player['usuario_id'] == $currentUserId);
+                            $positionClass = '';
+                            $iconClass = '';
+                            
+                            if ($position == 1) {
+                                $positionClass = 'first-place top-three';
+                                $iconClass = 'fas fa-crown';
+                            } elseif ($position == 2) {
+                                $positionClass = 'second-place top-three';
+                                $iconClass = 'fas fa-medal';
+                            } elseif ($position == 3) {
+                                $positionClass = 'third-place top-three';
+                                $iconClass = 'fas fa-medal';
+                            } else {
+                                $iconClass = 'fas fa-user';
+                            }
+                            
+                            if ($isCurrentUser) {
+                                $positionClass .= ' current-user';
+                            }
+                        ?>
+                        <li class="leaderboard-item <?php echo $positionClass; ?>">
+                            <span class="leaderboard-position"><?php echo $position; ?></span>
+                            <div class="user-badge"><i class="<?php echo $iconClass; ?>"></i></div>
+                            <span class="leaderboard-user"><?php echo htmlspecialchars($player['nombre']); ?></span>
+                            <span class="leaderboard-score"><?php echo $player['puntos_ganados']; ?> pts</span>
+                        </li>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </ul>
+            
+            <?php if ($currentUserId && $userRank && $userRank['posicion'] > 5): ?>
+            <div class="user-current-rank">
+                <hr>
+                <li class="leaderboard-item current-user">
+                    <span class="leaderboard-position"><?php echo $userRank['posicion']; ?></span>
+                    <div class="user-badge"><i class="fas fa-user"></i></div>
+                    <span class="leaderboard-user">Tú</span>
+                    <span class="leaderboard-score"><?php echo $userRank['puntos_ganados']; ?> pts</span>
+                </li>
+            </div>
+            <?php endif; ?>
         </div>
 
         <div class="contenedor-secundario">

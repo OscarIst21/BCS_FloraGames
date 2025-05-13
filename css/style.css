@@ -949,3 +949,17 @@ display: flex;
 gap: 20px;
 padding: 0 5%;
 }
+
+.leaderboard-item.current-user {
+    background-color: rgba(46, 139, 87, 0.2);
+    border-left: 4px solid #2E8B57;
+}
+
+.user-current-rank {
+    margin-top: 10px;
+}
+
+.user-current-rank hr {
+    border-top: 1px dashed #ccc;
+    margin: 10px 0;
+}
