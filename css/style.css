@@ -1006,3 +1006,57 @@ padding: 0 5%;
     border-top: 1px dashed #ccc;
     margin: 10px 0;
 }
+/* Estilos para el modal de insignias */
+.badges-grid-modal {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.badge-item-modal {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.badge-item-modal:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.badge-icon-modal {
+    width: 60px;
+    height: 60px;
+    margin-right: 1rem;
+}
+
+.badge-icon-modal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.badge-info-modal {
+    flex: 1;
+}
+
+.badge-name-modal {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.badge-description-modal {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-bottom: 0.5rem;
+}
+
+.badge-date-modal {
+    font-size: 0.8rem;
+    color: #95a5a6;
+}
