@@ -306,17 +306,17 @@ if (isset($_SESSION['user'])) {
 
     <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
         <div style="display:flex; flex-direction:row; gap:5px">
-            <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'">
+            <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'"  title="Volver al menú">
                 <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
             </button>
-            <button class="reset-btn" id="musicToggle">
+            <button class="reset-btn" id="musicToggle"  title="Música">
                 <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i></h5>
             </button>
             <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
                 <source src="../assets/musica.mp3" type="audio/mp3">
             </audio>
 
-            <button class="reset-btn btn-success" id="reset-btn"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
+            <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
             <h5>Mecanografía</h5>

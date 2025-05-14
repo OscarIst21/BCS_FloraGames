@@ -136,6 +136,7 @@ h2 {
     min-height: 80vh;
     position: relative;
     z-index: 1;
+    margin-top: 20px;
 }
 
 header, footer {
