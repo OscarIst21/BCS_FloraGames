@@ -1,37 +1,45 @@
 <header>
     <div class="header-content">
         <div class="dropdown">
-            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none;">
                 <a href="" style="color: white;"><i class="fa-solid fa-bars"></i></a>
             </button>
             <ul class="dropdown-menu dropdown-menu">
-                <li><a class="dropdown-item" href="/BCS_FloraGames/index.php">Aprendizaje</a></li>
-                <li><a class="dropdown-item" href="/BCS_FloraGames/view/gamesMenu.php">Juegos</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <?php if(isset($_SESSION['user'])): ?>
-                    <li><a class="dropdown-item" href="/BCS_FloraGames/view/mySuccesses.php">Mis logros</a></li>
-                    <li><a class="dropdown-item" href="/BCS_FloraGames/view/myProfile.php">Mi perfil</a></li>
-                    <li><a class="dropdown-item" href="/BCS_FloraGames/config/logout.php">Cerrar sesión</a></li>
-                <?php else: ?>
-                    <li><a class="dropdown-item" href="/BCS_FloraGames/view/login.php">Iniciar sesión</a></li>
-                <?php endif; ?>
+                <li><a class="dropdown-item" href="/BCS_FloraGames/index.php">Aprendizaje   🌿</a></li>
+                <li><a class="dropdown-item" href="/BCS_FloraGames/view/gamesMenu.php">Juegos   🎮</a></li>
+                
             </ul>
         </div>
         <div>
             <img style="max-width: 12rem; margin-bottom: 8px;" src="/BCS_FloraGames/img/logoFG.png" alt="">
         </div>
-<!--
-        <div>
-             if (isset($_SESSION['id_cliente'])) {
-            // Si la sesión está activa, mostrar el nombre del usuario en el botón de acceso
-            echo '
-            <a href="inicio.php" class="btnAcceder-gen">' . htmlspecialchars($_SESSION['nombre']) . ' <span><i class="fa-regular fa-circle-user"></i></span></a>';
-        } else {
-            // Si la sesión no está activa, mostrar el botón de "Acceder"
-            echo '
-            <a href="login.php" class="btnAcceder-gen">Acceder <span><i class="fa-regular fa-circle-user"></i></span></a>';
-        }
-        </div>
-                -->
+        
     </div>
+
+    <div class="user-section">
+            <?php if(isset($_SESSION['user'])): ?>
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
+                        <?php if(!empty($_SESSION['user']['foto_perfil'])): ?>
+                            <img src="/BCS_FloraGames/uploads/<?php echo $_SESSION['user']['foto_perfil']; ?>" class="rounded-circle" alt="Foto de perfil">
+                        <?php else: ?>
+                            <div class="rounded-circle">
+                                <i class="fa-regular fa-circle-user"></i>
+                            </div>
+                        <?php endif; ?>
+                        <span class="ms-2 d-none d-sm-inline"><?php echo htmlspecialchars($_SESSION['user']?? 'Usuario'); ?></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                         <li><a class="dropdown-item" href="/BCS_FloraGames/view/mySuccesses.php">Mis logros</a></li>
+                        <li><a class="dropdown-item" href="/BCS_FloraGames/view/myProfile.php">Mi perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/BCS_FloraGames/config/logout.php">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+            <?php else: ?>
+                <a href="/BCS_FloraGames/view/login.php" class="btn btn-outline-light">
+                    Acceder <i class="fa-regular fa-circle-user ms-1"></i>
+                </a>
+            <?php endif; ?>
+        </div>
 </header>
