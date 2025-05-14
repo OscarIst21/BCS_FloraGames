@@ -115,6 +115,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION['user'] = $nombre;
             $_SESSION['email'] = $correo;
             $_SESSION['nivel_id'] = 1; // Nivel inicial para nuevos usuarios
+            $_SESSION['foto_perfil'] = 'usuario0.png'; 
+            $_SESSION['color_fondo'] = ''; // Color de fondo vacío para nuevos usuarios
 
             // Enviar correo de bienvenida
             $correoEnviado = enviarCorreoBienvenida($correo, $nombre);
@@ -171,6 +173,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION['user'] = $user['nombre'];
                 $_SESSION['email'] = $user['correo_electronico'];
                 $_SESSION['nivel_id'] = $user['nivel_de_usuario_id'];
+                $_SESSION['foto_perfil'] = $user['foto_perfil']; // Añadir foto de perfil a la sesión
+                $_SESSION['color_fondo'] = $user['color_fondo']; // Añadir color de fondo a la sesión
 
                 // Configurar cookie de "recordarme" si está marcado
                 if (isset($_POST['remember']) && $_POST['remember'] == 'on') {

@@ -49,6 +49,10 @@ try {
             $stmt->bindParam(':id', $userId);
             $stmt->execute();
             
+            // Actualizar la sesión con la nueva foto y color
+            $_SESSION['foto_perfil'] = $avatarSeleccionado;
+            $_SESSION['color_fondo'] = $colorFondo;
+            
             $fotoPerfilActualizada = true;
             $updateSuccess = true;
         }
@@ -72,6 +76,10 @@ try {
                 $stmt->bindParam(':foto', $newFilename);
                 $stmt->bindParam(':id', $userId);
                 $stmt->execute();
+                
+                // Actualizar la sesión con la nueva foto
+                $_SESSION['foto_perfil'] = $newFilename;
+                $_SESSION['color_fondo'] = null; // Resetear el color de fondo en la sesión
                 
                 $fotoPerfilActualizada = true;
                 $updateSuccess = true;

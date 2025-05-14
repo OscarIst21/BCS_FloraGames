@@ -20,10 +20,12 @@
             <?php if(isset($_SESSION['user'])): ?>
                 <div class="dropdown">
                     <button class="btn dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
-                        <?php if(!empty($_SESSION['user']['foto_perfil'])): ?>
-                            <img src="/BCS_FloraGames/uploads/<?php echo $_SESSION['user']['foto_perfil']; ?>" class="rounded-circle" alt="Foto de perfil">
+                        <?php if(!empty($_SESSION['foto_perfil'])): ?>
+                            <div class="profile-image-container" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?> width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                                <img src="/BCS_FloraGames/img/foto_de_Perfil/<?php echo $_SESSION['foto_perfil']; ?>" class="rounded-circle" width="30" height="30" alt="Foto de perfil">
+                            </div>
                         <?php else: ?>
-                            <div class="rounded-circle">
+                            <div class="rounded-circle" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?> width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;">
                                 <i class="fa-regular fa-circle-user"></i>
                             </div>
                         <?php endif; ?>
