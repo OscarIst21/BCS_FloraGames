@@ -807,6 +807,9 @@ if (isset($_SESSION['user'])) {
                 document.getElementById('victory-time').textContent = timerElement.textContent;
                 document.getElementById('victory-level').textContent = levels[currentLevel].level;
                 document.getElementById('victory-points').textContent = points;
+                
+                // Guardar resultado en la base de datos (victoria)
+                saveGameResult(true, timeElapsed);
 
                 // Mostrar modal de victoria
                 const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
@@ -837,6 +840,11 @@ if (isset($_SESSION['user'])) {
 
             // Función para cuando se acaba el tiempo
             function gameOver() {
+                clearInterval(timerInterval);
+                
+                // Guardar resultado en la base de datos (derrota)
+                saveGameResult(false, timeElapsed);
+                
                 alert('¡Se acabó el tiempo! Inténtalo de nuevo.');
                 resetGame();
             }
@@ -885,7 +893,6 @@ if (isset($_SESSION['user'])) {
         }
 
         // Función para guardar puntos
-        // Función para guardar puntos
         function savePoints(points) {
             console.log('Intentando guardar puntos:', points); // Añadir para depuración
             
@@ -910,6 +917,37 @@ if (isset($_SESSION['user'])) {
                 .catch(error => {
                     console.error('Error completo:', error);
                 });
+        }
+        
+        // Función para guardar el resultado del juego
+        function saveGameResult(won, duration) {
+            // Solo guardar si el usuario está autenticado
+            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+                
+                // Crear objeto con los datos
+                const gameData = {
+                    usuario_id: userId,
+                    duracion: Math.floor(duration), // Duración en segundos
+                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
+                };
+                
+                // Enviar datos al servidor
+                fetch('../config/saveGameResult.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resultado guardado:', data);
+                })
+                .catch(error => {
+                    console.error('Error al guardar resultado:', error);
+                });
+            }
         }
 
         // Función para calcular puntos
@@ -956,7 +994,73 @@ if (isset($_SESSION['user'])) {
             savePoints(points);
             <?php endif; ?>
         }
-        
-    </script>
+
+        // Función para guardar el resultado del juego
+        function saveGameResult(won, duration) {
+            // Solo guardar si el usuario está autenticado
+            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+                
+                // Crear objeto con los datos
+                const gameData = {
+                    usuario_id: userId,
+                    duracion: Math.floor(duration), // Duración en segundos
+                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
+                };
+                
+                // Enviar datos al servidor
+                fetch('../config/saveGameResult.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resultado guardado:', data);
+                })
+                .catch(error => {
+                    console.error('Error al guardar resultado:', error);
+                });
+            }
+        }
+
+        // Modificar la función showVictoryModal para guardar el resultado
+        function showVictoryModal() {
+            // Actualizar estadísticas en el modal
+            document.getElementById('victory-time').textContent = formatTime(timeElapsed);
+            document.getElementById('victory-level').textContent = levels[currentLevel].level;
+            
+            // Calcular puntos según el tiempo y nivel
+            let points = 100 * levels[currentLevel].level;
+            if (gameMode !== 'notime') {
+                const timeBonus = Math.max(0, timeLimit - timeElapsed);
+                points += timeBonus;
+            }
+            document.getElementById('victory-points').textContent = points;
+            
+            // Guardar resultado en la base de datos (victoria)
+            saveGameResult(true, timeElapsed);
+            
+            // Mostrar modal
+            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+            victoryModal.show();
+        }
+
+        // Modificar la función gameOver para guardar el resultado
+        function gameOver() {
+            clearInterval(timerInterval);
+            
+            // Guardar resultado en la base de datos (derrota)
+            saveGameResult(false, timeElapsed);
+            
+            // Mostrar alerta
+            alert('¡Se acabó el tiempo! Inténtalo de nuevo.');
+            
+            // Reiniciar juego
+            resetGame();
+        }
+        </script>
 </body>
 </html>

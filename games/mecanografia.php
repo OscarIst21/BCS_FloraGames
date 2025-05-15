@@ -624,9 +624,17 @@ if (isset($_SESSION['user'])) {
 
             // Enfocar el juego para capturar teclas
             window.focus();
-
             // Configurar evento de reinicio
-            resetButton.addEventListener('click', resetGame);
+            resetButton.addEventListener('click', function() {
+                // Solo guardar si ya se ha iniciado el juego
+                if (startTime !== null) {
+                    // Guardar resultado en la base de datos (abandono)
+                    saveGameResult(false, timeElapsed);
+                }
+                
+                // Reiniciar juego
+                resetGame();
+            });
 
             // Configurar evento de teclado
             document.addEventListener('keydown', handleKeyPress);
@@ -937,6 +945,9 @@ if (isset($_SESSION['user'])) {
             document.getElementById('victory-accuracy').textContent = finalAccuracy + '%';
             document.getElementById('victory-points').textContent = points;
             
+            // Guardar resultado en la base de datos (victoria)
+            saveGameResult(true, timeElapsed, finalAccuracy, finalWpm);
+            
             // Mostrar modal de victoria
             const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
             victoryModal.show();
@@ -994,6 +1005,37 @@ if (isset($_SESSION['user'])) {
             });
         }
     });
+
+    // Función para guardar el resultado del juego
+    function saveGameResult(won, duration, accuracy, wpm) {
+        // Solo guardar si el usuario está autenticado
+        if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+            const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+            
+            // Crear objeto con los datos
+            const gameData = {
+                usuario_id: userId,
+                duracion: Math.floor(duration), // Duración en segundos
+                fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
+            };
+            
+            // Enviar datos al servidor
+            fetch('../config/saveGameResult.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(gameData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Resultado guardado:', data);
+            })
+            .catch(error => {
+                console.error('Error al guardar resultado:', error);
+            });
+        }
+    }
 </script>
 </body>
 
