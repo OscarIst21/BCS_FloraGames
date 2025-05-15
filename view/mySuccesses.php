@@ -310,11 +310,9 @@ try {
                 <div class="badges-grid">
                     <?php if (empty($insignias)): ?>
                         <div class="badge-item">
-                            <div class="badge-icon">
-                                <img src="../img/insignias/placeholder.png" alt="Sin insignias">
-                            </div>
+                            
                             <span class="badge-name">Aún no tienes insignias</span>
-                            <span class="badge-date">---</span>
+                            <span class="badge-date">Sigue jugando para desbloquearlas</span>
                         </div>
                     <?php else: ?>
                         <?php foreach (array_slice($insignias, 0, 2) as $insignia): ?>
