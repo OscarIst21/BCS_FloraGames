@@ -89,12 +89,12 @@ try {
 
                         <!-- Campos ocultos para la foto de perfil -->
                         <input type="file" name="foto_perfil_upload" id="fotoPerfilInput" style="display: none;" accept="image/*">
-                        <input type="hidden" name="avatar_seleccionado" id="avatarSeleccionado" value="">
-                        <input type="hidden" name="color_fondo" id="colorFondo" value="#f0f0f0">
+                        <input type="hidden" name="avatar_seleccionado" id="avatarSeleccionado" value="<?php echo htmlspecialchars($userData['foto_perfil']); ?>">
+                        <input type="hidden" name="color_fondo" id="colorFondo" value="<?php echo htmlspecialchars($userData['color_fondo']); ?>">
                         <input type="hidden" name="tipo_avatar" id="tipoAvatar" value="predefinido">
 
                         <div class="text-center mt-4">
-                            <button type="submit" class="btnActions">Guardar cambios</button>
+                            <button type="submit" class="btnActions" id="guardarBtn" disabled>Guardar cambios</button>
                         </div>
                     </form>
                 </div>
