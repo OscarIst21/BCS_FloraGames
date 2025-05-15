@@ -28,7 +28,7 @@ require_once __DIR__ . '/config/init.php';
                         <i class="fas fa-search"></i> <!-- Icono de lupa -->
                     </button>
                 </div>
-                <button class="btn btn-success filter-btn" type="button" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <button title="Filtrar por" class="btn btn-success filter-btn" type="button" data-bs-toggle="modal" data-bs-target="#filterModal">
                     <i class="fas fa-filter me-2"></i>
                 </button>
                 

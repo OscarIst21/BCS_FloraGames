@@ -59,9 +59,9 @@
                 </div>
                 
                 <div class="d-flex flex-start align-items-center mt-3" style="gap:15%">
-                        <button class="btn btn-outline-success">Mapa</button>
+                        <button class="btn btn-outline-success" title="Ver mapa">Mapa</button>
                         <div class="action-icons">
-                            <button class="btn btn-sm btn-outline-success"><i class="fa-solid fa-volume-high"></i></button>
+                            <button class="btn btn-sm btn-outline-success" title="Audio"><i class="fa-solid fa-volume-high"></i></button>
                         </div>
                     </div>
                 <!-- Sección del mapa -->

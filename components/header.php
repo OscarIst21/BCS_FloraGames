@@ -1,7 +1,7 @@
 <header>
     <div class="header-content">
         <div class="dropdown">
-            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none;">
+            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none;" title="Secciones">
                 <a href="" style="color: white;"><i class="fa-solid fa-bars"></i></a>
             </button>
             <ul class="dropdown-menu dropdown-menu">

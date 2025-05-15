@@ -94,7 +94,7 @@ try {
                         <input type="hidden" name="tipo_avatar" id="tipoAvatar" value="predefinido">
 
                         <div class="text-center mt-4">
-                            <button type="submit" class="btnActions" id="guardarBtn" disabled>Guardar cambios</button>
+                            <button type="submit" class="btnActions_Profile btnActions" id="guardarBtn" disabled>Guardar cambios</button>
                         </div>
                     </form>
                 </div>
