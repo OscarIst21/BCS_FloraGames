@@ -310,7 +310,6 @@ try {
                 <div class="badges-grid">
                     <?php if (empty($insignias)): ?>
                         <div class="badge-item">
-                            
                             <span class="badge-name">Aún no tienes insignias</span>
                             <span class="badge-date">Sigue jugando para desbloquearlas</span>
                         </div>

@@ -42,7 +42,6 @@ if (isset($_SESSION['user'])) {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            margin: 60px auto 20px
         }
 
         .timer {

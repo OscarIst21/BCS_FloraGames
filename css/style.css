@@ -860,7 +860,6 @@ header{
     position: relative;
     display: flex;
     justify-content: space-between;
-    top: 55px;
 }
 #btnSubir {
     position: fixed;
