@@ -294,10 +294,14 @@ header{
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
 }
+.card-head img:hover{
+    transform: scale(1.05);
+}
 
 .card-head img {
     max-width: 100%;
     height: auto;
+     transition: transform 0.3s ease;
     object-fit: contain;
 }
 .card-body {
