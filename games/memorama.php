@@ -209,6 +209,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memorama - BCS Flora Games</title>
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -265,11 +266,14 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 1rem;
         }
 
-        .card {
+        .cardMemory {
             aspect-ratio: 1;
-            background-color: #1a73e8;
+            background-color: #5ED646;
             border-radius: 8px;
             cursor: pointer;
             display: flex;
@@ -283,8 +287,8 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .card .front,
-        .card .back {
+        .cardMemory .front,
+        .cardMemory .back {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -295,29 +299,33 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
             border-radius: 8px;
         }
 
-        .card .front {
-            background-color: #1a73e8;
+        .cardMemory .front {
+            background-image: url("/BCS_FLORAGAMES/img/frontalMemorama.png");
             transform: rotateY(0deg);
+            background-size: contain;
+            background-origin: border-box;
+            background-repeat: no-repeat;
+            border: 2px solid #436745;
         }
 
-        .card .back {
+        .cardMemory .back {
             background-color: white;
             transform: rotateY(180deg);
-            border: 2px solid #1a73e8;
+            border: 2px solid #436745;
             overflow: hidden;
         }
 
-        .card .back img {
+        .cardMemory .back img {
             width: 90%;
             height: 90%;
             object-fit: contain;
         }
 
-        .card.flipped {
+        .cardMemory.flipped {
             transform: rotateY(180deg);
         }
 
-        .card.matched .back {
+        .cardMemory.matched .back {
             background-color: #d4edda;
             border-color: #34a853;
         }
@@ -337,20 +345,18 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
         }
 
         .reset-btn {
-            background-color: #28a745;
+            color: #246741;
+            background-color: white;
             border: none;
-            color: white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 5px;
             cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
         }
 
         .reset-btn:hover {
-            background-color: #218838;
+            background-color: #246741;
+            color:white;
         }
 
         .timer {
@@ -372,38 +378,41 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
 </head>
 
 <body>
-    <div class="game-header">
-        <a href="../index.php" class="back-button">
-            <i class="fas fa-arrow-left"></i> Volver al menú
-        </a>
+    <?php include '../components/header.php'; ?>
+
+<div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
         <div style="display:flex; flex-direction:row; gap:10px">
-            <button class="reset-btn" id="reset-btn" title="Reiniciar">
-                <i class="fa-solid fa-arrow-rotate-right"></i>
+            <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
+               <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
             </button>
+            <button class="reset-btn" id="musicToggle"  title="Música">
+                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>" ></i></h5>
+            </button>
+            <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
+                <source src="../assets/musica.mp3" type="audio/mp3">
+            </audio>
+            <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
             <h5>Memorama</h5>
-            <div class="level">Modo <span id="level-display"><?php echo $difficultyText; ?></span></div>
+            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
         </div>
         <div style="display:flex; flex-direction:row; gap:10px">
-            <h5><i class="fa-solid fa-clock"></i></h5>
-            <div class="timer">
-                <h5 id="timer"><?php echo formatTime($elapsedTime); ?></h5>
+            <div>
+                <div style="display:flex; flex-direction:row; gap:10px">
+                    <div>
+                        <h5><span id="found-words-count">0</span>/<span id="total-words-count">0</span></h5>
+                    </div>
+                    <h5><i class="fa-solid fa-clock"></i></h5>
+            <div class="timer"> <h5 id="timer"> 00:00</h5></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <div class="game-info">
-            <div class="info-item">
-                <i class="fas fa-layer-group"></i>
-                <span>Pares: <span id="pairs"><?php echo $_SESSION['memorama_pairs']; ?></span></span>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-sync-alt"></i>
-                <span>Movimientos: <span id="moves"><?php echo $_SESSION['memorama_moves']; ?></span></span>
-            </div>
-        </div>
+
+   <div class="contenedor">
+         <div class="container">
 
         <div class="cards-grid">
             <?php
@@ -411,14 +420,15 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                 $card = $_SESSION['memorama_cards'][$i];
                 $flipped = $_SESSION['memorama_flipped'][$i] ? 'flipped' : '';
                 $matched = $_SESSION['memorama_matched'][$i] ? 'matched' : '';
-                echo "<div class='card $flipped $matched' data-index='$i' data-card='$card'>";
-                echo "<div class='front'><i class='fas fa-question'></i></div>";
+                echo "<div class='cardMemory $flipped $matched' data-index='$i' data-card='$card'>";
+                echo "<div class='front'></div>";
                 echo "<div class='back'><img src='../img/niveles/$card.png' alt='Imagen $card'></div>";
                 echo "</div>";
             }
             ?>
         </div>
     </div>
+   </div>
 
     <!-- Modal de selección de dificultad -->
     <div class="modal fade" id="difficultyModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="difficultyModalLabel" aria-hidden="true">
@@ -465,12 +475,48 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
         </div>
     </div>
 
+     <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos del DOM
-            const cards = document.querySelectorAll('.card');
-            const movesElement = document.getElementById('moves');
+
+            // Music control initialization
+        const musicToggle = document.getElementById('musicToggle');
+        const musicIcon = musicToggle.querySelector('i');
+        const gameMusic = document.getElementById('gameMusic');
+        gameMusic.volume = 0.5;
+
+        // Music control event listener
+        musicToggle.addEventListener('click', function() {
+            if (gameMusic.paused) {
+                gameMusic.play();
+                musicIcon.classList.remove('fa-volume-xmark');
+                musicIcon.classList.add('fa-volume-high');
+                updateMusicPreference(1);
+            } else {
+                gameMusic.pause();
+                musicIcon.classList.remove('fa-volume-high');
+                musicIcon.classList.add('fa-volume-xmark');
+                updateMusicPreference(0);
+            }
+        });
+
+        function updateMusicPreference(enabled) {
+            <?php if (isset($_SESSION['user'])): ?>
+            fetch('../config/updateMusicPreference.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `music_enabled=${enabled}`
+            })
+            .catch(error => console.error('Error updating music preference:', error));
+            <?php endif; ?>
+        }
+
+
+            const cards = document.querySelectorAll('.cardMemory');
             const timerElement = document.getElementById('timer');
             const resetButton = document.getElementById('reset-btn');
             
@@ -536,8 +582,6 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                         card.classList.add('flipped');
                         flippedCards.push(card);
                         
-                        // Actualizar movimientos
-                        movesElement.textContent = data.moves;
                         
                         // Si hay dos cartas volteadas
                         if (flippedCards.length === 2) {
