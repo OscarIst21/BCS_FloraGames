@@ -46,9 +46,11 @@ require_once __DIR__.'/../config/init.php';
                 <div class="card-head"><img src="../img/logosJuegos/puzzle.png" alt="Puzzle deslizante"></div>
                 <div class="card-body">
                     <h3 class="card-title">Puzzle deslizante</h3>
-                    <p class="card-content">
-                        <button type="" class="btnActions">Jugar</button>
-                    </p>
+                    <form action="../games/puzzleDeslizante.php" method="get">
+                        <p class="card-content">
+                            <button type="submit" class="btnActions">Jugar</button>
+                        </p>
+                    </form>
                 </div>
             </div>
             <div class="card">
