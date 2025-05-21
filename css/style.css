@@ -32,6 +32,17 @@ body::before {
     z-index: 1;
 }
 
+.header-secundary {
+    background-color: white;
+    padding: 1rem;
+    color: #2E8B57;
+    font-size: 0.9rem;
+    z-index: 1;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
 .form-container { /* Login */
     background: white;
    
