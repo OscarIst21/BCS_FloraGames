@@ -1,6 +1,26 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 require_once __DIR__ . '/../connection/database.php';
+require_once __DIR__ . '/../config/dataPlanta.php';
+
+function obtenerPalabras() {
+    $db = new Database();
+    $conn = $db->getConnection();
+    $stmt = $conn->prepare("SELECT nombre_comun FROM ficha_planta");
+    $stmt->execute();
+    $nombres = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Mezclar todos los nombres
+    shuffle($nombres);
+
+    // Seleccionar palabras para cada modo
+    $palabras = [
+        'facil' => array_slice($nombres, 0, 5),
+        'dificil' => array_slice($nombres, 0, 8)
+    ];
+
+    return $palabras;
+}
 
 // Variables para usuarios no autenticados
 $userId = null;
@@ -37,6 +57,7 @@ if (isset($_SESSION['user'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
+    
     <style>
         .game-container {
             max-width: 800px;
@@ -78,22 +99,22 @@ if (isset($_SESSION['user'])) {
 
         .letter-board {
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
+            grid-template-columns: repeat(15, 1fr);
             gap: 5px;
             margin: 0 auto;
-            max-width: 500px;
+            max-width: 600px;
         }
 
         .letter-cell {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: #f0f0f0;
             border-radius: 5px;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             user-select: none;
             transition: all 0.2s;
@@ -214,14 +235,14 @@ if (isset($_SESSION['user'])) {
 
         @media (max-width: 576px) {
             .letter-cell {
-                width: 30px;
-                height: 30px;
-                font-size: 1rem;
+                width: 18px;
+                height: 18px;
+                font-size: 0.7rem;
             }
 
             .letter-board {
-                grid-template-columns: repeat(10, 1fr);
-                gap: 3px;
+                grid-template-columns: repeat(15, 1fr);
+                gap: 2px;
             }
         }
     </style>
@@ -344,37 +365,24 @@ if (isset($_SESSION['user'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Configuración del juego
-            const levels = [{
-                    level: 1,
-                    size: 10,
-                    words: ['JAVASCRIPT', 'HTML', 'CSS', 'PROGRAMAR', 'CODIGO', 'WEB', 'FLORA'],
-                    timeLimit: 180 // 3 minutos
-                },
-                {
-                    level: 2,
-                    size: 10,
-                    words: ['ALGORITMO', 'FUNCION', 'VARIABLE', 'OBJETO', 'ARRAY', 'METODO', 'CLASE', 'BUCLE'],
-                    timeLimit: 240 // 4 minutos
-                },
-                {
-                    level: 3,
-                    size: 10,
-                    words: ['FRAMEWORK', 'BIBLIOTECA', 'SERVIDOR', 'CLIENTE', 'BACKEND', 'FRONTEND', 'DATABASE', 'API', 'JSON'],
-                    timeLimit: 300 // 5 minutos
-                }
-            ];
+            // Obtener palabras desde PHP según la dificultad
+            <?php
+                $palabras = obtenerPalabras();
+                echo "const palabrasPorDificultad = {";
+                echo "easy: " . json_encode(array_map('mb_strtoupper', $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+                echo "hard: " . json_encode(array_map('mb_strtoupper', $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                echo "};";
+            ?>
 
-            let currentLevel = 0;
+            let boardSize = 15;
             let board = [];
-            let boardSize = levels[currentLevel].size;
-            let words = levels[currentLevel].words;
+            let words = [];
             let foundWords = [];
             let selectedCells = [];
             let timeElapsed = 0;
             let timerInterval;
             let gameMode = 'easy'; // Por defecto
-            let timeLimit = levels[currentLevel].timeLimit;
+            let timeLimit = 180; // Por defecto, puedes ajustar según dificultad
 
             const letterBoardElement = document.getElementById('letter-board');
             const wordListElement = document.getElementById('word-list');
@@ -399,7 +407,13 @@ if (isset($_SESSION['user'])) {
                     this.classList.add('selected');
 
                     // Establecer modo de juego
-                    gameMode = this.dataset.difficulty;
+                    if (this.dataset.difficulty === 'easy') {
+                        gameMode = 'easy';
+                    } else if (this.dataset.difficulty === 'hard') {
+                        gameMode = 'hard';
+                    } else {
+                        gameMode = 'notime';
+                    }
 
                     // Cerrar modal de dificultad
                     difficultyModal.hide();
@@ -428,30 +442,27 @@ if (isset($_SESSION['user'])) {
 
             // Función para inicializar el juego
             function initGame() {
-                // Actualizar nivel en pantalla
-                levelDisplay.textContent = levels[currentLevel].level;
-
                 // Reiniciar variables
-                board = [];
                 foundWords = [];
                 selectedCells = [];
                 timeElapsed = 0;
-                words = levels[currentLevel].words;
+                words = palabrasPorDificultad[gameMode] || [];
 
-                // Update word counters with current level's words
+                // Actualizar contador de palabras
                 document.getElementById('total-words-count').textContent = words.length;
                 document.getElementById('found-words-count').textContent = '0';
 
                 // Establecer límite de tiempo según dificultad
-                if (gameMode === 'notime') {
-                    timeLimit = 0; // Sin límite de tiempo
-                } else if (gameMode === 'easy') {
-                    timeLimit = levels[currentLevel].timeLimit;
+                if (gameMode === 'easy') {
+                    timeLimit = 180;
                 } else if (gameMode === 'hard') {
-                    timeLimit = Math.floor(levels[currentLevel].timeLimit / 2); // Mitad del tiempo
+                    timeLimit = 120;
+                } else {
+                    timeLimit = 0;
                 }
 
                 // Crear tablero vacío
+                board = [];
                 for (let i = 0; i < boardSize; i++) {
                     board[i] = [];
                     for (let j = 0; j < boardSize; j++) {
@@ -478,7 +489,7 @@ if (isset($_SESSION['user'])) {
                 startTimer();
 
                 // Configurar evento de reinicio
-                resetButton.addEventListener('click', resetGame);
+                resetButton.onclick = resetGame;
             }
 
             // Función para colocar palabras en el tablero
@@ -730,7 +741,7 @@ if (isset($_SESSION['user'])) {
 
                     // Verificar si se han encontrado todas las palabras
                     if (foundWords.length === words.length) {
-                        levelComplete();
+                        showVictoryModal();
                     }
                 } else {
                     // Limpiar selección
@@ -792,49 +803,36 @@ if (isset($_SESSION['user'])) {
                 }
             }
 
-            // Función para cuando se completa un nivel
-            function levelComplete() {
+            // Función para mostrar el modal de victoria
+            function showVictoryModal() {
                 clearInterval(timerInterval);
 
-                // Calcular puntos (ajustar esta fórmula)
+                // Calcular puntos (puedes ajustar la fórmula si lo deseas)
                 const points = Math.max(100, 500 - timeElapsed * 2);
-
-                // Save points to database if user is logged in
-                savePoints(points);
 
                 // Actualizar información en el modal
                 document.getElementById('victory-time').textContent = timerElement.textContent;
-                document.getElementById('victory-level').textContent = levels[currentLevel].level;
+                document.getElementById('victory-level').textContent = '1';
                 document.getElementById('victory-points').textContent = points;
-                
+
                 // Guardar resultado en la base de datos (victoria)
                 saveGameResult(true, timeElapsed);
+
+                // Save points to database if user is logged in
+                savePoints(points);
 
                 // Mostrar modal de victoria
                 const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
                 victoryModal.show();
 
                 // Configurar botones del modal de victoria
-                document.getElementById('retry-btn').addEventListener('click', function() {
-                    // Cerrar modal
+                document.getElementById('retry-btn').onclick = function() {
                     bootstrap.Modal.getInstance(document.getElementById('victoryModal')).hide();
-                    
-                    // Avanzar al siguiente nivel o reiniciar si es el último
-                    if (currentLevel < levels.length - 1) {
-                        currentLevel++;
-                    } else {
-                        currentLevel = 0;
-                    }
-                    
-                    // Reiniciar juego con el nuevo nivel
                     initGame();
-                });
-                
-                document.getElementById('exit-btn').addEventListener('click', function() {
-                    // Redirigir al menú de juegos
+                };
+                document.getElementById('exit-btn').onclick = function() {
                     window.location.href = '../view/gamesMenu.php';
-                });
-
+                };
             }
 
             // Función para cuando se acaba el tiempo
