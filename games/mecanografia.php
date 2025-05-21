@@ -1,7 +1,29 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 require_once __DIR__ . '/../connection/database.php';
+require_once __DIR__ . '/../config/dataPlanta.php';
 
+function obtenerPalabrasPorDificultad() {
+    $db = new Database();
+    $conn = $db->getConnection();
+
+    // Palabras fáciles: nombres comunes
+    $stmt = $conn->prepare("SELECT nombre_comun FROM ficha_planta");
+    $stmt->execute();
+    $nombres = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Palabras difíciles: curiosidades
+    $stmt2 = $conn->prepare("SELECT curiosidad FROM ficha_planta WHERE curiosidad IS NOT NULL AND curiosidad != ''");
+    $stmt2->execute();
+    $curiosidades = $stmt2->fetchAll(PDO::FETCH_COLUMN);
+
+    $palabras = [
+        'facil' => $nombres,
+        'dificil' => $curiosidades
+    ];
+
+    return $palabras;
+}
 // Variables para usuarios no autenticados
 $userId = null;
 $musicEnabled = true; // Valor predeterminado
@@ -497,34 +519,25 @@ if (isset($_SESSION['user'])) {
             <?php endif; ?>
         }
 
-        // Palabras y frases para el juego
-        const words = {
-            easy: [
-                'MARGARITA', 'GIRASOL', 'TULIPAN', 'ORQUIDEA', 'CRISANTEMO',
-                'BEGONIA', 'GERANIO', 'AZUCENA', 'HORTENSIA', 'JAZMIN',
-                'LAVANDA', 'MAGNOLIA', 'NARCISO', 'PETUNIA', 'VIOLETA',
-                'AMAPOLA', 'DALIA', 'GARDENIA', 'HIBISCO', 'LIRIO'
-            ],
-            hard: [
-                'Las plantas necesitan luz solar para crecer',
-                'El girasol sigue la dirección del sol',
-                'Las orquídeas son flores muy delicadas',
-                'Los cactus almacenan agua en su tallo',
-                'Las rosas tienen espinas para protegerse',
-                'Los árboles producen oxígeno para respirar',
-                'Las plantas carnívoras atrapan pequeños insectos',
-                'El bambú es una de las plantas más rápidas',
-                'Las flores atraen a abejas y mariposas',
-                'Los helechos crecen mejor en la sombra'
-            ],
-            notime: [
-                'MARGARITA', 'GIRASOL', 'ORQUIDEA', 'JAZMIN',
-                'Las plantas necesitan luz solar',
-                'El girasol sigue al sol',
-                'Las rosas tienen espinas',
-                'Los cactus almacenan agua'
-            ]
-        };
+        // Palabras y frases para el juego desde PHP
+        <?php
+            $palabras = obtenerPalabrasPorDificultad();
+            // Codificamos a JSON y escapamos para JS
+            $palabras_json = json_encode($palabras, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            echo "const words = {";
+            echo "easy: " . json_encode(array_map('mb_strtoupper', $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+            echo "hard: " . json_encode($palabras['dificil'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+            // Para notime, mezclamos ambos y limitamos a 8 elementos
+            $notime = array_merge(
+                array_map('mb_strtoupper', $palabras['facil']),
+                $palabras['dificil']
+            );
+            shuffle($notime);
+            $notime = array_slice($notime, 0, 8);
+            echo "notime: " . json_encode($notime, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            echo "};";
+        ?>
+
 
         // Variables del juego
         let currentWord = '';
