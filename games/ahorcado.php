@@ -1,67 +1,114 @@
 <?php
-session_start();
+require_once __DIR__ . '/../config/init.php';
 require_once __DIR__ . '/../connection/database.php';
+require_once __DIR__ . '/../config/dataPlanta.php';
 
-// Lista de palabras (nombres de plantas comunes)
-$palabras = [
-    'facil' => [
-        'rosa', 'lirio', 'tulipan', 'girasol', 'cactus', 'orquidea', 'margarita', 'jazmin',
-        'lavanda', 'menta', 'bambu', 'helecho', 'aloe', 'pino', 'roble', 'cedro', 'palma',
-        'hiedra', 'musgo', 'tomillo', 'romero', 'salvia', 'petunia', 'dalia', 'begonia'
-    ],
-    'dificil' => [
-        'buganvilla', 'crisantemo', 'hortensia', 'azalea', 'magnolia', 'bromelia', 'geranio',
-        'kalanchoe', 'adelfa', 'hibisco', 'jacaranda', 'bonsai', 'eucalipto', 'ciclamen',
-        'gardenia', 'agapanto', 'amarilis', 'anturio', 'caladio', 'camelia', 'celosia',
-        'dracaena', 'freesia', 'gerbera', 'gloxinia'
-    ]
-];
+// Variables para usuarios no autenticados
+$userId = null;
+$musicEnabled = true; // Valor predeterminado
+
+// Verificar si el usuario está autenticado
+if (isset($_SESSION['user'])) {
+    // Obtener preferencia de música de la base de datos
+    $userId = $_SESSION['usuario_id'];
+    
+    try {
+        $db = new Database();
+        $conn = $db->getConnection();
+        $stmt = $conn->prepare("SELECT musica_activada FROM usuarios WHERE id = ?");
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $musicEnabled = (bool)$result['musica_activada'];
+    } catch (PDOException $e) {
+        error_log("Error fetching music preference: " . $e->getMessage());
+    }
+}
+
+// Obtener nombres de plantas desde la base de datos
+function obtenerPalabrasPorDificultad() {
+    $db = new Database();
+    $conn = $db->getConnection();
+    $stmt = $conn->prepare("SELECT nombre_comun FROM ficha_planta");
+    $stmt->execute();
+    $nombres = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Clasificar por dificultad (ejemplo: fácil <=7 letras, difícil >7 letras)
+    $palabras = [
+        'facil' => [],
+        'dificil' => []
+    ];
+    foreach ($nombres as $nombre) {
+        if (mb_strlen($nombre) <= 10) {
+            $palabras['facil'][] = $nombre;
+        } else {
+            $palabras['dificil'][] = $nombre;
+        }
+    }
+    return $palabras;
+}
+
+// Lista de palabras (nombres de plantas desde la BDD)
+$palabras = obtenerPalabrasPorDificultad();
 
 // Inicializar o reiniciar el juego
-if (!isset($_SESSION['ahorcado_iniciado']) || isset($_GET['reset']) || isset($_GET['difficulty'])) {
-    // Establecer dificultad
-    if (isset($_GET['difficulty'])) {
-        $_SESSION['ahorcado_dificultad'] = $_GET['difficulty'];
-    } else if (!isset($_SESSION['ahorcado_dificultad'])) {
-        $_SESSION['ahorcado_dificultad'] = 'facil'; // Dificultad por defecto
-    }
+if (!isset($_SESSION['ahorcado_iniciado']) || isset($_GET['reset'])) {
+    unset($_SESSION['ahorcado_dificultad']);
+    unset($_SESSION['ahorcado_palabra']);
+    unset($_SESSION['ahorcado_letras_adivinadas']);
+    unset($_SESSION['ahorcado_letras_incorrectas']);
+    unset($_SESSION['ahorcado_errores']);
+    unset($_SESSION['ahorcado_tiempo_inicio']);
+    unset($_SESSION['ahorcado_tiempo_transcurrido']);
+    unset($_SESSION['ahorcado_tiempo_fin']);
+    unset($_SESSION['ahorcado_completado']);
+    unset($_SESSION['ahorcado_iniciado']);
+    unset($_SESSION['ahorcado_oportunidades']);
     
-    // Establecer número de oportunidades según dificultad
-    $_SESSION['ahorcado_oportunidades'] = ($_SESSION['ahorcado_dificultad'] == 'facil') ? 5 : 3;
-    
-    // Seleccionar palabra aleatoria según dificultad
-    $lista_palabras = $palabras[$_SESSION['ahorcado_dificultad']];
-    $palabra_seleccionada = $lista_palabras[array_rand($lista_palabras)];
-    
-    // Guardar en sesión
-    $_SESSION['ahorcado_palabra'] = $palabra_seleccionada;
-    $_SESSION['ahorcado_letras_adivinadas'] = [];
-    $_SESSION['ahorcado_letras_incorrectas'] = [];
-    $_SESSION['ahorcado_errores'] = 0;
-    $_SESSION['ahorcado_iniciado'] = true;
-    $_SESSION['ahorcado_tiempo_inicio'] = time();
-    $_SESSION['ahorcado_completado'] = false;
-    
-    // Redireccionar para limpiar la URL
-    if (isset($_GET['reset']) || isset($_GET['difficulty'])) {
+    if (isset($_GET['reset'])) {
         header('Location: ahorcado.php');
         exit;
     }
 }
 
+// Establecer dificultad
+if (isset($_GET['difficulty'])) {
+    $_SESSION['ahorcado_dificultad'] = $_GET['difficulty'];
+    $_SESSION['ahorcado_oportunidades'] = ($_GET['difficulty'] == 'facil') ? 5 : 3;
+    
+    // Seleccionar palabra aleatoria
+    $lista_palabras = $palabras[$_GET['difficulty']];
+    $palabra_seleccionada = $lista_palabras[array_rand($lista_palabras)];
+    
+    // Inicializar variables de juego
+    $_SESSION['ahorcado_palabra'] = $palabra_seleccionada;
+    $_SESSION['ahorcado_letras_adivinadas'] = [];
+    $_SESSION['ahorcado_letras_incorrectas'] = [];
+    $_SESSION['ahorcado_errores'] = 0;
+    $_SESSION['ahorcado_tiempo_inicio'] = time();
+    $_SESSION['ahorcado_tiempo_transcurrido'] = 0; // <-- Añade esta línea
+    $_SESSION['ahorcado_completado'] = false;
+    $_SESSION['ahorcado_iniciado'] = true;
+    
+    header('Location: ahorcado.php');
+    exit;
+}
+
 // Procesar intento de letra
-if (isset($_POST['letra'])) {
+if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
     $letra = strtolower($_POST['letra']);
     
-    // Verificar si la letra ya fue adivinada
+    // Calcula el tiempo transcurrido antes de recargar
+    if (isset($_SESSION['ahorcado_tiempo_inicio'])) {
+        $_SESSION['ahorcado_tiempo_transcurrido'] = time() - $_SESSION['ahorcado_tiempo_inicio'];
+    }
+    
     if (!in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) && 
         !in_array($letra, $_SESSION['ahorcado_letras_incorrectas'])) {
         
-        // Verificar si la letra está en la palabra
         if (strpos($_SESSION['ahorcado_palabra'], $letra) !== false) {
             $_SESSION['ahorcado_letras_adivinadas'][] = $letra;
             
-            // Verificar si se completó la palabra
+            // Verificar victoria
             $palabra_completa = true;
             for ($i = 0; $i < strlen($_SESSION['ahorcado_palabra']); $i++) {
                 if (!in_array($_SESSION['ahorcado_palabra'][$i], $_SESSION['ahorcado_letras_adivinadas'])) {
@@ -70,161 +117,62 @@ if (isset($_POST['letra'])) {
                 }
             }
             
-            if ($palabra_completa && !$_SESSION['ahorcado_completado']) {
+            if ($palabra_completa) {
                 $_SESSION['ahorcado_completado'] = true;
                 $_SESSION['ahorcado_tiempo_fin'] = time();
-                $duracion = $_SESSION['ahorcado_tiempo_fin'] - $_SESSION['ahorcado_tiempo_inicio'];
-                $puntos = calcularPuntos($duracion, $_SESSION['ahorcado_errores'], $_SESSION['ahorcado_dificultad']);
-                
-                // Guardar resultado si el usuario está autenticado
-                if (isset($_SESSION['usuario_id'])) {
-                    guardarResultado(true, $duracion, $puntos);
-                }
             }
         } else {
             $_SESSION['ahorcado_letras_incorrectas'][] = $letra;
             $_SESSION['ahorcado_errores']++;
             
-            // Verificar si se agotaron las oportunidades
-            if ($_SESSION['ahorcado_errores'] >= $_SESSION['ahorcado_oportunidades'] && !$_SESSION['ahorcado_completado']) {
+            if ($_SESSION['ahorcado_errores'] >= $_SESSION['ahorcado_oportunidades']) {
                 $_SESSION['ahorcado_completado'] = true;
                 $_SESSION['ahorcado_tiempo_fin'] = time();
-                $duracion = $_SESSION['ahorcado_tiempo_fin'] - $_SESSION['ahorcado_tiempo_inicio'];
-                
-                // Guardar resultado si el usuario está autenticado
-                if (isset($_SESSION['usuario_id'])) {
-                    guardarResultado(false, $duracion, 0);
-                }
             }
         }
     }
     
-    // Redireccionar para evitar reenvío del formulario
     header('Location: ahorcado.php');
     exit;
 }
 
-// Función para calcular puntos
-function calcularPuntos($duracion, $errores, $dificultad) {
-    // Puntos base
-    $puntos_base = 100;
-    
-    // Multiplicador por dificultad
-    $multiplicador_dificultad = ($dificultad == 'facil') ? 1 : 1.5;
-    
-    // Penalización por errores
-    $factor_errores = max(0.5, 1 - ($errores / 10));
-    
-    // Penalización por tiempo
-    $factor_tiempo = max(0.5, 1 - ($duracion / 300));
-    
-    // Calcular puntos totales
-    return round($puntos_base * $multiplicador_dificultad * $factor_errores * $factor_tiempo);
-}
-
-// Función para formatear tiempo
-function formatearTiempo($segundos) {
-    $minutos = floor($segundos / 60);
-    $segundos = $segundos % 60;
-    return sprintf('%02d:%02d', $minutos, $segundos);
-}
-
-// Función para guardar resultado
-function guardarResultado($ganado, $duracion, $puntos) {
-    // Preparar datos
-    $datos = [
-        'usuario_id' => $_SESSION['usuario_id'],
-        'duracion' => $duracion,
-        'fue_ganado' => $ganado ? 1 : 0,
-        'puntos' => $puntos
-    ];
-    
-    // Convertir a JSON
-    $json_datos = json_encode($datos);
-    
-    // Configurar solicitud
-    $ch = curl_init('../config/saveGameResult.php');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $json_datos);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($json_datos)
-    ]);
-    
-    // Ejecutar solicitud
-    $resultado = curl_exec($ch);
-    curl_close($ch);
-    
-    return $resultado;
-}
-
-// Obtener estado actual del juego
-$palabra = $_SESSION['ahorcado_palabra'];
-$letras_adivinadas = $_SESSION['ahorcado_letras_adivinadas'];
-$letras_incorrectas = $_SESSION['ahorcado_letras_incorrectas'];
-$errores = $_SESSION['ahorcado_errores'];
-$oportunidades = $_SESSION['ahorcado_oportunidades'];
-$dificultad = $_SESSION['ahorcado_dificultad'];
-$completado = $_SESSION['ahorcado_completado'];
-$ganado = $completado && $errores < $oportunidades;
-
-// Calcular tiempo transcurrido
-$tiempo_inicio = $_SESSION['ahorcado_tiempo_inicio'];
-$tiempo_actual = $completado ? $_SESSION['ahorcado_tiempo_fin'] : time();
-$tiempo_transcurrido = $tiempo_actual - $tiempo_inicio;
-
-// Calcular puntos si el juego está completado y ganado
-$puntos = 0;
-if ($completado && $ganado) {
-    $puntos = calcularPuntos($tiempo_transcurrido, $errores, $dificultad);
-}
-
-// Texto de dificultad para mostrar
-$texto_dificultad = ($dificultad == 'facil') ? 'Fácil' : 'Difícil';
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Ahorcado - Plantas</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Ahorcado - Flora Games</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
-        body {
-            background-image: url('../img/fondo.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            min-height: 100vh;
-            font-family: 'Poppins', sans-serif;
-            padding-top: 80px; /* Espacio para el navbar */
-        }
         
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-        }
         
         .game-container {
-            background-color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .hangman-image {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .hangman-image img {
+            max-height: 200px;
         }
         
         .word-display {
             display: flex;
             justify-content: center;
-            margin: 1.5rem 0;
-            gap: 0.5rem;
+            gap: 10px;
+            margin-bottom: 2rem;
         }
         
         .letter-box {
@@ -243,15 +191,15 @@ $texto_dificultad = ($dificultad == 'facil') ? 'Fácil' : 'Difícil';
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
+            gap: 5px;
+            margin-top: 2rem;
         }
         
         .key {
             width: 40px;
             height: 40px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
             border-radius: 5px;
             display: flex;
             justify-content: center;
@@ -261,37 +209,32 @@ $texto_dificultad = ($dificultad == 'facil') ? 'Fácil' : 'Difícil';
             transition: all 0.2s;
         }
         
-        .key:hover {
-            background-color: #e0e0e0;
+        .key:hover:not(:disabled) {
+            background-color: #e9ecef;
         }
         
         .key.used {
-            background-color: #ccc;
+            opacity: 0.5;
             cursor: not-allowed;
-            opacity: 0.7;
         }
         
         .key.correct {
-            background-color: #a3cfbb;
+            background-color: #198754;
+            color: white;
         }
         
         .key.incorrect {
-            background-color: #f8d7da;
-        }
-        
-        .hangman-image {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        
-        .hangman-image img {
-            max-height: 200px;
+            background-color: #dc3545;
+            color: white;
         }
         
         .game-info {
             display: flex;
             justify-content: space-around;
             margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 10px;
         }
         
         .info-item {
@@ -300,112 +243,113 @@ $texto_dificultad = ($dificultad == 'facil') ? 'Fácil' : 'Difícil';
             gap: 0.5rem;
         }
         
-        .difficulty-btn {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            text-align: center;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #212529;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        
-        .difficulty-btn:hover {
-            background-color: #e9ecef;
-            transform: translateY(-2px);
+        @media (max-width: 576px) {
+            .letter-box {
+                width: 30px;
+                height: 30px;
+                font-size: 1.2rem;
+            }
+            
+            .key {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
     <?php include '../components/header.php'; ?>
     
-    <div class="game-header container">
-        <div>
-            <button id="reset-btn" class="btn btn-outline-secondary">
-                <i class="fas fa-sync-alt"></i> Reiniciar
+    <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <button class="reset-btn" onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
+                <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
+            </button>
+            <button class="reset-btn" id="musicToggle" title="Música">
+                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i></h5>
+            </button>
+            <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
+                <source src="../assets/musica.mp3" type="audio/mp3">
+            </audio>
+            <button class="reset-btn" id="reset-btn" title="Reiniciar">
+                <h5><i class="fa-solid fa-arrow-rotate-right"></i></h5>
             </button>
         </div>
         <div style="text-align:center">
             <h5>Ahorcado - Plantas</h5>
-            <div class="level">Modo <span id="level-display"><?php echo $texto_dificultad; ?></span></div>
+            <div class="level">
+                Modo: <span id="level-display">
+                    <?php echo isset($_SESSION['ahorcado_dificultad']) ? 
+                        ($_SESSION['ahorcado_dificultad'] == 'facil' ? 'Fácil' : 'Difícil') : 
+                        'No seleccionado'; ?>
+                </span>
+            </div>
         </div>
         <div style="display:flex; flex-direction:row; gap:10px">
             <h5><i class="fa-solid fa-clock"></i></h5>
             <div class="timer">
-                <h5 id="timer"><?php echo formatearTiempo($tiempo_transcurrido); ?></h5>
+                <h5 id="timer">00:00</h5>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <div class="game-info">
-            <div class="info-item">
-                <i class="fas fa-heart"></i>
-                <span>Oportunidades: <span id="chances"><?php echo ($oportunidades - $errores); ?></span> / <?php echo $oportunidades; ?></span>
-            </div>
-            <div class="info-item">
-                <i class="fas fa-times"></i>
-                <span>Errores: <span id="errors"><?php echo $errores; ?></span></span>
-            </div>
-        </div>
+    <div class="container mt-4">
+        <?php if (isset($_SESSION['ahorcado_palabra'])): ?>
+            <div class="game-container">
+                <div class="game-info">
+                    <div class="info-item">
+                        <i class="fas fa-heart"></i>
+                        <span>Oportunidades: <?php echo $_SESSION['ahorcado_oportunidades'] - $_SESSION['ahorcado_errores']; ?></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-times"></i>
+                        <span>Errores: <?php echo $_SESSION['ahorcado_errores']; ?></span>
+                    </div>
+                </div>
 
-        <div class="game-container">
-            <div class="hangman-image">
-                <?php 
-                $imagen_num = min($errores + 1, 6);
-                echo "<img src='../img/ahorcado/{$imagen_num}.png' alt='Ahorcado'>";
-                ?>
-            </div>
-            
-            <div class="word-display">
-                <?php
-                for ($i = 0; $i < strlen($palabra); $i++) {
-                    $letra = $palabra[$i];
-                    $mostrar = in_array($letra, $letras_adivinadas) ? $letra : '';
-                    echo "<div class='letter-box'>$mostrar</div>";
-                }
-                ?>
-            </div>
-            
-            <?php if (!$completado): ?>
-                <div class="keyboard">
+                <div class="hangman-image">
+                    <img src="../img/ahorcado/<?php echo min($_SESSION['ahorcado_errores'] + 1, 6); ?>.png" alt="Ahorcado">
+                </div>
+
+                <div class="word-display">
                     <?php
-                    $letras = range('a', 'z');
-                    foreach ($letras as $letra) {
-                        $clase = 'key';
-                        if (in_array($letra, $letras_adivinadas)) {
-                            $clase .= ' used correct';
-                        } else if (in_array($letra, $letras_incorrectas)) {
-                            $clase .= ' used incorrect';
-                        }
-                        
-                        echo "<form method='post' style='margin:0;'>";
-                        echo "<input type='hidden' name='letra' value='$letra'>";
-                        echo "<button type='submit' class='$clase' " . (($completado || in_array($letra, $letras_adivinadas) || in_array($letra, $letras_incorrectas)) ? 'disabled' : '') . ">$letra</button>";
-                        echo "</form>";
+                    $palabra = $_SESSION['ahorcado_palabra'];
+                    for ($i = 0; $i < strlen($palabra); $i++) {
+                        $letra = $palabra[$i];
+                        $mostrar = in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) ? $letra : '';
+                        echo "<div class='letter-box'>$mostrar</div>";
                     }
                     ?>
                 </div>
-            <?php else: ?>
-                <div class="text-center mt-4">
-                    <h4><?php echo $ganado ? '¡Felicidades! Has ganado' : '¡Has perdido!'; ?></h4>
-                    <p>La palabra era: <strong><?php echo strtoupper($palabra); ?></strong></p>
-                    <?php if ($ganado): ?>
-                        <p>Tiempo: <?php echo formatearTiempo($tiempo_transcurrido); ?></p>
-                        <p>Puntos: <?php echo $puntos; ?></p>
-                    <?php endif; ?>
-                    <a href="?reset=1" class="btn btn-primary mt-3">Jugar de nuevo</a>
-                </div>
-            <?php endif; ?>
-        </div>
-        
-        <?php if (!$completado): ?>
-            <div class="text-center mt-3">
-                <a href="?reset=1" class="btn btn-outline-secondary">Reiniciar juego</a>
+
+                <?php if (!$_SESSION['ahorcado_completado']): ?>
+                    <div class="keyboard">
+                        <?php
+                        foreach (range('a', 'z') as $letra) {
+                            $clase = 'key';
+                            if (in_array($letra, $_SESSION['ahorcado_letras_adivinadas'])) {
+                                $clase .= ' used correct';
+                            } elseif (in_array($letra, $_SESSION['ahorcado_letras_incorrectas'])) {
+                                $clase .= ' used incorrect';
+                            }
+                            echo "<form method='post' style='margin:0;'>";
+                            echo "<input type='hidden' name='letra' value='$letra'>";
+                            echo "<button type='submit' class='$clase'" . 
+                                (in_array($letra, array_merge($_SESSION['ahorcado_letras_adivinadas'], $_SESSION['ahorcado_letras_incorrectas'])) ? 
+                                ' disabled' : '') . ">$letra</button>";
+                            echo "</form>";
+                        }
+                        ?>
+                    </div>
+                <?php else: ?>
+                    <div class="text-center mt-4">
+                        <h4><?php echo $_SESSION['ahorcado_errores'] < $_SESSION['ahorcado_oportunidades'] ? 
+                            '¡Felicidades! Has ganado' : '¡Game Over!'; ?></h4>
+                        <p>La palabra era: <strong><?php echo strtoupper($_SESSION['ahorcado_palabra']); ?></strong></p>
+                        <a href="?reset=1" class="btn btn-primary mt-3">Jugar de nuevo</a>
+                    </div>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
@@ -426,54 +370,118 @@ $texto_dificultad = ($dificultad == 'facil') ? 'Fácil' : 'Difícil';
         </div>
     </div>
 
+    <!-- Modal de victoria -->
+    <div class="modal fade" id="victoryModal" tabindex="-1" aria-labelledby="victoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="victoryModalLabel">¡Bien hecho!</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Has completado esta partida</p>
+                    <div class="victory-stats">
+                        <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
+                        <p><i class="fas fa-trophy me-2"></i> Nivel: <span id="victory-level">1</span></p>
+                        <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">0</span></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="?reset=1" class="btn btn-secondary">Jugar de nuevo</a>
+                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-primary" id="exit-btn">Salir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos del DOM
-            const timerElement = document.getElementById('timer');
             const resetButton = document.getElementById('reset-btn');
+            const musicToggle = document.getElementById('musicToggle');
+            const gameMusic = document.getElementById('gameMusic');
             
-            // Variables del juego
-            let timerInterval;
-            let startTime = <?php echo $tiempo_inicio; ?>;
-            let elapsedTime = <?php echo $tiempo_transcurrido; ?>;
-            let gameCompleted = <?php echo $completado ? 'true' : 'false'; ?>;
+            // Inicializar modales
+            const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
+            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
             
-            // Modales
-            const difficultyModalElement = document.getElementById('difficultyModal');
-            const difficultyModal = new bootstrap.Modal(difficultyModalElement, {
-                backdrop: 'static',
-                keyboard: false
-            });
-            
-            // Mostrar modal de dificultad solo si no hay dificultad establecida
+            // Mostrar modal si no hay dificultad seleccionada
             <?php if (!isset($_SESSION['ahorcado_dificultad'])): ?>
             difficultyModal.show();
             <?php endif; ?>
             
-            // Función para actualizar el temporizador
-            function updateTimer() {
-                const now = Math.floor(Date.now() / 1000);
-                elapsedTime = now - startTime;
-                
-                // Formatear el tiempo (minutos:segundos)
-                const minutes = Math.floor(elapsedTime / 60);
-                const seconds = elapsedTime % 60;
-                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            // Iniciar el temporizador si el juego no está completado
-            if (!gameCompleted) {
-                timerInterval = setInterval(updateTimer, 1000);
-                updateTimer(); // Actualizar inmediatamente
-            }
-            
-            // Evento para el botón de reinicio
-            resetButton.addEventListener('click', function() {
-                window.location.href = 'ahorcado.php?reset=1';
+            // Control de música
+            musicToggle.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (gameMusic.paused) {
+                    gameMusic.play();
+                    icon.classList.remove('fa-volume-xmark');
+                    icon.classList.add('fa-volume-high');
+                } else {
+                    gameMusic.pause();
+                    icon.classList.remove('fa-volume-high');
+                    icon.classList.add('fa-volume-xmark');
+                }
             });
             
-            // Función para guardar puntos en la base de datos
+            // Reiniciar juego
+            resetButton.addEventListener('click', function() {
+                window.location.href = '?reset=1';
+            });
+            
+            // Temporizador
+            let timerElement = document.getElementById('timer');
+            let victoryTimeElement = document.getElementById('victory-time');
+            let timeElapsed = <?php echo isset($_SESSION['ahorcado_tiempo_transcurrido']) ? $_SESSION['ahorcado_tiempo_transcurrido'] : 0; ?>;
+            let timerInterval = null;
+            
+            function formatTime(seconds) {
+                const min = Math.floor(seconds / 60);
+                const sec = seconds % 60;
+                return min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+            }
+            
+            function startTimer() {
+                timerInterval = setInterval(() => {
+                    timeElapsed++;
+                    timerElement.textContent = formatTime(timeElapsed);
+                }, 1000);
+            }
+            
+            function stopTimer() {
+                clearInterval(timerInterval);
+            }
+            
+            timerElement.textContent = formatTime(timeElapsed);
+            startTimer();
+            
+            // Mostrar tiempo en el modal de victoria/derrota
+            <?php if (isset($_SESSION['ahorcado_completado']) && $_SESSION['ahorcado_completado']): ?>
+                stopTimer();
+                // Espera a que el DOM esté listo para actualizar el modal
+                setTimeout(() => {
+                    victoryTimeElement.textContent = formatTime(timeElapsed);
+                }, 100);
+            <?php endif; ?>
+            
+            // Manejar entrada de teclado
+            document.addEventListener('keydown', function(event) {
+                if (event.key.match(/^[a-z]$/i)) {
+                    const letra = event.key.toLowerCase();
+                    const boton = document.querySelector(`button[value="${letra}"]:not(:disabled)`);
+                    if (boton) boton.click();
+                }
+            });
+            
+            // Función para calcular puntos
+            function calculatePoints(timeElapsed, dificultad) {
+                const basePoints = 100;
+                const timeBonus = Math.max(0, 300 - timeElapsed);
+                const difficultyMultiplier = dificultad === 'dificil' ? 1.5 : 1;
+                return Math.round((basePoints + timeBonus) * difficultyMultiplier);
+            }
+            
+            // Función para guardar puntos
             function savePoints(points) {
                 fetch('../config/updatePoints.php', {
                     method: 'POST',
@@ -482,20 +490,104 @@ $texto_dificultad = ($dificultad == 'facil') ? 'Fácil' : 'Difícil';
                     },
                     body: `points=${points}&game=ahorcado`
                 })
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al actualizar puntos');
+                    }
+                    return response.text();
+                })
                 .then(data => {
                     console.log('Puntos actualizados:', data);
                 })
                 .catch(error => {
-                    console.error('Error al actualizar puntos:', error);
+                    console.error('Error:', error);
                 });
             }
             
-            // Guardar puntos si el juego está completado y ganado
-            <?php if ($completado && $ganado && isset($_SESSION['usuario_id'])): ?>
-            savePoints(<?php echo $puntos; ?>);
+            // Función para guardar resultado del juego
+            function saveGameResult(won, duration) {
+                if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+                    const gameData = {
+                        usuario_id: <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>,
+                        duracion: Math.floor(duration),
+                        fue_ganado: won ? 1 : 0
+                    };
+                    
+                    fetch('../config/saveGameResult.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(gameData)
+                    })
+                    .then(response => response.json())
+                    .then(data => console.log('Resultado guardado:', data))
+                    .catch(error => console.error('Error:', error));
+                }
+            }
+            
+            // Verificar victoria/derrota y mostrar modal
+            <?php if (isset($_SESSION['ahorcado_completado']) && $_SESSION['ahorcado_completado']): ?>
+           const dificultad = '<?php echo isset($_SESSION['ahorcado_dificultad']) ? $_SESSION['ahorcado_dificultad'] : 'facil'; ?>';
+            const won = <?php echo $_SESSION['ahorcado_errores'] < $_SESSION['ahorcado_oportunidades'] ? 'true' : 'false'; ?>;
+            
+            // Configurar modal según resultado
+            const modalHeader = document.querySelector('#victoryModal .modal-header');
+            const modalTitle = document.querySelector('#victoryModal .modal-title');
+            const modalBody = document.querySelector('#victoryModal .modal-body p');
+            
+            if (won) {
+                modalHeader.className = 'modal-header bg-success text-white';
+                modalTitle.textContent = '¡Bien hecho!';
+                modalBody.textContent = 'Has completado esta partida';
+                
+                const points = calculatePoints(timeElapsed, dificultad);
+                document.getElementById('victory-time').textContent = formatTime(timeElapsed);
+                document.getElementById('victory-level').textContent = dificultad === 'facil' ? 'Fácil' : 'Difícil';
+                document.getElementById('victory-points').textContent = points;
+                
+                <?php if (isset($_SESSION['usuario_id'])): ?>
+                saveGameResult(true, timeElapsed);
+                savePoints(points);
+                <?php endif; ?>
+            } else {
+                modalHeader.className = 'modal-header bg-danger text-white';
+                modalTitle.textContent = '¡Más suerte para la próxima!';
+                modalBody.textContent = 'No has adivinado la palabra esta vez';
+                
+                document.getElementById('victory-time').textContent = timerElement.textContent;
+                document.getElementById('victory-level').textContent = dificultad === 'facil' ? 'Fácil' : 'Difícil';
+                document.getElementById('victory-points').textContent = '0';
+                
+                <?php if (isset($_SESSION['usuario_id'])): ?>
+                saveGameResult(false, timeElapsed);
+                <?php endif; ?>
+            }
+            
+            victoryModal.show();
             <?php endif; ?>
+            // Configurar botones del modal
+            document.querySelector('#victoryModal button[href="?reset=1"]').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '?reset=1';
+            });
+            
+            document.getElementById('exit-btn').addEventListener('click', function() {
+                const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
+                victoryModal.hide();
+                setTimeout(() => {
+                    window.location.href = '/BCS_FloraGames/view/gamesMenu.php';
+                }, 300);
+            });
+           
         });
+
+        
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
     </script>
 </body>
 </html>
