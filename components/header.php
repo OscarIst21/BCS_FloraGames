@@ -6,25 +6,29 @@
         </button>
         
         <!-- Logo -->
-        <div>
+      <div>
+        <a href="/BCS_FloraGames/index.php">
             <img style="max-width: 12rem; margin-bottom: 8px;" src="/BCS_FloraGames/img/logoFG.png" alt="Flora Games">
-        </div>
+        </a>
+    </div>
+
     </div>
 
     <div class="user-section">
             <?php if(isset($_SESSION['user'])): ?>
-                    <button class="btn  d-flex align-items-center"style="color: white;">
+                    <a href="/BCS_FloraGames/view/myProfile.php"><button class="btn btn-access  d-flex align-items-center"style="color: white;">
                         <?php if(!empty($_SESSION['foto_perfil'])): ?>
-                            <div class="profile-image-container" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?> width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                            <div class="profile-image-container" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>  height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
                                 <img src="/BCS_FloraGames/img/foto_de_Perfil/<?php echo $_SESSION['foto_perfil']; ?>" class="rounded-circle" width="30" height="30" alt="Foto de perfil">
                             </div>
                         <?php else: ?>
-                            <div class="rounded-circle" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?> width: 32px; height: 32px; display: flex; justify-content: center; align-items: center;">
+                            <div class="rounded-circle" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>  height: 32px; display: flex; justify-content: center; align-items: center;">
                                 <i class="fa-regular fa-circle-user"></i>
                             </div>
                         <?php endif; ?>
                         <span class="ms-2 d-none d-sm-inline"><?php echo htmlspecialchars($_SESSION['user']?? 'Usuario'); ?></span>
-                    </button>
+                        
+                    </button></a>
             <?php else: ?>
                 <button  class="btn btn_access" onclick="window.location.href='/BCS_FloraGames/view/login.php'">
                    <span>Acceder </span><i class="fa-regular fa-circle-user ms-1"></i>
@@ -58,6 +62,11 @@
             <!-- Sección principal -->
             <li>
                 <a href="/BCS_FloraGames/index.php" class="side-menu-link">
+                    <i class="fa-solid fa-seedling"></i> Inicio
+                </a>
+            </li>
+            <li>
+                <a href="/BCS_FloraGames/view/learning.php" class="side-menu-link">
                     <i class="fa-solid fa-seedling"></i> Aprendizaje
                 </a>
             </li>
@@ -105,6 +114,14 @@
 </header>
 
 <style>
+    a{
+        text-decoration:none;
+    }
+    .btn-access:hover{
+        color: white;
+        background:#3A5A40;
+        border-radius: 50px;
+    }
     /* Estilos para el menú lateral */
     .side-menu {
         position: fixed;
@@ -257,10 +274,11 @@
         color: white;
     }
     .btn_access{
-        color:white
+        color:white;
+        border-radius: 50px;
     }
     .btn_access:hover, .btn_access:hover i{
-       background-color: #5ED646 !important;
+       background-color: #3A5A40 !important;
     }
     
     header {
