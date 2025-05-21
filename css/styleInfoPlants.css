@@ -1,0 +1,80 @@
+.btn-audio{
+background-color: var(--primary-color);
+    color: #2E8B57;
+    padding: 0.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    display: inline-block;
+    border: none;
+    margin: 0.5rem;
+    border:3px solid #2E8B57;
+}
+
+.btn-audio:hover {
+    background-color:#2E8B57;
+    color: white;
+}
+
+   /* Estilos personalizados */
+    .plant-info {
+        font-size: 1rem;
+        line-height: 1.6;
+        text-align:start;
+    }
+    
+    .plant-info strong {
+        color: #2E8B57;
+    }
+    
+    .plant-section {
+        margin-top: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .plant-section h6 {
+        color: #3A5A40;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .map-section {
+        border-top: 2px solid #eee;
+        padding-top: 1.5rem;
+    }
+    
+    .map-content {
+        background-color: #f8f9fa;
+        border-left: 3px solid #2E8B57;
+    }
+    
+    .action-icons .btn {
+        padding: 0.2rem 0.5rem;
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+    
+    /* Estilos para pantallas pequeñas */
+    @media (max-width: 768px) {
+        .modal-body .row {
+            flex-direction: column;
+        }
+        
+        .col-md-6 {
+            width: 100%;
+        }
+        
+        .plant-info {
+            margin-top: 1rem;
+        }
+    }
+    /* Responsivo */
+    @media (max-width: 768px) {
+        .plant-content {
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+        
+        .plant-interactions {
+            margin-top: 1.5rem;
+        }
+    }
