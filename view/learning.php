@@ -1,6 +1,22 @@
 <?php
 require_once __DIR__.'/../config/init.php';
+require_once __DIR__.'/../connection/database.php';
+
+// Obtener todas las plantas de la base de datos
+$db = new Database();
+$conn = $db->getConnection();
+$stmt = $conn->prepare("SELECT * FROM ficha_planta");
+$stmt->execute();
+$plantas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Lógica de paginación
+$plantasPorPagina = 12;
+$paginaActual = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$totalPlantas = count($plantas);
+$inicio = ($paginaActual - 1) * $plantasPorPagina;
+$plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,7 +30,7 @@ require_once __DIR__.'/../config/init.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="img/logoFG.ico">
-
+    
 </head>
 <body>
     <?php include '../components/header.php'; ?>
@@ -40,19 +56,34 @@ require_once __DIR__.'/../config/init.php';
     <div class="contenedor" >
 
         <div class="plants-grid">
-            <div class="plant-card" data-bs-toggle="modal" data-bs-target="#plantModal">
-                <div class="plant-image">
-                    <img src="../img/plantas/biznaga.png" alt="Biznaga">
+            <?php foreach ($plantasPagina as $planta): ?>
+                <div class="plant-card" data-bs-toggle="modal" data-bs-target="#plantModal">
+                    <div class="plant-image">
+                        <img src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>">
+                    </div>
+                    <div class="plant-content">
+                        <h3 class="plant-title"><?php echo htmlspecialchars($planta['nombre_comun']); ?></h3>
+                        <hr style="margin: 0 10px">
+                        <p class="plant-sci"><?php echo htmlspecialchars($planta['nombre_cientifico']); ?></p>
+                        <p class="plant-badge"><?php echo htmlspecialchars($planta['situación']); ?></p>
+                    </div>
                 </div>
-                <div class="plant-content">
-                    <h3 class="plant-title">Biznaga</h3>
-                    <hr style="margin: 0 10px">
-                    <p class="plant-sci">Ferocactus townsendianus (Engelm.)Britton & Rose var. townsendianus</p>
-                    <p class="plant-badge">Endémica</p>
-                </div>
-            </div>
+            <?php endforeach; ?>
+        </div>
 
-        </div>  
+        <!-- Paginación -->
+        <div class="pagination" style="text-align:center; margin:1rem 0;">
+            <?php
+            $totalPaginas = ceil($totalPlantas / $plantasPorPagina);
+            for ($i = 1; $i <= $totalPaginas; $i++) {
+                if ($i == $paginaActual) {
+                    echo "<span style='font-weight:bold; color:#246741;'>$i</span> ";
+                } else {
+                    echo "<a href='?page=$i' style='color:#246741; text-decoration:underline;'>$i</a> ";
+                }
+            }
+            ?>
+        </div>
         
         
     </div>
