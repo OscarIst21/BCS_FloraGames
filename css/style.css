@@ -42,6 +42,20 @@ body::before {
     display: flex;
     justify-content: space-between;
 }
+ .reset-btn {
+            color: #246741;
+            background-color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .reset-btn:hover {
+            background-color: #246741;
+            color:white;
+        }
 
 .form-container { /* Login */
     background: white;

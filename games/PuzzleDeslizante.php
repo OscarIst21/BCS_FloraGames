@@ -236,39 +236,15 @@ function saveGameResult($won, $duration, $points) {
     <title>Puzzle Deslizante</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
     <style>
-        body {
-            background-image: url('../img/fondo.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            min-height: 100vh;
-            font-family: 'Poppins', sans-serif;
-            padding-top: 80px; /* Espacio para el navbar */
+     
+        .game-info{
+            display:none;
         }
-        
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-        }
-        
-        .game-info {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-        }
-        
+
         .info-item {
             display: flex;
             align-items: center;
@@ -276,7 +252,7 @@ function saveGameResult($won, $duration, $points) {
         }
         
         .puzzle-container {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             padding: 1rem;
             margin-bottom: 1rem;
@@ -316,7 +292,7 @@ function saveGameResult($won, $duration, $points) {
             position: absolute;
             top: 5px;
             left: 5px;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.3);
             color: white;
             border-radius: 50%;
             width: 24px;
@@ -342,7 +318,7 @@ function saveGameResult($won, $duration, $points) {
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             padding: 1rem;
         }
@@ -371,24 +347,10 @@ function saveGameResult($won, $duration, $points) {
             object-fit: cover;
         }
         
-        .reset-btn {
-            background-color: #2E8B57;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .reset-btn:hover {
-            background-color: #246741;
-            transform: translateY(-3px);
-        }
-        
+
         .victory-stats {
             margin: 1rem 0;
-            text-align: left;
+            text-align: center;
         }
         
         .level {
@@ -450,6 +412,35 @@ function saveGameResult($won, $duration, $points) {
 <body>
     <?php include '../components/header.php'; ?>
 
+    <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
+               <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
+            </button>
+            <button class="reset-btn" id="musicToggle"  title="Música">
+                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>" ></i></h5>
+            </button>
+            <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
+                <source src="../assets/musica.mp3" type="audio/mp3">
+            </audio>
+            <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
+        </div>
+        <div style="text-align:center">
+            <h5>Puzzle deslizante</h5>
+            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
+        </div>
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <div>
+                <div style="display:flex; flex-direction:row; gap:10px">
+                    <div class="me-2">
+                        <h5><span><i class="fa-solid fa-up-down-left-right me-2"></i><span id="moves"><?php echo $_SESSION['puzzle_moves']; ?></span></span></h5> 
+                    </div>
+                    <h5><i class="fa-solid fa-clock"></i></h5>
+            <div class="timer"> <h5 id="timer"> 00:00</h5></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php
     // Texto de dificultad para mostrar
     $difficultyText = 'Sin seleccionar';
@@ -462,35 +453,13 @@ function saveGameResult($won, $duration, $points) {
     }
     ?>
 
-    <div class="game-header container">
-        <div>
-            <audio id="gameMusic" loop <?php echo isset($_SESSION['music_enabled']) && $_SESSION['music_enabled'] ? 'autoplay' : ''; ?>>
-                <source src="../assets/musica.mp3" type="audio/mp3">
-            </audio>
-            <button class="reset-btn" id="reset-btn" title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></i></h5></button>
-        </div>
-        <div style="text-align:center">
-            <h5>Puzzle Deslizante</h5>
-            <div class="level">Modo <span id="level-display"><?php echo $difficultyText; ?></span></div>
-        </div>
-        <div style="display:flex; flex-direction:row; gap:10px">
-            <h5><i class="fa-solid fa-clock"></i></h5>
-            <div class="timer">
-                <h5 id="timer"><?php echo formatTime($elapsedTime); ?></h5>
-            </div>
-        </div>
-    </div>
-
+    <div class="contenedor">
     <div class="container">
         <div class="game-info">
             <div class="info-item">
-                <i class="fas fa-image"></i>
-                <span>Imagen: <span id="image-number"><?php echo $_SESSION['puzzle_image']; ?></span></span>
+                <span><span id="image-number"><?php echo $_SESSION['puzzle_image']; ?></span></span>
             </div>
-            <div class="info-item">
-                <i class="fas fa-sync-alt"></i>
-                <span>Movimientos: <span id="moves"><?php echo $_SESSION['puzzle_moves']; ?></span></span>
-            </div>
+            
         </div>
 
         <div class="puzzle-container">
@@ -525,7 +494,7 @@ function saveGameResult($won, $duration, $points) {
         </div>
         
         <div class="image-selector mt-4">
-            <h6 class="w-100 text-center mb-2">Selecciona una imagen:</h6>
+            <h6 class="w-100 text-center mb-2" style="color:White">Selecciona una planta:</h6>
             <?php
             for ($i = 1; $i <= 15; $i++) {
                 $selected = ($i == $_SESSION['puzzle_image']) ? 'selected' : '';
@@ -535,6 +504,7 @@ function saveGameResult($won, $duration, $points) {
             }
             ?>
         </div>
+    </div>
     </div>
 
     <!-- Modal de selección de dificultad -->
@@ -562,7 +532,7 @@ function saveGameResult($won, $duration, $points) {
                 <div class="modal-body text-center">
                     <p>Has completado el puzzle correctamente</p>
                     <div class="victory-stats">
-                        <p><i class="fas fa-image me-2"></i> Imagen: <span id="victory-image"><?php echo $_SESSION['puzzle_image']; ?></span></p>
+                        <p><i class="fas fa-image me-2"></i> Planta: <span id="victory-image"><?php echo $_SESSION['']; ?></span></p>
                         <p><i class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves">0</span></p>
                         <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
                         <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">0</span></p>
@@ -570,12 +540,13 @@ function saveGameResult($won, $duration, $points) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="continue-btn">Continuar</button>
-                    <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
+                    <button type="button" class="btn btn-success" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>
     </div>
 
+     <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

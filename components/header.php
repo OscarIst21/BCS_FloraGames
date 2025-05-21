@@ -62,7 +62,7 @@
             <!-- Sección principal -->
             <li>
                 <a href="/BCS_FloraGames/index.php" class="side-menu-link">
-                    <i class="fa-solid fa-seedling"></i> Inicio
+                    <i class="fa-solid fa-house"></i> Inicio
                 </a>
             </li>
             <li>

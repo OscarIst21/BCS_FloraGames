@@ -380,7 +380,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
 <body>
     <?php include '../components/header.php'; ?>
 
-<div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
+    <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
         <div style="display:flex; flex-direction:row; gap:10px">
             <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
                <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
