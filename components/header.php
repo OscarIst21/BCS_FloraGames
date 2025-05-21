@@ -6,9 +6,12 @@
         </button>
         
         <!-- Logo -->
-        <div>
+      <div>
+        <a href="/BCS_FloraGames/index.php">
             <img style="max-width: 12rem; margin-bottom: 8px;" src="/BCS_FloraGames/img/logoFG.png" alt="Flora Games">
-        </div>
+        </a>
+    </div>
+
     </div>
 
     <div class="user-section">
@@ -58,6 +61,11 @@
             <!-- Sección principal -->
             <li>
                 <a href="/BCS_FloraGames/index.php" class="side-menu-link">
+                    <i class="fa-solid fa-seedling"></i> Inicio
+                </a>
+            </li>
+            <li>
+                <a href="/BCS_FloraGames/view/learning.php" class="side-menu-link">
                     <i class="fa-solid fa-seedling"></i> Aprendizaje
                 </a>
             </li>
@@ -257,7 +265,8 @@
         color: white;
     }
     .btn_access{
-        color:white
+        color:white;
+        border-radius: 50px;
     }
     .btn_access:hover, .btn_access:hover i{
        background-color: #5ED646 !important;
