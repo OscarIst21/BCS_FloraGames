@@ -316,7 +316,7 @@ if (isset($_SESSION['user'])) {
             <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
-            <h5>Mecanografía</h5>
+            <h5 style="margin:0">Mecanografía</h5>
             <div class="level">Modo <span id="level-display"></span></div>
         </div>
         <div style="display:flex; flex-direction:row; gap:10px">

@@ -86,8 +86,10 @@ try {
                 <div class="profile-info">
                     <form action="../config/updateProfile.php" method="post" enctype="multipart/form-data" id="profileForm">
                         <div class="info-item">
-                            
-                            <span class="info-value me-2" id="nombreDisplay"><i class="fa-solid fa-user me-2"></i><?php echo htmlspecialchars($userData['nombre']); ?></span>
+                            <div>
+                                <i class="fa-solid fa-user me-2"></i>
+                            <span class="info-value me-2" id="nombreDisplay"><?php echo htmlspecialchars($userData['nombre']); ?></span>
+                            </div>
                             <a href="#" id="editarNombre" style="color: #436745;"><i class="fa-solid fa-pencil"></i></a>
                             <input type="text" name="nombre" id="nombreInput" value="<?php echo htmlspecialchars($userData['nombre']); ?>" style="display: none; width: 100%;" class="form-control">
                         </div>
@@ -167,13 +169,6 @@ try {
                             Has alcanzado el nivel <?php echo htmlspecialchars($nivelInfo['id']); ?> en Flora Games. Continúa aprendiendo y acumulando puntos 
                             para desbloquear nuevos niveles.
                         </p>
-                        
-                        <div class="progress-container">
-                            <div class="progress-label">
-                                <span>Progreso al siguiente nivel</span>
-                                <span><?php echo round($nextLevelProgress); ?>%</span>
-                            </div>
-                        </div>
                         
                         <div class="level-stats">
                             <div class="stat-item">

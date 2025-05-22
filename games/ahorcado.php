@@ -341,7 +341,7 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
             </button>
         </div>
         <div style="text-align:center">
-            <h5>Ahorcado - Plantas</h5>
+            <h5 style="margin:0">Ahorcado - Plantas</h5>
             <div class="level">
                 Modo: <span id="level-display">
                     <?php echo isset($_SESSION['ahorcado_dificultad']) ? 

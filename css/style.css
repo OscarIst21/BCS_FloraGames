@@ -3,6 +3,14 @@
     --color_hover_btn: #349c47;
 
 }
+
+@font-face {
+  font-family: 'Anzer';
+  src: url('../Assets/Ancizar_Sans/AncizarSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
     background-color: white;
     background-image: url('/BCS_FloraGames/img/flora.jpg');
@@ -11,9 +19,10 @@ body {
     background-attachment: fixed;
     background-position: center;
     margin:0;
-    font-family: "Montserrat", sans-serif;
     position: relative;
     min-height: 100vh;
+    font-family: "Ancizar Sans", sans-serif;
+    font-family: 'Anzer', sans-serif !important;
 }
 
 html, body {
@@ -34,7 +43,7 @@ body::before {
 
 .header-secundary {
     background-color: white;
-    padding: 1rem;
+    padding: 0.5rem 1rem;
     color: #2E8B57;
     font-size: 0.9rem;
     z-index: 1;
@@ -116,6 +125,7 @@ h2 {
 }
 .button:hover, .btnActions:hover {
     background-color: var(--color_hover_btn);
+    transform: translateY(-3px);
 }
 
 .switch-form {
@@ -188,7 +198,7 @@ footer{
     position: relative;
     display: flex;
     justify-content: center;
-    margin: 5rem;
+    margin: 2.5rem 5rem;
     flex-wrap: wrap;
     gap: 2rem;
 }
@@ -359,7 +369,7 @@ header{
     background-color: #246741;
     color: white;
     border: none;
-    border-radius: 0.5rem;
+    border-radius: 20px;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -435,7 +445,6 @@ header{
         overflow: hidden;
         width: 100%;
         margin: 2rem auto;
-        font-family: 'Poppins', sans-serif;
     }
     
     .stats-header {

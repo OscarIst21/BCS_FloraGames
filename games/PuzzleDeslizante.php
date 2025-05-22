@@ -240,6 +240,7 @@ function saveGameResult($won, $duration, $points) {
     <link rel="stylesheet" href="../css/styleGames.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
      
         .game-info{
@@ -386,7 +387,7 @@ function saveGameResult($won, $duration, $points) {
             <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
-            <h5>Puzzle deslizante</h5>
+            <h5 style="margin:0">Puzzle deslizante</h5>
             <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
         </div>
         <div style="display:flex; flex-direction:row; gap:10px">

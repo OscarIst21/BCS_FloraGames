@@ -23,3 +23,21 @@
     background-color: #246741;
     color: white;
 }
+
+.level {
+    font-size: small;
+}
+
+.box {
+    background-color: white;
+    min-height: 50px;
+    border-radius: 0px 0px 10px 10px;
+    padding: 0.5rem;
+}
+.box-list{
+    margin-bottom: 0.5rem;
+}
+
+        .contenedor{
+            margin: 2rem !important;
+        }

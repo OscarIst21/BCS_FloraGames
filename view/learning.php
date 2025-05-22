@@ -30,7 +30,6 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     <title>Aprendizaje - Flora Games</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/styleLearning.css">
-    <link rel="stylesheet" href="../css/styleInfoPlants.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -77,7 +76,8 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
         </div>  
     </div>
 
-    <div class="contenedor" >
+    <div class="page-container">
+        <div class="contenedor" >
 
         <div class="plants-grid">
             <?php foreach ($plantasPagina as $planta): ?>
@@ -94,6 +94,7 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
                     data-curiosidad="<?php echo htmlspecialchars($planta['curiosidad']); ?>"
                     data-audio="<?php echo htmlspecialchars($planta['audio']); ?>"
                     data-situacion="<?php echo htmlspecialchars($planta['situación']); ?>"
+                    data-usos="<?php echo htmlspecialchars($planta['usos']); ?>"
                 >
                     <div class="plant-image">
                         <img src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>">
@@ -136,6 +137,7 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
         </div>
         
         
+    </div>
     </div>
     
 </div>
@@ -251,6 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('#plantModal .plant-info [data-field="distribucion"]').textContent = card.dataset.distribucion;
             document.querySelector('#plantModal .plant-info [data-field="curiosidad"]').textContent = card.dataset.curiosidad;
             document.querySelector('#plantModal .plant-info [data-field="situacion"]').textContent = card.dataset.situacion;
+            document.querySelector('#plantModal .plant-info [data-field="usos"]').textContent = card.dataset.usos;
             // Imagen principal
             document.querySelector('#plantModal .carousel-item.active img').src = "../img/plantas/" + card.dataset.foto;
             // Imagen secundaria (dibujo animado)

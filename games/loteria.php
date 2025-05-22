@@ -38,9 +38,9 @@ if (!isset($_SESSION['loteria_board'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lotería - BCS Flora Games</title>
+    <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f0f2f5;

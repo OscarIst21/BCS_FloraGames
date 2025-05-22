@@ -99,7 +99,7 @@ if (isset($_SESSION['user'])) {
         }
 
         .level {
-            font-size: 1.2rem;
+            font-size: small;
         }
 
         .board-container {
@@ -175,12 +175,6 @@ if (isset($_SESSION['user'])) {
             border-radius: 10px 10px 0px 0px;
         }
 
-        .box {
-            background-color: white;
-            min-height: 50px;
-            border-radius: 0px 0px 10px 10px;
-            padding: 1rem;
-        }
 
         .victory-stats {
             background-color: #f8f9fa;
@@ -253,7 +247,7 @@ if (isset($_SESSION['user'])) {
             <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
-            <h5>Sopa de letras</h5>
+            <h5 style="margin:0">Sopa de letras</h5>
             <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
         </div>
         <div style="display:flex; flex-direction:row; gap:10px">
@@ -271,12 +265,6 @@ if (isset($_SESSION['user'])) {
 
     <div class="page-container">
         <div class="game-container">
-            <div class="board-container">
-                <div class="letter-board" id="letter-board">
-                    <!-- Las letras se generarán con JavaScript -->
-                </div>
-            </div>
-
             <div class="box-list">
                 <div class="header-box">Palabras</div>
                 <div class="box">
@@ -286,6 +274,14 @@ if (isset($_SESSION['user'])) {
                 </div>
 
             </div>
+
+            <div class="board-container">
+                <div class="letter-board" id="letter-board">
+                    <!-- Las letras se generarán con JavaScript -->
+                </div>
+            </div>
+
+            
         </div>
     </div>
 

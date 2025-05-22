@@ -1,9 +1,6 @@
 <?php
 require_once __DIR__ . '/../connection/database.php';
-if (basename(__FILE__) != basename($_SERVER['SCRIPT_FILENAME'])) {
-    // Si este archivo es incluido desde otro, no hacer nada
-    return;
-}
+
 require_once __DIR__ . '/../config/dataPlanta.php';
 // Método para obtener todos los datos de las plantas
 function getAllPlantas() {
@@ -69,6 +66,16 @@ function getCuriosidades() {
     $curiosidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
     header('Content-Type: application/json');
     echo json_encode($curiosidades);
+}
+
+function getUsos() {
+    $db = new Database();
+    $conn = $db->getConnection();
+    $stmt = $conn->prepare("SELECT id, usos FROM ficha_planta");
+    $stmt->execute();
+    $usos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    header('Content-Type: application/json');
+    echo json_encode($usos);
 }
 
 // Método para obtener audios
@@ -174,6 +181,10 @@ if (isset($_GET['tipo'])) {
         case 'todas':
             getAllPlantas();
             break;
+        case 'usos':
+                getUsos();
+
+                break;
         default:
             http_response_code(400);
             echo json_encode(['error' => 'Tipo no válido']);
@@ -182,4 +193,3 @@ if (isset($_GET['tipo'])) {
     http_response_code(400);
     echo json_encode(['error' => 'No se especificó el tipo de datos']);
 }
-

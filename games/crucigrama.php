@@ -27,7 +27,6 @@ if (!isset($_SESSION['crucigrama_board'])) {
     <title>Crucigrama - BCS Flora Games</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             background-color: #f0f2f5;

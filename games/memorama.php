@@ -213,9 +213,9 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
     <link rel="stylesheet" href="../css/styleGames.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f0f2f5;
@@ -235,6 +235,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
             margin: 20px auto;
             padding: 0 20px;
         }
+
 
         h1 {
             color: #1a73e8;
@@ -274,7 +275,8 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
 
         .cardMemory {
             aspect-ratio: 1;
-            background-color: #5ED646;
+            background: linear-gradient(15deg, #5ED646,rgb(163, 250, 132));
+
             border-radius: 8px;
             cursor: pointer;
             display: flex;
@@ -395,7 +397,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
             <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
         </div>
         <div style="text-align:center">
-            <h5>Memorama</h5>
+            <h5 style="margin:0">Memorama</h5>
             <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
         </div>
         <div style="display:flex; flex-direction:row; gap:10px">
