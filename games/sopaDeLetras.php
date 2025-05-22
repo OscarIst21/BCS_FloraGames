@@ -10,13 +10,25 @@ function obtenerPalabras() {
     $stmt->execute();
     $nombres = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-    // Mezclar todos los nombres
-    shuffle($nombres);
+    // Dividir nombres por coma y limpiar espacios
+    $todosNombres = [];
+    foreach ($nombres as $nombre) {
+        $partes = explode(',', $nombre);
+        foreach ($partes as $parte) {
+            $nombreLimpio = trim($parte);
+            if ($nombreLimpio !== '') {
+                $todosNombres[] = $nombreLimpio;
+            }
+        }
+    }
 
-    // Seleccionar palabras para cada modo
+    // Mezclar todos los nombres
+    shuffle($todosNombres);
+
+    // Seleccionar palabras para cada modo, pero no más de las que existan
     $palabras = [
-        'facil' => array_slice($nombres, 0, 5),
-        'dificil' => array_slice($nombres, 0, 8)
+        'facil' => array_slice($todosNombres, 0, min(4, count($todosNombres))),
+        'dificil' => array_slice($todosNombres, 0, min(6, count($todosNombres)))
     ];
 
     return $palabras;
@@ -312,6 +324,7 @@ if (isset($_SESSION['user'])) {
                     <button class="difficulty-btn" data-difficulty="notime">Sin tiempo</button>
                     <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
                     <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+                    <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>
@@ -374,6 +387,10 @@ if (isset($_SESSION['user'])) {
                 echo "};";
             ?>
 
+            // DEBUG: Mostrar en consola las palabras que se traen de PHP
+            console.log("Palabras modo fácil:", palabrasPorDificultad.easy);
+            console.log("Palabras modo difícil:", palabrasPorDificultad.hard);
+
             let boardSize = 15;
             let board = [];
             let words = [];
@@ -426,6 +443,11 @@ if (isset($_SESSION['user'])) {
                         initGame();
                     }
                 });
+            });
+
+            // Agregar manejador para el botón "Salir" del modal de dificultad
+            document.getElementById('exit-btn').addEventListener('click', function() {
+                window.location.href = '../view/gamesMenu.php';
             });
 
             // Configurar botones de instrucciones
@@ -504,6 +526,9 @@ if (isset($_SESSION['user'])) {
                         // Elegir dirección aleatoria (0: horizontal, 1: vertical, 2: diagonal)
                         const direction = Math.floor(Math.random() * 3);
 
+                        // Validación: si la palabra es más larga que el tablero, saltar intento
+                        if (word.length > boardSize) continue;
+
                         // Elegir posición inicial aleatoria
                         let row, col;
 
@@ -534,6 +559,12 @@ if (isset($_SESSION['user'])) {
                             } else { // Diagonal
                                 r = row + i;
                                 c = col + i;
+                            }
+
+                            // Validación extra: asegurarse de que r y c estén dentro de los límites
+                            if (r < 0 || r >= boardSize || c < 0 || c >= boardSize) {
+                                canPlace = false;
+                                break;
                             }
 
                             // Verificar si la celda está vacía o tiene la misma letra
