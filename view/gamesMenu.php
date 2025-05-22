@@ -21,7 +21,7 @@ require_once __DIR__.'/../config/init.php';
     <div class="contenedor">
         <div class="games-grid">
             <div class="card">
-                <div class="card-head"><img src="../img/logosJuegos/memorama.png" alt="Memorama"></div>
+                <div class="card-head"><a href="../games/memorama.php"><img src="../img/logosJuegos/memorama.png" alt="Memorama"></a></div>
                 <div class="card-body">
                     <h3 class="card-title">Memorama</h3>
                     <form action="../games/memorama.php" method="get">
@@ -32,7 +32,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-                <div class="card-head"><img src="../img/logosJuegos/sopaLetras.png" alt="Sopa de letras"></div>
+                <div class="card-head"><a href="../games/sopaDeLetras.php"><img src="../img/logosJuegos/sopaLetras.png" alt="Sopa de letras"></a></div>
                 <div class="card-body">
                     <h3 class="card-title">Sopa de letras</h3>
                     <form action="../games/sopaDeLetras.php" method="get">
@@ -43,7 +43,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-                <div class="card-head"><img src="../img/logosJuegos/puzzle.png" alt="Puzzle deslizante"></div>
+                <div class="card-head"><a href="../games/puzzleDeslizante.php"><img src="../img/logosJuegos/puzzle.png" alt="Puzzle deslizante"></a></div>
                 <div class="card-body">
                     <h3 class="card-title">Puzzle deslizante</h3>
                     <form action="../games/puzzleDeslizante.php" method="get">
@@ -54,7 +54,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-                <div class="card-head"><img src="../img/logosJuegos/ahorcado.png" alt="Ahorcado"></div>
+                <div class="card-head"><a href="../games/ahorcado.php"><img src="../img/logosJuegos/ahorcado.png" alt="Ahorcado"></a></div>
                 <div class="card-body">
                     <h3 class="card-title">Ahorcado</h3>
                     <form action="../games/ahorcado.php" method="get">
@@ -65,7 +65,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-                <div class="card-head"><img src="../img/logosJuegos/loteria.png" alt="Loteria"></div>
+                <div class="card-head"><a href="../games/loteria.php"><img src="../img/logosJuegos/loteria.png" alt="Loteria"></a></div>
                 <div class="card-body">
                     <h3 class="card-title">Loteria</h3>
                     <form action="../games/loteria.php" method="get">
@@ -76,7 +76,7 @@ require_once __DIR__.'/../config/init.php';
                 </div>
             </div>
             <div class="card">
-            <div class="card-head"><img src="../img/logosJuegos/meca.png" alt="Mecanografia"></div>
+            <div class="card-head"><a href="../games/mecanografia.php"><img src="../img/logosJuegos/meca.png" alt="Mecanografia"></a></div>
             <div class="card-body">
                 <h3 class="card-title">Mecanografía</h3>
                 <form action="../games/mecanografia.php" method="get">

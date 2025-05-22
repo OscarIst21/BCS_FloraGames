@@ -237,6 +237,7 @@ function saveGameResult($won, $duration, $points) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/styleGames.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -359,54 +360,13 @@ function saveGameResult($won, $duration, $points) {
             margin-bottom: 0.5rem;
         }
         
-        /* Ajustes para el modal */
-        .modal-backdrop {
-            opacity: 0.5 !important;
-            z-index: 1040;
-        }
+    
         
-        .modal {
-            z-index: 1050;
-        }
-        
-        .modal-dialog {
-            margin: 1.75rem auto;
-        }
-        
-        .modal-content {
-            border: none;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
+       
         .navbar {
             z-index: 1030;
         }
         
-        /* Estilos para los botones de dificultad */
-        .difficulty-btn {
-            background-color: #2E8B57;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 0.8rem 1.5rem;
-            margin: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            font-weight: 600;
-            display: block;
-            text-align: center;
-            text-decoration: none;
-        }
-        
-        .difficulty-btn:hover {
-            background-color: #246741;
-            transform: translateY(-3px);
-            color: white;
-            text-decoration: none;
-        }
     </style>
 </head>
 <body>
@@ -515,8 +475,14 @@ function saveGameResult($won, $duration, $points) {
                     <h5 class="modal-title" id="difficultyModalLabel">Selecciona la dificultad</h5>
                 </div>
                 <div class="modal-body">
-                    <a href="?difficulty=easy" class="difficulty-btn">Fácil (8 piezas)</a>
-                    <a href="?difficulty=hard" class="difficulty-btn">Difícil (15 piezas)</a>
+                    <p><strong>Fácil:</strong> (8 piezas)</p>
+                    <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
+
+                    <p><strong>Difícil:</strong> (15 piezas)</p>
+                    <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>
@@ -539,8 +505,8 @@ function saveGameResult($won, $duration, $points) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="continue-btn">Continuar</button>
-                    <button type="button" class="btn btn-success" id="exit-btn">Salir</button>
+                    <button type="button" class="btn btn-success" id="continue-btn">Continuar</button>
+                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>
@@ -550,6 +516,15 @@ function saveGameResult($won, $duration, $points) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            // Botones de selección de dificultad
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const diff = btn.dataset.difficulty;         // easy | hard | notime
+                    window.location.href = `?difficulty=${diff}`; // recarga con el parámetro
+                });
+            });
+
             // Elementos del DOM
             const puzzleGrid = document.getElementById('puzzle-grid');
             const movesElement = document.getElementById('moves');

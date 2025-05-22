@@ -210,6 +210,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memorama - BCS Flora Games</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/styleGames.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -438,14 +439,17 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                     <h5 class="modal-title" id="difficultyModalLabel">Selecciona la dificultad</h5>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Sin tiempo:</strong> 6 a 10 pares de cartas</p>
-                    <a href="?difficulty=notime" class="btn btn-primary mb-3 w-100">Sin tiempo</a>
-
                     <p><strong>Fácil:</strong> 6 a 10 pares de cartas con tiempo</p>
-                    <a href="?difficulty=easy" class="btn btn-success mb-3 w-100">Fácil</a>
+                    <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
 
                     <p><strong>Difícil:</strong> 10 a 15 pares de cartas con tiempo</p>
-                    <a href="?difficulty=hard" class="btn btn-danger mb-3 w-100">Difícil</a>
+                    <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+
+                    <p><strong>Sin tiempo:</strong> 6 a 10 pares de cartas</p>
+                    <button class="difficulty-btn" data-difficulty="notime">Sin tiempo</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>
@@ -478,8 +482,18 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
      <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos del DOM
+        // Botones de selección de dificultad
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const diff = btn.dataset.difficulty;         // easy | hard | notime
+                window.location.href = `?difficulty=${diff}`; // recarga con el parámetro
+            });
+        });
+
 
             // Music control initialization
         const musicToggle = document.getElementById('musicToggle');

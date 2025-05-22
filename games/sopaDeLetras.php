@@ -65,6 +65,7 @@ if (isset($_SESSION['user'])) {
     <title>Sopa de Letras - Flora Games</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/stylesMedia.css">
+    <link rel="stylesheet" href="../css/styleGames.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -164,31 +165,6 @@ if (isset($_SESSION['user'])) {
             background-color: #246741;
             color: white;
             text-decoration: line-through;
-        }
-
-        .modal-header {
-            background-color: #246741;
-            color: white;
-        }
-
-        .difficulty-btn {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 15px;
-            font-size: 1.2rem;
-            background-color: #f0f0f0;
-            border: none;
-            border-radius: 10px;
-            transition: all 0.3s;
-        }
-
-        .difficulty-btn:hover {
-            background-color: #c8e6c9;
-        }
-
-        .difficulty-btn.selected {
-            background-color: #246741;
-            color: white;
         }
 
         .header-box {
@@ -324,7 +300,9 @@ if (isset($_SESSION['user'])) {
                     <button class="difficulty-btn" data-difficulty="notime">Sin tiempo</button>
                     <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
                     <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
-                    <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>

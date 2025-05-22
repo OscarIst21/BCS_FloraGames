@@ -145,6 +145,7 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ahorcado - Flora Games</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/styleGames.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -279,32 +280,7 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
             gap: 0.5rem;
             margin:0;
         }
-        .difficulty-btn {
-            background-color: #2E8B57;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 0.8rem 1.5rem;
-            margin: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            font-weight: 600;
-            display: block;
-            text-align: center;
-            text-decoration: none;
-        }
-        .difficulty-btn a{
-            color:white;
-            width: 100%;
-        }
         
-        .difficulty-btn:hover {
-            background-color: #246741;
-            transform: translateY(-3px);
-            color: white;
-            text-decoration: none;
-        }
         @media (max-width: 576px) {
             .letter-box {
                 width: 30px;
@@ -480,6 +456,9 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
                     <p><strong>Difícil:</strong> (3 oportunidades)</p>
                     <button class="difficulty-btn" data-difficulty="dificil">Difícil</button>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
+                </div>
             </div>
         </div>
     </div>
@@ -543,6 +522,10 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
                 window.location.href = '?reset=1';
             });
             
+            document.getElementById('exit-btn').addEventListener('click', function() {
+            window.location.href = '../view/gamesMenu.php';
+        });
+
             // Temporizador
             let timerElement = document.getElementById('timer');
             let victoryTimeElement = document.getElementById('victory-time');

@@ -1,6 +1,6 @@
 :root{
     --color_principa: #2E8B57;
-    --color_hover_btn: #5ED646;
+    --color_hover_btn: #349c47;
 
 }
 body {
@@ -315,13 +315,20 @@ header{
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #E3FFE6;
+    background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
 }
 .card-head img:hover{
     transform: scale(1.05);
 }
+
+.card:hover{
+        box-shadow: -1px 12px 33px 0px rgba(0,0,0,0.75);
+        -webkit-box-shadow: -1px 12px 33px 0px rgba(0,0,0,0.75);
+        -moz-box-shadow: -1px 12px 33px 0px rgba(0,0,0,0.75);
+         transform: translateY(-3px);
+    }
 
 .card-head img {
     max-width: 100%;
