@@ -6,7 +6,6 @@
     position: relative;
     overflow: hidden;
     border-radius: 15px;
-    margin-bottom: 3rem;
     box-shadow: 0 5px 15px rgba(46, 139, 87, 0.1);
     width: 90%;
 }
@@ -33,6 +32,7 @@
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
     border: 3px solid #436745;
      min-width: 300px;
+     color: #3A5A40;
 }
 
 .profile-header {
@@ -46,12 +46,12 @@
 }
 
 .profile-info {
-    margin-bottom: 30px;
+    margin: 0 auto 30px;
+    width: 50%;
 }
 
 .info-item {
     display: flex;
-    justify-content: center;
     align-items: center;
     padding: 15px 20px;
     background-color: #f8f9fa;
@@ -59,6 +59,7 @@
     margin-bottom: 15px;
     gap: 10px;
     font-size: 150%;
+    justify-content: space-between;
 }
 
 .info-label {
@@ -172,3 +173,213 @@
     max-width: 100%;
     height: auto;
 }
+
+.cd-info{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.cd-info-div{
+    width: 50%
+}
+
+.cd-title{
+    color: #3A5A40;
+}
+.progress-bar{
+    background-color: #2e8b57 !important;
+}
+
+.status-profile{
+    display: flex;
+    width: 90%;
+    margin: 30px auto;
+    justify-content: space-between;
+}
+
+
+/**/
+
+
+.level-card-container {
+    min-width: 40%;
+    width: 50%;
+    padding: 0;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    height: auto;
+    min-height: 400px;
+    flex-direction: column;
+}
+
+.level-image {
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.level-image img {
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.level-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.level-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.level-message {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+
+/* */
+.badges-container {
+    min-width: 40%;
+    width: 45%;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.badges-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.badges-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.badge-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.badge-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.badge-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.badge-date {
+    font-size: 0.7rem;
+    color: #777;
+    margin-top: 0.3rem;
+}
+
+.badges-footer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    bottom: 0;
+}
+
+/* modal */
+ .badges-grid-modal {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .badge-item-modal {
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .badge-item-modal:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-icon-modal {
+        width: 60px;
+        height: 60px;
+        margin-right: 1rem;
+    }
+
+    .badge-icon-modal img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .badge-info-modal {
+        flex: 1;
+    }
+
+    .badge-name-modal {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-description-modal {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-date-modal {
+        font-size: 0.8rem;
+        color: #95a5a6;
+    }

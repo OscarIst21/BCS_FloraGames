@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 require_once __DIR__ . '/../connection/database.php';
+include_once '../config/dataSuccess.php'; 
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user'])) {
@@ -68,7 +69,7 @@ try {
                 <h1 class="hero-title">Mi perfil</h1>
                 <p>Consulta tus estadísticas, logros e insignias conseguidas</p>
             </div> 
-</section>
+        </section>
 
             <div class="profile-container">
                 <div class="profile-header">
@@ -85,14 +86,15 @@ try {
                 <div class="profile-info">
                     <form action="../config/updateProfile.php" method="post" enctype="multipart/form-data" id="profileForm">
                         <div class="info-item">
-                            <span class="info-value me-2" id="nombreDisplay"><?php echo htmlspecialchars($userData['nombre']); ?></span>
+                            
+                            <span class="info-value me-2" id="nombreDisplay"><i class="fa-solid fa-user me-2"></i><?php echo htmlspecialchars($userData['nombre']); ?></span>
                             <a href="#" id="editarNombre" style="color: #436745;"><i class="fa-solid fa-pencil"></i></a>
                             <input type="text" name="nombre" id="nombreInput" value="<?php echo htmlspecialchars($userData['nombre']); ?>" style="display: none; width: 100%;" class="form-control">
                         </div>
 
                         <div class="info-item">
-                            <span class="info-label">Correo electrónico: </span>
-                            <span class="info-value"><?php echo htmlspecialchars($userData['email']); ?></span>
+                            
+                            <span class="info-value"><i class="fa-solid fa-envelope me-2"></i><?php echo htmlspecialchars($userData['email']); ?></span>
                         </div>
 
                         <!-- Campos ocultos para la foto de perfil -->
@@ -110,46 +112,144 @@ try {
                 </div>
 
                 <div>
-                    <h5>Nivel</h5>
-                    <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar" style="width: 25%">25%</div>
+                    <h5>Tu progreso general</h5>
+                    <div class="progress" role="progressbar" aria-label="Example with label" 
+                        aria-valuenow="<?php echo round($nivelusuario); ?>" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="width: <?php echo round($nivelusuario); ?>%">
+                            <?php echo round($nivelusuario); ?>%
+                        </div>
                     </div>
 
                     <hr>
                 </div>
                 <div>
                     <div class="cd-info">
-                        <div>
-                            <h5 class="cd-title fw-bold  mb-0"><i class="fa-solid fa-clock me-2"></i>Tiempo jugado</h5>
+                        <div class="cd-info-div">
+                            <h5 class="cd-title fw-bold  mb-0"><i class="fa-solid fa-gamepad me-2"></i>Juegos jugados</h5>
                             <div class="d-flex justify-content-between ms-2">
-                                <p>--:-- </p>
+                                <p><?php echo $juegosJugados; ?></p>
                             </div>
                         </div>
                         
-                        <div>
+                        <div class="cd-info-div">
                             <h5 class="cd-title fw-bold  mb-0"><i class="fa-regular fa-clock me-2"></i>Tiempo promedio de juego</h5>
                             <div class="d-flex justify-content-between ms-2">
-                                <p>--:-- </p>
+                                <p><?php echo $tiempoPromedio; ?></p>
                             </div>
                         </div>
 
-                       <div>
-                         <h5 class="cd-title fw-bold  mb-0"><i class="fa-solid fa-gamepad me-2"></i></i>Juegos ganados</h5>
+                       <div class="cd-info-div">
+                         <h5 class="cd-title fw-bold  mb-0"><i class="fa-solid fa-star me-2"></i></i>Juegos ganados</h5>
                             <div class="d-flex justify-content-between ms-2">
-                                <p>--:-- </p>
+                                <p><?php echo $porcentajeGanados; ?>% </p>
                             </div>
                        </div>
 
-                       <div>
+                       <div class="cd-info-div">
                              <h5 class="cd-title fw-bold  mb-0"><i class="fa-solid fa-calendar me-2"></i></i>Fecha de registro</h5>
                             <div class="d-flex justify-content-between ms-2">
-                                <p>--:-- </p>
+                                <p><?php echo $fechaFormateada; ?> </p>
                             </div>
                        </div>
 
                     </div>
                 </div>
             </div>
+
+            <div class="status-profile">
+                <!-- Nueva sección para mostrar las niveles -->
+                 <div class="level-card-container">
+                    <?php if ($nivelInfo): ?>
+                    <div class="level-image"><img src="../img/niveles/<?php echo htmlspecialchars($nivelInfo['id']); ?>.png" alt="Nivel <?php echo htmlspecialchars($nivelInfo['id']); ?>"></div>
+                    <div class="level-content">
+                        <h2 class="level-title">¡Buen trabajo!</h2>
+                        <p class="level-message">
+                            Has alcanzado el nivel <?php echo htmlspecialchars($nivelInfo['id']); ?> en Flora Games. Continúa aprendiendo y acumulando puntos 
+                            para desbloquear nuevos niveles.
+                        </p>
+                        
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>Progreso al siguiente nivel</span>
+                                <span><?php echo round($nextLevelProgress); ?>%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <div class="stat-value"><?php echo $userPoints; ?></div>
+                                <div class="stat-label">Puntos</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">#<?php echo $userRanking; ?></div>
+                                <div class="stat-label">Ranking</div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <div class="level-image"><img src="../img/niveles/1.png" alt=""></div>
+                    <div class="level-content">
+                        <h2 class="level-title">¡Buen trabajo!</h2>
+                        <p class="level-message">
+                            Has alcanzado el nivel 1 en Flora Games. Continúa aprendiendo y acumulando puntos 
+                            para desbloquear nuevos niveles.
+                        </p>
+                        
+                        <div class="progress-container">
+                            <div class="progress-label">
+                                <span>Progreso al siguiente nivel</span>
+                                <span>0%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="level-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">0</div>
+                                <div class="stat-label">Puntos</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">#0</div>
+                                <div class="stat-label">Ranking</div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Nueva sección para mostrar las insignias -->
+                <div class="badges-container">
+                    <div class="badges-header">
+                        <h1 class="badges-title">Mis Insignias</h1>   
+                    </div>
+            
+                    <div class="badges-grid">
+                        <?php if (empty($insignias)): ?>
+                            <div class="badge-item">
+                                <span class="badge-name">Aún no tienes insignias</span>
+                                <span class="badge-date">Sigue jugando para desbloquearlas</span>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach (array_slice($insignias, 0, 6) as $insignia): ?>
+                                <div class="badge-item">
+                                    <div class="badge-icon">
+                                        <img src="../img/insignias/<?php echo htmlspecialchars($insignia['icono_url']); ?>" alt="<?php echo htmlspecialchars($insignia['nombre']); ?>">
+                                    </div>
+                                    <span class="badge-name"><?php echo htmlspecialchars($insignia['nombre']); ?></span>
+                                    <span class="badge-date"><?php echo $insignia['fecha_obtenida'] ? date('d/m/Y', strtotime($insignia['fecha_obtenida'])) : '---'; ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="badges-footer">
+                        <a href="#" class="view-collection" data-bs-toggle="modal" data-bs-target="#insigniasModal">
+                            Ver colección
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 
@@ -195,6 +295,42 @@ try {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-success" id="guardarAvatarBtn">Aplicar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="insigniasModal" tabindex="-1" aria-labelledby="insigniasModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="insigniasModalLabel">Mi Colección de Insignias</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="badges-grid-modal">
+                        <?php if (empty($insignias)): ?>
+                            <div class="no-badges-message">
+                                <p>Aún no has obtenido insignias. ¡Sigue jugando para desbloquearlas!</p>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($insignias as $insignia): ?>
+                                <div class="badge-item-modal">
+                                    <div class="badge-icon-modal">
+                                        <img src="../img/insignias/<?php echo htmlspecialchars($insignia['icono_url']); ?>" alt="<?php echo htmlspecialchars($insignia['nombre']); ?>">
+                                    </div>
+                                    <div class="badge-info-modal">
+                                        <h3 class="badge-name-modal"><?php echo htmlspecialchars($insignia['nombre']); ?></h3>
+                                        <p class="badge-description-modal"><?php echo htmlspecialchars($insignia['descripcion']); ?></p>
+                                        <p class="badge-date-modal">Obtenida: <?php echo $insignia['fecha_obtenida'] ? date('d/m/Y', strtotime($insignia['fecha_obtenida'])) : '---'; ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>

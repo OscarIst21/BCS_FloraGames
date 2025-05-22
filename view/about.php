@@ -39,7 +39,7 @@ require_once __DIR__.'/../config/init.php';
                         <h5 class="cd-title"><i class="fa-solid fa-camera me-2"></i>Créditos de imágenes</h5>
                         <p class="fw-bold  mb-0">Fotografías de las plantas: </p>
                         <div class="d-flex justify-content-between ms-2">
-                            <p>Esli Mayer </p>
+                            <p>Dr. Esli Alexis Mayer Félix </p>
                             <p class="fst-italic">Uso autorizado para Flora Games</p>
                         </div>
                         <p class="fw-bold mb-0">Iconos de insignias y niveles: </p>

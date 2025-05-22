@@ -18,8 +18,27 @@
     .card {
         max-width: 100%;
     }
+    .status-profile{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .level-card-container, .badges-container{
+        width: 100% !important;
+        margin-bottom: 2rem;
+    }
 }
 
+
+@media(max-width : 800px){
+    
+    .profile-info{
+        width: 80% !important;
+        text-align: center;
+
+    }
+}
 
 /*Mi perfil*/
 @media (max-width: 768px) {
@@ -27,6 +46,7 @@
         margin: 20px 10px;
         padding: 20px;
     }
+
 
     .info-item {
        /* flex-direction: column;*/
@@ -49,11 +69,39 @@
         padding: 8px 10px;
         font-size: 14px;
     }
+
+    .status-profile{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .level-card-container, .badges-container{
+        width: 100% !important;
+        margin-bottom: 2rem;
+    }
 }
 
 @media (max-width: 480px) {
     .profile-container {
         padding: 15px;
+    }
+    .contenedor{
+        margin: 1rem;
+    }
+    .profile-info{
+        margin: 0 0 30px 0 !important;
+        width: 100% !important;
+        font-size: small;
+    }
+    .cd-title{
+        font-size: small;
+    }
+    .cd-info{
+        flex-direction: column;
+    }
+    .cd-info-div{
+        width: 100% !important;
     }
 
     .info-item {
@@ -71,6 +119,17 @@
         right: 0;
         padding: 6px 8px;
         font-size: 12px;
+    }
+
+    .status-profile{
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .level-card-container, .badges-container{
+        width: 100% !important;
+        margin-bottom: 2rem;
     }
 }
 
