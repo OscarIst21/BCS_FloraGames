@@ -30,7 +30,20 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="img/logoFG.ico">
-    
+    <style>
+        .badge-endemica {
+            background-color: #e57373;
+            color: white;
+        }
+        .badge-nativa {
+            background-color: #64b5f6;
+            color: white;
+        }
+        .badge-otra {
+            background-color: #bdbdbd;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <?php include '../components/header.php'; ?>
@@ -65,7 +78,20 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
                         <h3 class="plant-title"><?php echo htmlspecialchars($planta['nombre_comun']); ?></h3>
                         <hr style="margin: 0 10px">
                         <p class="plant-sci"><?php echo htmlspecialchars($planta['nombre_cientifico']); ?></p>
-                        <p class="plant-badge"><?php echo htmlspecialchars($planta['situación']); ?></p>
+                        <?php
+                            $situacion = strtolower($planta['situación']);
+                            $badgeClass = '';
+                            if ($situacion === 'endémica' || $situacion === 'endemica') {
+                                $badgeClass = 'badge-endemica';
+                            } elseif ($situacion === 'nativa') {
+                                $badgeClass = 'badge-nativa';
+                            } else {
+                                $badgeClass = 'badge-otra';
+                            }
+                        ?>
+                        <p class="plant-badge <?php echo $badgeClass; ?>">
+                            <?php echo htmlspecialchars($planta['situación']); ?>
+                        </p>
                     </div>
                 </div>
             <?php endforeach; ?>
