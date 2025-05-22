@@ -20,15 +20,29 @@ try {
     $conn = $db->getConnection();
     
     // Consultar el top 5 del ranking
-    $stmt = $conn->prepare("
-        SELECT r.usuario_id, r.posicion, r.puntos_ganados, u.nombre 
-        FROM ranking r
-        JOIN usuarios u ON r.usuario_id = u.id
-        ORDER BY r.posicion ASC
-        LIMIT 5
-    ");
-    $stmt->execute();
-    $rankingData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+   $stmt = $conn->prepare("
+    SELECT 
+        r.usuario_id, 
+        r.posicion, 
+        r.puntos_ganados, 
+        u.nombre, 
+        u.nivel_de_usuario_id,
+        n.nombre AS nivel_nombre,
+        (
+            SELECT MAX(ui.insignia_id)
+            FROM usuario_insignias ui
+            WHERE ui.usuario_id = r.usuario_id
+        ) AS insignia_id
+    FROM ranking r
+    JOIN usuarios u ON r.usuario_id = u.id
+    JOIN nivel_de_usuario n ON u.nivel_de_usuario_id = n.id
+    ORDER BY r.posicion ASC
+    LIMIT 5
+");
+$stmt->execute();
+$rankingData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
     
     // Consultar la posición del usuario actual si está autenticado
     if ($currentUserId) {

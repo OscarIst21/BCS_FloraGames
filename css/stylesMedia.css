@@ -87,7 +87,7 @@
         padding: 15px;
     }
     .contenedor{
-        margin: 1rem;
+        margin: 3rem 1rem;
     }
     .profile-info{
         margin: 0 0 30px 0 !important;
@@ -241,6 +241,17 @@
     .stat-value, .stat-label {
         font-size: 1rem;
     }
+
+
+    .leaderboard-container{
+        padding: 2rem !important;
+    }
+    .leaderboard-table{
+        font-size: x-small;
+    }
+    .leaderboard-header-row div{
+        font-size: small !important;
+    }
 }
 
 /* Pequeños móviles (hasta 480px) */
@@ -295,3 +306,6 @@
             margin-bottom: 1.2rem;
         }
     }
+
+
+    
