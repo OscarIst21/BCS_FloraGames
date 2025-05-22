@@ -1,0 +1,52 @@
+.hero-section {
+    background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
+    color: #3A5A40;
+    padding: 5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    margin-bottom: 3rem;
+    box-shadow: 0 5px 15px rgba(46, 139, 87, 0.1);
+    width: 90%;
+}
+
+.hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 2.8rem;
+    margin-bottom: 1.5rem;
+    color: var(--secondary-color);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.cd-info{
+    text-align: left;
+}
+
+/* Cambiar color de las pestañas activas */
+  .nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: #2E8B57;
+    border-color: #2E8B57 #2E8B57 #fff;
+  }
+  
+  /* Cambiar color del texto y borde al pasar el mouse */
+  .nav-tabs .nav-link:hover:not(.active) {
+    color: #2E8B57;
+    border-color: #e9ecef #e9ecef #2E8B57;
+  }
+  
+  /* Cambiar color del texto de las pestañas inactivas */
+  .nav-tabs .nav-link {
+    color: #495057;
+  }
+  
+  /* Cambiar color del borde inferior del contenedor */
+  .nav-tabs {
+    border-bottom: 1px solid #2E8B57;
+  }

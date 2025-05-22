@@ -75,39 +75,54 @@
                     <i class="fa-solid fa-gamepad"></i> Juegos
                 </a>
             </li>
+            <li>
+                <a href="/BCS_FloraGames/view/gamesMenu.php" class="side-menu-link">
+                    <i class="fa-solid fa-ranking-star"></i> Ranking
+                </a>
+            </li>
             
             <!-- Separador -->
             <li class="menu-divider"></li>
             
             <!-- Sección de usuario -->
             <?php if(isset($_SESSION['user'])): ?>
-                <li>
-                    <a href="/BCS_FloraGames/view/mySuccesses.php" class="side-menu-link">
-                        <i class="fa-solid fa-trophy"></i> Mis logros
-                    </a>
-                </li>
-                <li>
-                    <a href="/BCS_FloraGames/view/myProfile.php" class="side-menu-link">
-                        <i class="fa-solid fa-user"></i> Mi perfil
-                    </a>
-                </li>
-                
-                <!-- Separador -->
-                <li class="menu-divider"></li>
-                
-                <!-- Cerrar sesión (abajo) -->
-                <li class="logout-item">
-                    <a href="/BCS_FloraGames/config/logout.php" class="side-menu-link logout-link">
-                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
-                    </a>
-                </li>
-            <?php else: ?>
-                <li>
-                    <a href="/BCS_FloraGames/view/login.php" class="side-menu-link">
-                        <i class="fa-regular fa-circle-user"></i> Iniciar sesión
-                    </a>
-                </li>
-            <?php endif; ?>
+        <li>
+            <a href="/BCS_FloraGames/view/mySuccesses.php" class="side-menu-link">
+                <i class="fa-solid fa-trophy"></i> Mis logros
+            </a>
+        </li>
+        <li>
+            <a href="/BCS_FloraGames/view/myProfile.php" class="side-menu-link">
+                <i class="fa-solid fa-user"></i> Mi perfil
+            </a>
+        </li>
+    <?php endif; ?>
+    
+     <li class="menu-divider"></li>
+    <!-- Acerca de (siempre visible) -->
+    <li>
+        <a href="/BCS_FloraGames/view/about.php" class="side-menu-link">
+            <i class="fa-solid fa-info"></i> Acerca de
+        </a>
+    </li>
+    
+    <!-- Separador -->
+    <li class="menu-divider"></li>
+    
+    <?php if(isset($_SESSION['user'])): ?>
+        <!-- Cerrar sesión (abajo) -->
+        <li class="logout-item">
+            <a href="/BCS_FloraGames/config/logout.php" class="side-menu-link logout-link">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+            </a>
+        </li>
+    <?php else: ?>
+        <li>
+            <a href="/BCS_FloraGames/view/login.php" class="side-menu-link">
+                <i class="fa-regular fa-circle-user"></i> Iniciar sesión
+            </a>
+        </li>
+    <?php endif; ?>
         </ul>
     </div>
     <div class="side-menu-overlay" id="sideMenuOverlay" onclick="toggleSideMenu()"></div>
