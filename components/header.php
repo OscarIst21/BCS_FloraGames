@@ -76,7 +76,7 @@
                 </a>
             </li>
             <li>
-                <a href="/BCS_FloraGames/view/gamesMenu.php" class="side-menu-link">
+                <a href="/BCS_FloraGames/view/mySuccesses.php" class="side-menu-link">
                     <i class="fa-solid fa-ranking-star"></i> Ranking
                 </a>
             </li>
@@ -86,11 +86,6 @@
             
             <!-- Sección de usuario -->
             <?php if(isset($_SESSION['user'])): ?>
-        <li>
-            <a href="/BCS_FloraGames/view/mySuccesses.php" class="side-menu-link">
-                <i class="fa-solid fa-trophy"></i> Mis logros
-            </a>
-        </li>
         <li>
             <a href="/BCS_FloraGames/view/myProfile.php" class="side-menu-link">
                 <i class="fa-solid fa-user"></i> Mi perfil

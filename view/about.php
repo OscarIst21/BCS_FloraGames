@@ -53,7 +53,7 @@ require_once __DIR__.'/../config/init.php';
                         <h5 class="cd-title"><i class="fa-solid fa-music me-2"></i>Créditos de audio</h5>
                         <p class="fw-bold mb-0">Música de fondo: </p>
                         <div class="d-flex justify-content-between ms-2">
-                            <p> </p>
+                            <p>Bunny Hop.mp3</p>
                             <p class="fst-italic">Uso autorizado para Flora Games</p>
                         </div>
                         <p class="fw-bold mb-0">Audios informativos de plantas: </p>
