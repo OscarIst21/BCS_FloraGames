@@ -37,25 +37,23 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     <link rel="icon" type="image/x-icon" href="img/logoFG.ico">
     <style>
         .badge-endemica {
-            background-color: #e57373;
+            background-color: #1d5825;
             color: white;
         }
         .badge-nativa {
-            background-color: #64b5f6;
+            background-color: #6aab78;
             color: white;
         }
         .badge-otra {
             background-color: #bdbdbd;
             color: white;
         }
-        .plant-card .plant-image img,
-        .plant-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 8px 8px 0 0;
-            display: block;
+        .lupa{
+                border-radius: 0 10px 10px 0;
+                border: 1px solid rgb(222, 226, 230);
+                padding: 10px;
         }
+
     </style>
 </head>
 <body>
@@ -67,9 +65,9 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
             <div class="container search">
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Buscar..." aria-label="Buscar" aria-describedby="button-addon2" id="inputBusqueda">
-                    <button class="btn btn-success" type="button" id="buscar">
+                    <div class="lupa"  id="buscar">
                         <i class="fas fa-search"></i> <!-- Icono de lupa -->
-                    </button>
+                    </div>
                 </div>
                 <button title="Filtrar por" class="btn btn-success filter-btn" type="button" data-bs-toggle="modal" data-bs-target="#filterModal">
                     <i class="fas fa-filter me-2"></i>
@@ -129,9 +127,9 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
             $totalPaginas = ceil($totalPlantas / $plantasPorPagina);
             for ($i = 1; $i <= $totalPaginas; $i++) {
                 if ($i == $paginaActual) {
-                    echo "<span style='font-weight:bold; color:#246741;'>$i</span> ";
+                    echo "<span class='page-items' style='font-weight:bold; color:#246741;'>$i</span> ";
                 } else {
-                    echo "<a href='?page=$i' style='color:#246741; text-decoration:underline;'>$i</a> ";
+                    echo "<a href='?page=$i' class='page-itemsV2' style='color:#246741; text-decoration:underline;'>$i</a> ";
                 }
             }
             ?>
@@ -224,6 +222,8 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Buscador en tiempo real
+
+
     const inputBusqueda = document.getElementById('inputBusqueda');
     const plantCards = document.querySelectorAll('.plant-card');
 
@@ -260,10 +260,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
 </script>
     <script>
         // Pasar todas las plantas a JavaScript
         const todasLasPlantas = <?php echo json_encode($plantas); ?>;
+        
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 </body>

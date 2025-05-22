@@ -37,7 +37,8 @@
 }
 
 #btnSubir a:hover {
-    background: var(--color_hover_btn);
+    background: #3A5A40;
+    color:white;
     transform: translateY(-3px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
@@ -46,21 +47,24 @@
     font-size: 1.2rem;
 }
 
-.plant-grid{
+.plants-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
     justify-items: center;
+    padding: 1rem;
+    width: 100%;
 }
+
 .plant-card {
         position: relative;
-        width: 280px;
+        width: 100%;
+        max-width:300px;
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin: 1rem;
         background-color: white;
-        border:3px solid #2E8B57;
+        border:3px solid #034922;
     }
 
     
@@ -101,6 +105,7 @@
         font-weight: 600;
         margin-bottom: 0.8rem;
         text-align: left;
+        color: #034922;
     }
     .plant-sci {
         margin: 0.8rem 1rem 0.8rem;
@@ -207,6 +212,16 @@ padding: 0 5%;
             font-size: 1.1rem;
             line-height: 1;
         }
+        .page-items, .page-itemsV2{
+            background-color: white;
+            margin:0 5px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+         .page-itemsV2:hover{
+            transform: translateY(-3px);
+
+         }
         
         /* Estilos para pantallas pequeñas */
         @media (max-width: 768px) {
