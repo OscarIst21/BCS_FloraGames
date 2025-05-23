@@ -49,8 +49,11 @@
 
 .plants-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  /*  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));*/
+  grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
+    will-change: transform;
+    contain: content;
     justify-items: center;
     padding: 1rem;
     width: 100%;
@@ -84,7 +87,7 @@
     }
     
     .plant-card:hover .plant-image img {
-        transform: scale(1.05);
+       /* transform: scale(1.05);*/
     }
     
     .plant-content {
@@ -93,12 +96,12 @@
         margin: 1rem 0;
     }
     
-    .plant-card:hover{
+  /*  .plant-card:hover{
         box-shadow: -1px 12px 33px 0px rgba(0,0,0,0.75);
         -webkit-box-shadow: -1px 12px 33px 0px rgba(0,0,0,0.75);
         -moz-box-shadow: -1px 12px 33px 0px rgba(0,0,0,0.75);
          transform: translateY(-3px);
-    }
+    }*/
     .plant-title {
         margin: 0 1rem;
         font-size: 1.3rem;
@@ -217,7 +220,9 @@ padding: 0 5%;
             margin:0 5px;
             padding: 5px;
             border-radius: 5px;
+            color:#246741;
         }
+
          .page-itemsV2:hover{
             transform: translateY(-3px);
 
@@ -248,3 +253,51 @@ padding: 0 5%;
                 margin-top: 1.5rem;
             }
         }
+
+
+        .filter-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        justify-content: center;
+    }
+
+    .filter-tab {
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        border: 1.5px solid #ced4da;
+        background-color: #ffffff;
+        color: #3A5A40;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .filter-tab:hover {
+        background-color: #e6f4ea;
+        border-color: #94d3ac;
+    }
+
+    .filter-tab.active {
+        background-color: #2E8B57;
+        color: #fff;
+        border-color: #2E8B57;
+    }
+
+    .modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+
+    @media (max-width: 576px) {
+        .filter-tabs {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }

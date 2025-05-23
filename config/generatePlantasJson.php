@@ -12,5 +12,5 @@ usort($plantas, function($a, $b) {
     return strcmp(mb_strtolower($a['nombre_comun']), mb_strtolower($b['nombre_comun']));
 });
 
-file_put_contents(__DIR__.'/plantas.json', json_encode($plantas, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+file_put_contents(__DIR__.'/config/plantas.json', json_encode($plantas, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
 echo "Archivo plantas.json generado correctamente.";

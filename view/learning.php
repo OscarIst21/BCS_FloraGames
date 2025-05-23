@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/../config/init.php';
 require_once __DIR__.'/../connection/database.php';
-require_once __DIR__.'/../config/init.php';
+
 // Elimina la conexión y consulta a la base de datos
 //$plantas = json_decode(file_get_contents(__DIR__.'/../plantas.json'), true);
 // Obtener todas las plantas de la base de datos
@@ -34,11 +34,12 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aprendizaje - Flora Games</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/stylesMedia.css">
     <link rel="stylesheet" href="../css/styleLearning.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="img/logoFG.ico">
+    <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
         .badge-endemica {
             background-color: #1d5825;
@@ -82,82 +83,78 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     </div>
 
     <div class="page-container">
-        <div class="contenedor" >
-
-        <div class="plants-grid">
-            <?php foreach ($plantasPagina as $planta): ?>
-                <div class="plant-card"
-                    data-bs-toggle="modal"
-                    data-bs-target="#plantModal"
-                    data-nombre="<?php echo htmlspecialchars($planta['nombre_comun']); ?>"
-                    data-cientifico="<?php echo htmlspecialchars($planta['nombre_cientifico']); ?>"
-                    data-foto="<?php echo htmlspecialchars($planta['foto']); ?>"
-                    data-dibujo="<?php echo htmlspecialchars($planta['dibujo_animado']); ?>"
-                    data-caracteristicas="<?php echo htmlspecialchars($planta['caracteristicas']); ?>"
-                    data-habitat="<?php echo htmlspecialchars($planta['habitat']); ?>"
-                    data-distribucion="<?php echo htmlspecialchars($planta['distribucion']); ?>"
-                    data-curiosidad="<?php echo htmlspecialchars($planta['curiosidad']); ?>"
-                    data-audio="<?php echo htmlspecialchars($planta['audio']); ?>"
-                    data-situacion="<?php echo htmlspecialchars($planta['situación']); ?>"
-                    data-usos="<?php echo htmlspecialchars($planta['usos']); ?>"
-                >
-                    <div class="plant-image">
-                        <img src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>">
+        <div class="contenedor">
+            <div class="plants-grid">
+                <?php foreach ($plantasPagina as $planta): ?>
+                    <div class="plant-card"
+                        data-bs-toggle="modal"
+                        data-bs-target="#plantModal"
+                        data-nombre="<?php echo htmlspecialchars($planta['nombre_comun']); ?>"
+                        data-cientifico="<?php echo htmlspecialchars($planta['nombre_cientifico']); ?>"
+                        data-foto="<?php echo htmlspecialchars($planta['foto']); ?>"
+                        data-dibujo="<?php echo htmlspecialchars($planta['dibujo_animado']); ?>"
+                        data-caracteristicas="<?php echo htmlspecialchars($planta['caracteristicas']); ?>"
+                        data-habitat="<?php echo htmlspecialchars($planta['habitat']); ?>"
+                        data-distribucion="<?php echo htmlspecialchars($planta['distribucion']); ?>"
+                        data-curiosidad="<?php echo htmlspecialchars($planta['curiosidad']); ?>"
+                        data-audio="<?php echo htmlspecialchars($planta['audio']); ?>"
+                        data-situacion="<?php echo htmlspecialchars($planta['situación']); ?>"
+                        data-usos="<?php echo htmlspecialchars($planta['usos']); ?>"
+                    >
+                        <div class="plant-image">
+                            <img src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>">
+                        </div>
+                        <div class="plant-content">
+                            <h3 class="plant-title"><?php echo htmlspecialchars($planta['nombre_comun']); ?></h3>
+                            <hr style="margin: 0 10px">
+                            <p class="plant-sci"><?php echo htmlspecialchars($planta['nombre_cientifico']); ?></p>
+                            <?php
+                                $situacion = strtolower($planta['situación']);
+                                $badgeClass = '';
+                                if ($situacion === 'endémica' || $situacion === 'endemica') {
+                                    $badgeClass = 'badge-endemica';
+                                } elseif ($situacion === 'nativa') {
+                                    $badgeClass = 'badge-nativa';
+                                } else {
+                                    $badgeClass = 'badge-otra';
+                                }
+                            ?>
+                            <p class="plant-badge <?php echo $badgeClass; ?>">
+                                <?php echo htmlspecialchars($planta['situación']); ?>
+                            </p>
+                        </div>
                     </div>
-                    <div class="plant-content">
-                        <h3 class="plant-title"><?php echo htmlspecialchars($planta['nombre_comun']); ?></h3>
-                        <hr style="margin: 0 10px">
-                        <p class="plant-sci"><?php echo htmlspecialchars($planta['nombre_cientifico']); ?></p>
-                        <?php
-                            $situacion = strtolower($planta['situación']);
-                            $badgeClass = '';
-                            if ($situacion === 'endémica' || $situacion === 'endemica') {
-                                $badgeClass = 'badge-endemica';
-                            } elseif ($situacion === 'nativa') {
-                                $badgeClass = 'badge-nativa';
-                            } else {
-                                $badgeClass = 'badge-otra';
-                            }
-                        ?>
-                        <p class="plant-badge <?php echo $badgeClass; ?>">
-                            <?php echo htmlspecialchars($planta['situación']); ?>
-                        </p>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+                <?php endforeach; ?>
+            </div>
 
-        <!-- Paginación -->
-        <div class="pagination" style="text-align:center; margin:1rem 0;">
-            <?php
-            $totalPaginas = ceil($totalPlantas / $plantasPorPagina);
-            for ($i = 1; $i <= $totalPaginas; $i++) {
-                if ($i == $paginaActual) {
-                    echo "<span class='page-items' style='font-weight:bold; color:#246741;'>$i</span> ";
-                } else {
-                    echo "<a href='?page=$i' class='page-itemsV2' style='color:#246741; text-decoration:underline;'>$i</a> ";
+            <!-- Paginación -->
+            <div class="pagination" style="text-align:center; margin:1rem 0;">
+                <?php
+                $totalPaginas = ceil($totalPlantas / $plantasPorPagina);
+                for ($i = 1; $i <= $totalPaginas; $i++) {
+                    if ($i == $paginaActual) {
+                        echo "<span class='page-items' style='font-weight:bold; color:#246741;'>$i</span> ";
+                    } else {
+                        echo "<a href='?page=$i' class='page-itemsV2' style='color:#246741; text-decoration:underline;'>$i</a> ";
+                    }
                 }
-            }
-            ?>
+                ?>
+            </div>
         </div>
-        
-        
-    </div>
     </div>
     
-</div>
+
     <?php include "../components/filter.php"; ?>
-    <?php include '../components/footer.php'; ?>
       <?php include '../components/welcomeMessage.php'; ?>
       <div id="btnSubir" title="Volver arriba">
-    <a href="#"><i class="fas fa-arrow-up"></i></a>
-</div>
+            <a href="#"><i class="fas fa-arrow-up"></i></a>
+    </div>
 <!-- Modal Info plantas -->
 <div class="modal fade" id="plantModal" tabindex="-1" aria-labelledby="plantModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h1 class="modal-title fs-5" id="plantModalLabel">Alfilerillo</h1>
+                <h1 class="modal-title fs-5" id="plantModalLabel"></h1>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -171,10 +168,10 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
                         </div>
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                            <img src="../img/plantas/biznaga.png" class="d-block w-100 h-100" alt="...">
+                            <img src="" class="d-block w-100 h-100" alt="...">
                             </div>
                             <div class="carousel-item">
-                            <img src="../img/plantas/biznaga1.png" class="d-block w-100 h-100"  alt="...">
+                            <img src="" class="d-block w-100 h-100"  alt="...">
                             </div>
                         </div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -226,134 +223,256 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
         </div>
     </div>
 </div>
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const keyPlantas = "plantasFloraGames";
-    let plantas = [];
 
-    // Guardar datos en LocalStorage si no existen
-    if (localStorage.getItem(keyPlantas)) {
-        plantas = JSON.parse(localStorage.getItem(keyPlantas));
-    } else {
-        plantas = <?php echo json_encode($plantas); ?>;
-        localStorage.setItem(keyPlantas, JSON.stringify(plantas));
-    }
-
-    // Parámetros de paginación
+<!-- Modal de Filtros -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <!-- Encabezado del Modal -->
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="filterModalLabel">
+                    <i class="bi bi-funnel-fill me-2"></i>Filtrar especies
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            
+            <!-- Cuerpo del Modal -->
+            <div class="modal-body">
+                <div class="filter-options">
+                    <div class="filter-tabs">
+                        <button type="button" class="filter-tab active" data-filter="all">
+                            <i class="bi bi-collection me-1"></i> Todos
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="Nativa">
+                            <i class="bi bi-tree me-1"></i> Nativa
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="endemica">
+                            <i class="bi bi-globe-americas me-1"></i> Endémica
+                        </button>
+                        <hr>
+                        <button type="button" class="filter-tab" data-filter="medicinal">
+                            <i class="bi bi-capsule-pill me-1"></i> Uso medicinal
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="ornamental">
+                            <i class="bi bi-flower1 me-1"></i> Uso ornamental
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="forraje">
+                            <i class="bi bi-droplet-half me-1"></i> Uso forraje
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="alimenticio">
+                            <i class="bi bi-egg-fried me-1"></i> Uso alimenticio
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="combustible">
+                            <i class="bi bi-fire me-1"></i> Uso combustible
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="maderable">
+                            <i class="bi bi-box me-1"></i> Uso maderable
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="tinte">
+                            <i class="bi bi-palette2 me-1"></i> Tinte natural
+                        </button>
+                        <button type="button" class="filter-tab" data-filter="artesanal">
+                            <i class="bi bi-scissors me-1"></i> Uso artesanal
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pie del Modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="applyFilter">Aplicar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Datos de las plantas desde PHP
+    const plantas = <?php echo json_encode($plantas); ?>;
+    let plantasFiltradas = [...plantas];
     const plantasPorPagina = 12;
     let paginaActual = 1;
-    let plantasFiltradas = plantas;
 
+    // Elementos del DOM
     const grid = document.querySelector('.plants-grid');
     const paginacion = document.querySelector('.pagination');
     const inputBusqueda = document.getElementById('inputBusqueda');
+    const plantModal = new bootstrap.Modal(document.getElementById('plantModal'));
 
-    function renderPlantas(pagina = 1) {
+    // Función para determinar la clase del badge
+    function getBadgeClass(situacion) {
+        situacion = situacion.toLowerCase();
+        if (situacion.includes('endémica') || situacion.includes('endemica')) return 'badge-endemica';
+        if (situacion === 'nativa') return 'badge-nativa';
+        return 'badge-otra';
+    }
+
+    // Función principal de renderizado
+    function renderPlantas() {
         grid.innerHTML = '';
-        const inicio = (pagina - 1) * plantasPorPagina;
+        const inicio = (paginaActual - 1) * plantasPorPagina;
         const plantasPagina = plantasFiltradas.slice(inicio, inicio + plantasPorPagina);
 
         plantasPagina.forEach(planta => {
             const card = document.createElement('div');
             card.className = 'plant-card';
-            card.setAttribute('data-bs-toggle', 'modal');
-            card.setAttribute('data-bs-target', '#plantModal');
-            card.setAttribute('data-nombre', planta.nombre_comun);
-            card.setAttribute('data-cientifico', planta.nombre_cientifico);
-            card.setAttribute('data-foto', planta.foto);
-            card.setAttribute('data-dibujo', planta.dibujo_animado);
-            card.setAttribute('data-caracteristicas', planta.caracteristicas);
-            card.setAttribute('data-habitat', planta.habitat);
-            card.setAttribute('data-distribucion', planta.distribucion);
-            card.setAttribute('data-curiosidad', planta.curiosidad);
-            card.setAttribute('data-audio', planta.audio);
-            card.setAttribute('data-situacion', planta.situación);
-            card.setAttribute('data-usos', planta.usos);
+            
+            // Asignar todos los atributos data
+            card.dataset.nombre = planta.nombre_comun;
+            card.dataset.cientifico = planta.nombre_cientifico;
+            card.dataset.foto = planta.foto;
+            card.dataset.dibujo = planta.dibujo_animado;
+            card.dataset.caracteristicas = planta.caracteristicas;
+            card.dataset.habitat = planta.habitat;
+            card.dataset.distribucion = planta.distribucion;
+            card.dataset.curiosidad = planta.curiosidad;
+            card.dataset.audio = planta.audio;
+            card.dataset.situacion = planta.situación;
+            card.dataset.usos = planta.usos;
 
             card.innerHTML = `
                 <div class="plant-image">
-                    <img src="../img/plantas/${planta.foto}" alt="${planta.nombre_comun}">
+                    <img loading="lazy" src="../img/plantas/${planta.foto}" alt="${planta.nombre_comun}">
                 </div>
                 <div class="plant-content">
                     <h3 class="plant-title">${planta.nombre_comun}</h3>
                     <hr style="margin: 0 10px">
                     <p class="plant-sci">${planta.nombre_cientifico}</p>
-                    <p class="plant-badge">${planta.situación}</p>
+                    <p class="plant-badge ${getBadgeClass(planta.situación)}">${planta.situación}</p>
                 </div>
             `;
             grid.appendChild(card);
         });
 
-        // Actualizar paginación
+        renderPaginacion();
+    }
+
+    // Función para renderizar la paginación
+    function renderPaginacion() {
         paginacion.innerHTML = '';
         const totalPaginas = Math.ceil(plantasFiltradas.length / plantasPorPagina);
-        for (let i = 1; i <= totalPaginas; i++) {
-            if (i === pagina) {
-                paginacion.innerHTML += `<span class='page-items' style='font-weight:bold; color:#246741;'>${i}</span> `;
-            } else {
-                paginacion.innerHTML += `<a href='#' class='page-itemsV2' style='color:#246741; text-decoration:underline;' data-page='${i}'>${i}</a> `;
-            }
-        }
-
-        // Actualizar los eventos de las tarjetas y paginación
-        actualizarEventos();
-    }
-
-    function actualizarEventos() {
-        const plantCards = document.querySelectorAll('.plant-card');
-        plantCards.forEach(card => {
-            card.addEventListener('click', function() {
-                document.getElementById('plantModalLabel').textContent = card.dataset.nombre;
-                document.querySelector('#plantModal .plant-info [data-field="nombre"]').textContent = card.dataset.nombre;
-                document.querySelector('#plantModal .plant-info [data-field="cientifico"]').innerHTML = `<em>${card.dataset.cientifico}</em>`;
-                document.querySelector('#plantModal .plant-info [data-field="caracteristicas"]').textContent = card.dataset.caracteristicas;
-                document.querySelector('#plantModal .plant-info [data-field="habitat"]').textContent = card.dataset.habitat;
-                document.querySelector('#plantModal .plant-info [data-field="distribucion"]').textContent = card.dataset.distribucion;
-                document.querySelector('#plantModal .plant-info [data-field="curiosidad"]').textContent = card.dataset.curiosidad;
-                document.querySelector('#plantModal .plant-info [data-field="situacion"]').textContent = card.dataset.situacion;
-                document.querySelector('#plantModal .plant-info [data-field="usos"]').textContent = card.dataset.usos;
-                // Imagen principal
-                document.querySelector('#plantModal .carousel-item.active img').src = "../img/plantas/" + card.dataset.foto;
-                // Imagen secundaria (dibujo animado)
-                document.querySelectorAll('#plantModal .carousel-item img')[1].src = "../img/plantas/" + card.dataset.dibujo;
-                // Audio
-                document.querySelector('#plantModal .btn-audio').href = card.dataset.audio ? ("../audio/" + card.dataset.audio) : "#";
-            });
-        });
-
-        // Eventos de paginación
-        document.querySelectorAll('.page-itemsV2').forEach(link => {
-            link.addEventListener('click', function(e) {
+        
+        // Botón Anterior
+        if (paginaActual > 1) {
+            const prevLink = document.createElement('a');
+            prevLink.href = '#';
+            prevLink.className = 'page-itemsV2';
+            prevLink.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                const page = parseInt(this.getAttribute('data-page'));
-                renderPlantas(page);
+                paginaActual--;
+                renderPlantas();
             });
-        });
+            paginacion.appendChild(prevLink);
+            paginacion.appendChild(document.createTextNode(' '));
+        }
+        
+        // Páginas numeradas
+        const inicioPag = Math.max(1, paginaActual - 2);
+        const finPag = Math.min(totalPaginas, paginaActual + 2);
+        
+        for (let i = inicioPag; i <= finPag; i++) {
+            if (i === paginaActual) {
+                const span = document.createElement('span');
+                span.className = 'page-items';
+                span.textContent = i;
+                paginacion.appendChild(span);
+            } else {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.className = 'page-itemsV2';
+                link.textContent = i;
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    paginaActual = i;
+                    renderPlantas();
+                });
+                paginacion.appendChild(link);
+            }
+            paginacion.appendChild(document.createTextNode(' '));
+        }
+        
+        // Botón Siguiente
+        if (paginaActual < totalPaginas) {
+            const nextLink = document.createElement('a');
+            nextLink.href = '#';
+            nextLink.className = 'page-itemsV2';
+            nextLink.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                paginaActual++;
+                renderPlantas();
+            });
+            paginacion.appendChild(nextLink);
+        }
     }
 
-    // Filtro de búsqueda
-    inputBusqueda.addEventListener('input', function() {
-        const filtro = inputBusqueda.value.toLowerCase();
-        plantasFiltradas = plantas.filter(planta =>
-            planta.nombre_comun.toLowerCase().includes(filtro) ||
-            planta.nombre_cientifico.toLowerCase().includes(filtro)
-        );
-        renderPlantas(1);
+    // Configurar el modal con los datos de la planta
+    function setupModal(card) {
+        document.getElementById('plantModalLabel').textContent = card.dataset.nombre;
+        document.querySelector('#plantModal [data-field="nombre"]').textContent = card.dataset.nombre;
+        document.querySelector('#plantModal [data-field="cientifico"]').innerHTML = `<em>${card.dataset.cientifico}</em>`;
+        document.querySelector('#plantModal [data-field="caracteristicas"]').textContent = card.dataset.caracteristicas;
+        document.querySelector('#plantModal [data-field="habitat"]').textContent = card.dataset.habitat;
+        document.querySelector('#plantModal [data-field="distribucion"]').textContent = card.dataset.distribucion;
+        document.querySelector('#plantModal [data-field="curiosidad"]').textContent = card.dataset.curiosidad;
+        document.querySelector('#plantModal [data-field="situacion"]').textContent = card.dataset.situacion;
+        document.querySelector('#plantModal [data-field="usos"]').textContent = card.dataset.usos;
+        
+        // Imágenes
+        document.querySelector('#plantModal .carousel-item.active img').src = `../img/plantas/${card.dataset.foto}`;
+        document.querySelectorAll('#plantModal .carousel-item img')[1].src = `../img/plantas/${card.dataset.dibujo}`;
+        
+        // Audio
+        const audioBtn = document.querySelector('#plantModal .btn-audio');
+        audioBtn.href = card.dataset.audio ? `../audio/${card.dataset.audio}` : '#';
+        if (!card.dataset.audio) {
+            audioBtn.classList.add('disabled');
+        } else {
+            audioBtn.classList.remove('disabled');
+        }
+    }
+
+    // Event Delegation para las tarjetas
+    grid.addEventListener('click', (e) => {
+        const card = e.target.closest('.plant-card');
+        if (card) {
+            setupModal(card);
+            plantModal.show();
+        }
     });
 
-    // Inicializar renderizado
-    renderPlantas(1);
+    // Función debounce para mejorar rendimiento en búsqueda
+    function debounce(func, wait) {
+        let timeout;
+        return function() {
+            const context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
+
+    // Búsqueda con debounce
+    inputBusqueda.addEventListener('input', debounce(function() {
+        const filtro = this.value.toLowerCase();
+        plantasFiltradas = plantas.filter(planta =>
+            planta.nombre_comun.toLowerCase().includes(filtro) ||
+            (planta.nombre_cientifico && planta.nombre_cientifico.toLowerCase().includes(filtro))
+        );
+        paginaActual = 1;
+        renderPlantas();
+    }, 300));
+
+    // Inicializar
+    renderPlantas();
 });
-
-
 </script>
-    <script>
-        fetch('../plantas.json')
-          .then(response => response.json())
-          .then(plantas => {
-              // Aquí tu lógica de renderizado, búsqueda y paginación usando el array plantas
-          });
-    </script>
+   
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 </body>
 

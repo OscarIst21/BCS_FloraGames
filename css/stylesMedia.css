@@ -14,6 +14,10 @@
         gap: 15px;
         padding: 10px;
     }
+
+    .plants-grid{
+        grid-template-columns: repeat(1, 1fr);
+    }
     
     .card {
         max-width: 100%;
@@ -38,6 +42,10 @@
         text-align: center;
 
     }
+
+    .plants-grid{
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
 }
 
 /*Mi perfil*/
@@ -45,6 +53,12 @@
     .profile-container {
         margin: 20px 10px;
         padding: 20px;
+    }
+
+    .plants-grid{
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap:10px !important;
+        padding: 0 !important;
     }
 
 
@@ -130,6 +144,9 @@
     .level-card-container, .badges-container{
         width: 100% !important;
         margin-bottom: 2rem;
+    }
+    .plants-grid{
+        grid-template-columns: repeat(1, 1fr) !important;
     }
 }
 
