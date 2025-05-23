@@ -111,7 +111,7 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
                             <?php
                                 $situacion = strtolower($planta['situación']);
                                 $badgeClass = '';
-                                if ($situacion === 'endémica' || $situacion === 'endemica') {
+                                if ($situacion === 'Endémica' || $situacion === 'endemica') {
                                     $badgeClass = 'badge-endemica';
                                 } elseif ($situacion === 'nativa') {
                                     $badgeClass = 'badge-nativa';
@@ -279,8 +279,8 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
             </div>
             
             <!-- Pie del Modal -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <div class="modal-footer" style="display: none">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="display: none">
                     Cancelar
                 </button>
                 <button type="button" class="btn btn-success" id="applyFilter">Aplicar Filtros
@@ -290,6 +290,138 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     </div>
 </div>
 <script>
+    // Obtener las plantas desde PHP como JSON
+    const plantas = <?php echo json_encode($plantas); ?>;
+    const grid = document.querySelector('.plants-grid');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const applyFilterBtn = document.getElementById('applyFilter');
+    const cancelFilterBtn = document.querySelector('#filterModal .btn-secondary');
+    
+    let filtroTemporal = 'all'; // Guarda el filtro seleccionado temporalmente
+    let filtroAplicado = 'all'; // Guarda el filtro realmente aplicado
+    
+    // Guardar el filtro seleccionado al hacer clic en los tabs, pero no aplicar aún
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            filtroTemporal = this.getAttribute('data-filter');
+        });
+    });
+    
+    // Aplicar el filtro solo al dar clic en "Aplicar Filtros"
+    applyFilterBtn.addEventListener('click', function() {
+        filtroAplicado = filtroTemporal;
+        filtrarPlantas(filtroAplicado);
+        const filterModal = bootstrap.Modal.getInstance(document.getElementById('filterModal'));
+        if (filterModal) filterModal.hide();
+    });
+    
+    // Al cancelar, restaurar la selección visual de los filtros y no cambiar la lista
+    cancelFilterBtn.addEventListener('click', function() {
+        filterTabs.forEach(t => {
+            if (t.getAttribute('data-filter') === filtroAplicado) {
+                t.classList.add('active');
+            } else {
+                t.classList.remove('active');
+            }
+        });
+        filtroTemporal = filtroAplicado;
+    });
+    
+    // Función para quitar tildes y pasar a minúsculas
+    function normalizar(str) {
+        return (str || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+    }
+    
+    function filtrarPlantas(filtro) {
+        let plantasFiltradas = [];
+        if (filtro === 'all') {
+            plantasFiltradas = plantas;
+        } else if (normalizar(filtro) === 'endemica') {
+            plantasFiltradas = plantas.filter(planta => {
+                const situacionNorm = normalizar(planta.situación);
+                return situacionNorm === 'endemica';
+            });
+        } else if (filtro === 'Nativa' || filtro === 'nativa') {
+            plantasFiltradas = plantas.filter(planta => {
+                return planta.situación === 'Nativa' || planta.situación === 'nativa';
+            });
+        } else {
+            plantasFiltradas = plantas.filter(planta => {
+                return planta.usos && normalizar(planta.usos).includes(normalizar(filtro));
+            });
+        }
+        renderPlantas(plantasFiltradas);
+    }
+
+    // Función para renderizar las tarjetas de plantas
+    function renderPlantas(lista) {
+        grid.innerHTML = '';
+        if (lista.length === 0) {
+            grid.innerHTML = '<div class="alert alert-warning">No se encontraron especies para este filtro.</div>';
+            return;
+        }
+        lista.forEach(planta => {
+            const card = document.createElement('div');
+            card.className = 'plant-card';
+            card.setAttribute('data-bs-toggle', 'modal');
+            card.setAttribute('data-bs-target', '#plantModal');
+            card.setAttribute('data-nombre', planta.nombre_comun);
+            card.setAttribute('data-cientifico', planta.nombre_cientifico);
+            card.setAttribute('data-foto', planta.foto);
+            card.setAttribute('data-dibujo', planta.dibujo_animado);
+            card.setAttribute('data-caracteristicas', planta.caracteristicas);
+            card.setAttribute('data-habitat', planta.habitat);
+            card.setAttribute('data-distribucion', planta.distribucion);
+            card.setAttribute('data-curiosidad', planta.curiosidad);
+            card.setAttribute('data-audio', planta.audio);
+            card.setAttribute('data-situacion', planta.situación);
+            card.setAttribute('data-usos', planta.usos);
+
+            // Badge de situación
+            let situacion = (planta.situación || '').toLowerCase();
+            let badgeClass = '';
+            if (situacion === 'endémica' || situacion === 'endemica') {
+                badgeClass = 'badge-endemica';
+            } else if (situacion === 'nativa') {
+                badgeClass = 'badge-nativa';
+            } else {
+                badgeClass = 'badge-otra';
+            }
+
+            card.innerHTML = `
+                <div class="plant-image">
+                    <img src="../img/plantas/${planta.foto}" alt="${planta.nombre_comun}">
+                </div>
+                <div class="plant-content">
+                    <h3 class="plant-title">${planta.nombre_comun}</h3>
+                    <hr style="margin: 0 10px">
+                    <p class="plant-sci">${planta.nombre_cientifico}</p>
+                    <p class="plant-badge ${badgeClass}">${planta.situación}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // Listeners para los filtros
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const filtro = this.getAttribute('data-filter');
+            filtrarPlantas(filtro);
+        });
+    });
+
+    // Opcional: mostrar todas al cargar
+    // filtrarPlantas('all');
+
+<!-- Fin del script de filtrado -->
     document.addEventListener('DOMContentLoaded', function() {
     // Datos de las plantas desde PHP
     const plantas = <?php echo json_encode($plantas); ?>;
