@@ -94,6 +94,15 @@
         width: 100% !important;
         margin-bottom: 2rem;
     }
+
+
+    /**/
+    .header-secundary{
+        padding: 0.5rem !important;
+    }
+    .search .container{
+        padding: 0 0 0 0.5rem !important;
+    }
 }
 
 @media (max-width: 480px) {

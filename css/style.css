@@ -50,6 +50,7 @@ body::before {
     position: relative;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
  .reset-btn {
             color: #246741;

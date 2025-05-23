@@ -315,7 +315,7 @@ if (isset($_SESSION['user'])) {
     <?php include '../components/header.php'; ?>
 
     <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
-        <div style="display:flex; flex-direction:row; gap:5px">
+        <div class="hd-sec-gm" style="display:flex; flex-direction:row; gap:5px">
             <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'"  title="Volver al menú">
                 <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
             </button>
@@ -332,10 +332,9 @@ if (isset($_SESSION['user'])) {
             <h5 style="margin:0">Mecanografía</h5>
             <div class="level">Modo <span id="level-display"></span></div>
         </div>
-        <div style="display:flex; flex-direction:row; gap:10px">
+        <div class="hd-sec-gm" style="display:flex; flex-direction:row; gap:10px">
             
-            <h5><i class="fa-solid fa-clock"></i></h5>
-            <div class="timer"> <h5 id="timer"> 00:00</h5></div>
+             <div class="timer"> <h5><i class="fa-solid fa-clock me-2"></i></h5><h5 id="timer"> 00:00</h5></div>
         </div>
     </div>
 

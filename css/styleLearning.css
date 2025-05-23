@@ -145,7 +145,6 @@
         .search{
 display: flex;
 gap: 20px;
-padding: 0 5%;
 }
 
 .leaderboard-item.current-user {

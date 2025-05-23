@@ -234,7 +234,7 @@ if (isset($_SESSION['user'])) {
     <?php include '../components/header.php'; ?>
 
     <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
-        <div style="display:flex; flex-direction:row; gap:10px">
+        <div class="hd-sec-gm" style="display:flex; flex-direction:row; gap:10px">
             <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
                <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
             </button>
@@ -250,14 +250,14 @@ if (isset($_SESSION['user'])) {
             <h5 style="margin:0">Sopa de letras</h5>
             <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
         </div>
-        <div style="display:flex; flex-direction:row; gap:10px">
+        <div  style="display:flex; flex-direction:row; gap:10px">
             <div>
-                <div style="display:flex; flex-direction:row; gap:10px">
+                <div class="hd-sec-gm-v2" style="display:flex; flex-direction:row; gap:10px">
                     <div>
                         <h5><span id="found-words-count">0</span>/<span id="total-words-count">0</span></h5>
                     </div>
-                    <h5><i class="fa-solid fa-clock"></i></h5>
-            <div class="timer"> <h5 id="timer"> 00:00</h5></div>
+                    
+            <div class="timer"> <h5><i class="fa-solid fa-clock me-2"></i></h5><h5 id="timer"> 00:00</h5></div>
                 </div>
             </div>
         </div>
