@@ -36,42 +36,244 @@ $_SESSION['loteria_index'] = 0;
 <head>
     <meta charset="UTF-8">
     <title>Lotería - Flora Games</title>
-    <!--<link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/stylesMedia.css"> -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/stylesMedia.css">
+    <link rel="stylesheet" href="../css/styleGames.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
-        /* Agrega aquí tus estilos para la carta y el tablero */
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* Contenedor principal del tablero */
+#carta {
+    width: auto;
+    background: #f8f9fa;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 20px;
+    display: grid;
+    gap: 15px;
+    justify-items: center;
+     background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
+}
+
+/* Estilos de las celdas de la carta */
+/* Estilos para las cartas rectangulares verticales */
+.carta-celda {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px !important;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 210px; /* Altura fija para todas las cartas */
+    width: 120px; /* Ancho fijo para todas las cartas */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 5px;
+    overflow: hidden;
+}
+
+.card-img {
+    height: 80%;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.carta-celda div {
+    font-size: 12px;
+    font-weight: 600;
+    color: #246741;
+    text-align: center;
+    padding: 0 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limita a 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ajustes para el grid de cartas */
+#carta .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+}
+
+#carta .row > [class*="col-"] {
+    padding: 0.5rem !important;
+    flex: 0 0 auto;
+}
+
+/* Ajuste para el modo difícil (4 columnas) y fácil (3 columnas) */
+@media (min-width: 768px) {
+    .modo-dificil .carta-celda {
+        width: 140px;
+        height: 200px;
+    }
+    .modo-dificil .card-img {
+        width: 100px;
+        height: 100px;
+    }
+}
+/* Estilo para las celdas marcadas */
+.carta-celda.marcada {
+    background-color: #e8f5e9;
+}
+
+.hoja-overlay {
+    display: none;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70% !important;
+    pointer-events: none;
+    filter: drop-shadow(0 0 0.75rem white);
+    z-index: 2;
+}
+
+/* Estilos para el área del mazo */
+#mazo-actual {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 350px;
+    background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
+}
+
+#planta-actual .card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#planta-actual .card-img-top {
+    height: 90%;
+    object-fit: cover;
+}
+
+#planta-actual .card-body {
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+/* Botones de control */
+#mazo-actual .btn {
+    margin: 0 5px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: none;
+}
+
+#prev-btn, #next-btn {
+    background-color: #246741;
+    color: white;
+}
+
+#pause-btn {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+
+/* Animación para feedback */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+
     </style>
 </head>
 <body>
+    <?php include '../components/header.php'; ?>
+    
+    <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <button class="reset-btn" onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
+                <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
+            </button>
+            <button class="reset-btn" id="musicToggle" title="Música">
+                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i></h5>
+            </button>
+            <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
+                <source src="../assets/musica.mp3" type="audio/mp3">
+            </audio>
+            <button class="reset-btn" id="reset-btn" title="Reiniciar">
+                <h5><i class="fa-solid fa-arrow-rotate-right"></i></h5>
+            </button>
+        </div>
+        <div style="text-align:center">
+            <h5 style="margin:0">Loteria</h5>
+            <div class="level">
+                Modo: <span id="level-display">
+                   <?php echo ucfirst($modo); ?>
+                </span>
+            </div>
+        </div>
+        <div style="display:flex; flex-direction:row; gap:10px">
+            <h5><i class="fa-solid fa-clock"></i></h5>
+            <div class="timer">
+                <h5 id="timer">00:00</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="contenedor">
     <div class="container mt-4">
-        <h2>Lotería - Nivel <?php echo ucfirst($modo); ?></h2>
+        <!-- Tablero de lotería -->
         <div id="carta" class="mb-4">
-            <div class="row">
+            <div class="row g-3">
                 <?php
                 $cols = $modo === 'dificil' ? 4 : 3;
                 foreach ($carta as $i => $planta):
-                    if ($i % $cols === 0 && $i > 0) echo '</div><div class="row">';
+                    if ($i % $cols === 0 && $i > 0) echo '</div><div class="row g-3">';
                 ?>
-                    <div class="col border p-2 text-center carta-celda" data-index="<?php echo $i; ?>" style="position:relative; cursor:pointer;">
-                        <img src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>" style="width:100px;height:100px;">
+                    <div class="col-md-<?php echo 12/$cols; ?> card-info p-2 text-center carta-celda" data-index="<?php echo $i; ?>">
+                        <img class="card-img" src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>">
                         <div><?php echo htmlspecialchars($planta['nombre_comun']); ?></div>
-                        <img src="../img/hoja.png" class="hoja-overlay" style="display:none; position:absolute; top:10px; left:50%; transform:translateX(-50%); width:60px; pointer-events:none; z-index:2;">
+                        <img src="../img/hoja.png" class="hoja-overlay">
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
-        <div id="mazo-actual" class="mb-4 text-center">
-            <div id="planta-actual" style="margin-top:20px;"></div>
-            <div class="mt-3">
-                <button id="prev-btn" class="btn btn-secondary">Antes</button>
-                <button id="pause-btn" class="btn btn-warning">Pausa</button>
-                <button id="next-btn" class="btn btn-secondary">Después</button>
+
+        <!-- Mazo y controles -->
+        <div id="mazo-actual">
+            <h5 class="mb-3 text-center" style="color: #246741;">Planta Actual</h5>
+            <div id="planta-actual" class="mb-3"></div>
+            <div class="controls text-center">
+                <button id="prev-btn" class="btn btn-secondary"><i class="fas fa-arrow-left"></i></button>
+                <button id="pause-btn" class="btn btn-warning"><i class="fas fa-pause"></i> </button>
+                <button id="next-btn" class="btn btn-secondary" style="display:none"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="mt-3 text-center">
+                <small class="text-muted">Cartas restantes: <span id="cartas-restantes"><?php echo count($mazo); ?></span></small>
             </div>
         </div>
-        <a href="../view/gamesMenu.php" class="btn btn-secondary">Volver al menú</a>
     </div>
+</div>
     <!-- Modal de selección de dificultad -->
     <div class="modal fade" id="difficultyModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="difficultyModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -91,6 +293,7 @@ $_SESSION['loteria_index'] = 0;
             </div>
         </div>
 
+    <?php include '../components/footer.php'; ?>    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Mostrar el modal al cargar la página
