@@ -220,7 +220,7 @@ $_SESSION['loteria_index'] = 0;
             <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
                 <source src="../assets/musica.mp3" type="audio/mp3">
             </audio>
-            <button class="reset-btn" id="reset-btn" title="Reiniciar">
+            <button class="reset-btn" id="reset-btn" title="Reiniciar" type="button">
                 <h5><i class="fa-solid fa-arrow-rotate-right"></i></h5>
             </button>
         </div>
@@ -239,6 +239,69 @@ $_SESSION['loteria_index'] = 0;
             </div>
         </div>
     </div>
+<script>
+// Make seconds globally available
+let seconds = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Temporizador ---
+    let timerInterval;
+    function startTimer() {
+        timerInterval = setInterval(function() {
+            seconds++;
+            let min = Math.floor(seconds / 60);
+            let seg = seconds % 60;
+            document.getElementById('timer').textContent =
+                (min < 10 ? '0' : '') + min + ':' + (seg < 10 ? '0' : '') + seg;
+        }, 1000);
+    }
+    function resetTimer() {
+        clearInterval(timerInterval);
+        seconds = 0;
+        document.getElementById('timer').textContent = '00:00';
+        startTimer();
+    }
+    startTimer();
+
+    // --- Música ---
+    const musicToggle = document.getElementById('musicToggle');
+    const gameMusic = document.getElementById('gameMusic');
+    musicToggle.addEventListener('click', function() {
+        const isPlaying = !gameMusic.paused;
+        // Cambiar icono
+        const icon = musicToggle.querySelector('i');
+        if (isPlaying) {
+            gameMusic.pause();
+            icon.classList.remove('fa-volume-high');
+            icon.classList.add('fa-volume-xmark');
+            updateMusicPreference(0);
+        } else {
+            gameMusic.play();
+            icon.classList.remove('fa-volume-xmark');
+            icon.classList.add('fa-volume-high');
+            updateMusicPreference(1);
+        }
+    });
+    function updateMusicPreference(enabled) {
+        // AJAX para guardar preferencia
+        fetch('../config/updateMusicPreference.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'music_enabled=' + enabled
+        });
+    }
+
+    // --- Reset: mostrar modal de dificultad y reiniciar timer ---
+    const resetBtn = document.getElementById('reset-btn');
+    resetBtn.addEventListener('click', function() {
+        // Reiniciar timer
+        resetTimer();
+        // Mostrar modal de dificultad
+        const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
+        difficultyModal.show();
+    });
+});
+</script>
 
     <div class="contenedor">
     <div class="container mt-4">
@@ -292,6 +355,29 @@ $_SESSION['loteria_index'] = 0;
                 </div>
             </div>
         </div>
+    
+        <!-- Modal de victoria -->
+    <div class="modal fade" id="victoryModal" tabindex="-1" aria-labelledby="victoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="victoryModalLabel">¡Bien hecho!</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Has completado el juego</p>
+                    <div class="victory-stats">
+                        <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time" style="margin-left: 5px;">00:00</span></p>
+                        <p><i class="fas fa-trophy me-2"></i> Modo: <span id="victory-mode" style="margin-left: 5px;"><?php echo $difficultyText; ?></span></p>
+                        <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points" style="margin-left: 5px;">0</span></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="continue-btn">Volver a jugar</button>
+                    <button type="button" class="btn btn-secondary" id="exit-btn2">Salir</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <?php include '../components/footer.php'; ?>    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
@@ -314,6 +400,9 @@ $_SESSION['loteria_index'] = 0;
                 });
             });
 
+            document.getElementById('exit-btn2').addEventListener('click', function() {
+                window.location.href = '../view/gamesMenu.php';
+            });
             document.getElementById('exit-btn').addEventListener('click', function() {
                 window.location.href = '../view/gamesMenu.php';
             });
@@ -345,14 +434,94 @@ $_SESSION['loteria_index'] = 0;
                 </div>`;
         }
 
+        // Variables para puntos y modo
+        let puntos = <?php echo $modo === 'dificil' ? 200 : 150; ?>;
+        let modoTexto = "<?php echo ucfirst($modo); ?>";
+        
+        // Mostrar modal de victoria
+        function mostrarModalVictoria() {
+            clearInterval(intervalo);
+            // Mostrar tiempo
+            document.getElementById('victory-time').textContent = document.getElementById('timer').textContent;
+            // Mostrar modo
+            document.getElementById('victory-mode').textContent = modoTexto;
+            // Mostrar puntos
+            document.getElementById('victory-points').textContent = puntos;
+            // Guardar puntos y resultado si hay sesión
+            savePoints(puntos);
+            // Mostrar modal
+            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+            victoryModal.show();
+        }
+        function savePoints(points) {
+            console.log('Intentando guardar puntos:', points); // Añadir para depuración
+        
+            fetch('../config/updatePoints.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `points=${points}&game=loteria`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('Error al actualizar puntos: ' + text);
+                        });
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log('Puntos actualizados correctamente:', data);
+                    // Solo llamar a saveGameResult si ganó
+                    saveGameResult(true, seconds);
+                })
+                .catch(error => {
+                    console.error('Error completo:', error);
+                });
+        }
+        
+        // Función para guardar el resultado del juego
+        function saveGameResult(won, duration) {
+            // Solo guardar si el usuario está autenticado
+            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+                
+                // Crear objeto con los datos
+                const gameData = {
+                    usuario_id: userId,
+                    duracion: Math.floor(duration), // Duración en segundos
+                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
+                };
+                
+                // Enviar datos al servidor
+                fetch('../config/saveGameResult.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resultado guardado:', data);
+                })
+                .catch(error => {
+                    console.error('Error al guardar resultado:', error);
+                });
+            }
+        }
         function mostrarSiguiente() {
             if (index >= mazo.length) {
                 clearInterval(intervalo);
                 document.getElementById('planta-actual').innerHTML = "<h4>¡Fin del mazo!</h4>";
+                // Solo mostrar el modal de victoria si todas las cartas están marcadas
+                if (todasLasCartasMarcadas()) {
+                    mostrarModalVictoria();
+                }
                 return;
             }
             mostrarCarta(index);
-            // Registrar la carta que acaba de salir
             cartasSalidas.push(mazo[index].nombre_comun);
             index++;
         }
@@ -371,13 +540,25 @@ $_SESSION['loteria_index'] = 0;
                 mostrarSiguiente();
                 intervalo = setInterval(function() {
                     if (!pausado) mostrarSiguiente();
-                }, 2500);
+                }, 100);
             }
         };
 
         document.getElementById('pause-btn').onclick = function() {
             pausado = !pausado;
             this.textContent = pausado ? 'Reanudar' : 'Pausa';
+            if (!pausado) {
+                // Si se reanuda y no hay intervalo, lo creamos de nuevo
+                if (!intervalo) {
+                    intervalo = setInterval(function() {
+                        if (!pausado) mostrarSiguiente();
+                    }, 3500);
+                }
+            } else {
+                // Si se pausa, detenemos el intervalo
+                clearInterval(intervalo);
+                intervalo = null;
+            }
         };
         document.getElementById('next-btn').onclick = function() {
             if (index < mazo.length) mostrarSiguiente();
@@ -386,20 +567,45 @@ $_SESSION['loteria_index'] = 0;
             mostrarAnterior();
         };
 
-        // Selección de cartas y superposición de hoja SOLO si ya salió
+        // Selección de cartas y superposición de hoja SOLO si ya salió y solo una vez
         document.querySelectorAll('.carta-celda').forEach(function(celda) {
             celda.addEventListener('click', function() {
                 const nombreCarta = this.querySelector('div').innerText.trim();
                 const hoja = this.querySelector('.hoja-overlay');
-                // Solo permitir si la carta ya salió
-                if (cartasSalidas.includes(nombreCarta)) {
-                    hoja.style.display = hoja.style.display === 'none' ? 'block' : 'none';
-                } else {
-                    // Opcional: feedback visual
+                // Solo permitir si la carta ya salió y la hoja no está puesta
+                if (cartasSalidas.includes(nombreCarta) && hoja.style.display !== 'block') {
+                    hoja.style.display = 'block';
+                    this.classList.add('marcada');
+                    // Verificar si todas las cartas tienen hoja
+                    if (todasLasCartasMarcadas()) {
+                        setTimeout(() => {
+                            mostrarModalVictoria();
+                        }, 500);
+                    }
+                } else if (!cartasSalidas.includes(nombreCarta)) {
+                    // Feedback visual si no ha salido
                     this.style.animation = 'shake 0.3s';
                     setTimeout(() => { this.style.animation = ''; }, 300);
                 }
+                // Si la hoja ya está puesta, no se puede quitar
             });
+        });
+
+        // Función para verificar si todas las cartas están marcadas
+        function todasLasCartasMarcadas() {
+            return Array.from(document.querySelectorAll('.carta-celda .hoja-overlay'))
+                .every(hoja => hoja.style.display === 'block');
+        }
+
+        // Botón "Volver a jugar" en el modal de victoria
+        document.getElementById('continue-btn').addEventListener('click', function() {
+            // Ocultar modal de victoria y mostrar modal de dificultad
+            const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
+            victoryModal.hide();
+            setTimeout(() => {
+                const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
+                difficultyModal.show();
+            }, 500);
         });
     </script>
 </body>
