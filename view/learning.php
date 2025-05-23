@@ -1,13 +1,18 @@
 <?php
 require_once __DIR__.'/../config/init.php';
 require_once __DIR__.'/../connection/database.php';
-
+require_once __DIR__.'/../config/init.php';
+// Elimina la conexión y consulta a la base de datos
+//$plantas = json_decode(file_get_contents(__DIR__.'/../plantas.json'), true);
 // Obtener todas las plantas de la base de datos
-$db = new Database();
-$conn = $db->getConnection();
-$stmt = $conn->prepare("SELECT * FROM ficha_planta");
-$stmt->execute();
-$plantas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+//$db = new Database();
+//$conn = $db->getConnection();
+//$stmt = $conn->prepare("SELECT * FROM ficha_planta");
+//$stmt->execute();
+//$plantas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Cargar solo desde el JSON generado
+$plantas = json_decode(file_get_contents(__DIR__.'/../config/plantas.json'), true);
 
 // ORDENAR ALFABÉTICAMENTE POR NOMBRE COMÚN
 usort($plantas, function($a, $b) {
@@ -223,53 +228,131 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
 </div>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Buscador en tiempo real
+    const keyPlantas = "plantasFloraGames";
+    let plantas = [];
 
+    // Guardar datos en LocalStorage si no existen
+    if (localStorage.getItem(keyPlantas)) {
+        plantas = JSON.parse(localStorage.getItem(keyPlantas));
+    } else {
+        plantas = <?php echo json_encode($plantas); ?>;
+        localStorage.setItem(keyPlantas, JSON.stringify(plantas));
+    }
 
+    // Parámetros de paginación
+    const plantasPorPagina = 12;
+    let paginaActual = 1;
+    let plantasFiltradas = plantas;
+
+    const grid = document.querySelector('.plants-grid');
+    const paginacion = document.querySelector('.pagination');
     const inputBusqueda = document.getElementById('inputBusqueda');
-    const plantCards = document.querySelectorAll('.plant-card');
 
+    function renderPlantas(pagina = 1) {
+        grid.innerHTML = '';
+        const inicio = (pagina - 1) * plantasPorPagina;
+        const plantasPagina = plantasFiltradas.slice(inicio, inicio + plantasPorPagina);
+
+        plantasPagina.forEach(planta => {
+            const card = document.createElement('div');
+            card.className = 'plant-card';
+            card.setAttribute('data-bs-toggle', 'modal');
+            card.setAttribute('data-bs-target', '#plantModal');
+            card.setAttribute('data-nombre', planta.nombre_comun);
+            card.setAttribute('data-cientifico', planta.nombre_cientifico);
+            card.setAttribute('data-foto', planta.foto);
+            card.setAttribute('data-dibujo', planta.dibujo_animado);
+            card.setAttribute('data-caracteristicas', planta.caracteristicas);
+            card.setAttribute('data-habitat', planta.habitat);
+            card.setAttribute('data-distribucion', planta.distribucion);
+            card.setAttribute('data-curiosidad', planta.curiosidad);
+            card.setAttribute('data-audio', planta.audio);
+            card.setAttribute('data-situacion', planta.situación);
+            card.setAttribute('data-usos', planta.usos);
+
+            card.innerHTML = `
+                <div class="plant-image">
+                    <img src="../img/plantas/${planta.foto}" alt="${planta.nombre_comun}">
+                </div>
+                <div class="plant-content">
+                    <h3 class="plant-title">${planta.nombre_comun}</h3>
+                    <hr style="margin: 0 10px">
+                    <p class="plant-sci">${planta.nombre_cientifico}</p>
+                    <p class="plant-badge">${planta.situación}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Actualizar paginación
+        paginacion.innerHTML = '';
+        const totalPaginas = Math.ceil(plantasFiltradas.length / plantasPorPagina);
+        for (let i = 1; i <= totalPaginas; i++) {
+            if (i === pagina) {
+                paginacion.innerHTML += `<span class='page-items' style='font-weight:bold; color:#246741;'>${i}</span> `;
+            } else {
+                paginacion.innerHTML += `<a href='#' class='page-itemsV2' style='color:#246741; text-decoration:underline;' data-page='${i}'>${i}</a> `;
+            }
+        }
+
+        // Actualizar los eventos de las tarjetas y paginación
+        actualizarEventos();
+    }
+
+    function actualizarEventos() {
+        const plantCards = document.querySelectorAll('.plant-card');
+        plantCards.forEach(card => {
+            card.addEventListener('click', function() {
+                document.getElementById('plantModalLabel').textContent = card.dataset.nombre;
+                document.querySelector('#plantModal .plant-info [data-field="nombre"]').textContent = card.dataset.nombre;
+                document.querySelector('#plantModal .plant-info [data-field="cientifico"]').innerHTML = `<em>${card.dataset.cientifico}</em>`;
+                document.querySelector('#plantModal .plant-info [data-field="caracteristicas"]').textContent = card.dataset.caracteristicas;
+                document.querySelector('#plantModal .plant-info [data-field="habitat"]').textContent = card.dataset.habitat;
+                document.querySelector('#plantModal .plant-info [data-field="distribucion"]').textContent = card.dataset.distribucion;
+                document.querySelector('#plantModal .plant-info [data-field="curiosidad"]').textContent = card.dataset.curiosidad;
+                document.querySelector('#plantModal .plant-info [data-field="situacion"]').textContent = card.dataset.situacion;
+                document.querySelector('#plantModal .plant-info [data-field="usos"]').textContent = card.dataset.usos;
+                // Imagen principal
+                document.querySelector('#plantModal .carousel-item.active img').src = "../img/plantas/" + card.dataset.foto;
+                // Imagen secundaria (dibujo animado)
+                document.querySelectorAll('#plantModal .carousel-item img')[1].src = "../img/plantas/" + card.dataset.dibujo;
+                // Audio
+                document.querySelector('#plantModal .btn-audio').href = card.dataset.audio ? ("../audio/" + card.dataset.audio) : "#";
+            });
+        });
+
+        // Eventos de paginación
+        document.querySelectorAll('.page-itemsV2').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = parseInt(this.getAttribute('data-page'));
+                renderPlantas(page);
+            });
+        });
+    }
+
+    // Filtro de búsqueda
     inputBusqueda.addEventListener('input', function() {
         const filtro = inputBusqueda.value.toLowerCase();
-        plantCards.forEach(card => {
-            const nombre = card.dataset.nombre.toLowerCase();
-            const cientifico = card.dataset.cientifico.toLowerCase();
-            if (nombre.includes(filtro) || cientifico.includes(filtro)) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
-        });
+        plantasFiltradas = plantas.filter(planta =>
+            planta.nombre_comun.toLowerCase().includes(filtro) ||
+            planta.nombre_cientifico.toLowerCase().includes(filtro)
+        );
+        renderPlantas(1);
     });
 
-    // Modal dinámico (ya existente)
-    plantCards.forEach(card => {
-        card.addEventListener('click', function() {
-            document.getElementById('plantModalLabel').textContent = card.dataset.nombre;
-            document.querySelector('#plantModal .plant-info [data-field="nombre"]').textContent = card.dataset.nombre;
-            document.querySelector('#plantModal .plant-info [data-field="cientifico"]').innerHTML = `<em>${card.dataset.cientifico}</em>`;
-            document.querySelector('#plantModal .plant-info [data-field="caracteristicas"]').textContent = card.dataset.caracteristicas;
-            document.querySelector('#plantModal .plant-info [data-field="habitat"]').textContent = card.dataset.habitat;
-            document.querySelector('#plantModal .plant-info [data-field="distribucion"]').textContent = card.dataset.distribucion;
-            document.querySelector('#plantModal .plant-info [data-field="curiosidad"]').textContent = card.dataset.curiosidad;
-            document.querySelector('#plantModal .plant-info [data-field="situacion"]').textContent = card.dataset.situacion;
-            document.querySelector('#plantModal .plant-info [data-field="usos"]').textContent = card.dataset.usos;
-            // Imagen principal
-            document.querySelector('#plantModal .carousel-item.active img').src = "../img/plantas/" + card.dataset.foto;
-            // Imagen secundaria (dibujo animado)
-            document.querySelectorAll('#plantModal .carousel-item img')[1].src = "../img/plantas/" + card.dataset.dibujo;
-            // Audio
-            document.querySelector('#plantModal .btn-audio').href = card.dataset.audio ? ("../audio/" + card.dataset.audio) : "#";
-        });
-    });
+    // Inicializar renderizado
+    renderPlantas(1);
 });
 
 
 </script>
     <script>
-        // Pasar todas las plantas a JavaScript
-        const todasLasPlantas = <?php echo json_encode($plantas); ?>;
-        
+        fetch('../plantas.json')
+          .then(response => response.json())
+          .then(plantas => {
+              // Aquí tu lógica de renderizado, búsqueda y paginación usando el array plantas
+          });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 </body>
