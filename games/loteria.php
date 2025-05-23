@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="continue-btn">Volver a jugar</button>
+                    <button type="button" class="btn btn-success" id="continue-btn">Jugar de nuevo</button>
                     <button type="button" class="btn btn-secondary" id="exit-btn2">Salir</button>
                 </div>
             </div>
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mostrarSiguiente();
                 intervalo = setInterval(function() {
                     if (!pausado) mostrarSiguiente();
-                }, 100);
+                }, 3200);
             }
         };
 

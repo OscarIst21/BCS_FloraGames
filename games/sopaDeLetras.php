@@ -340,8 +340,8 @@ if (isset($_SESSION['user'])) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="retry-btn">Continuar</button>
-                    <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
+                    <button type="button" class="btn btn-success" id="retry-btn">Continuar</button>
+                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>

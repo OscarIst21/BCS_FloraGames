@@ -100,6 +100,8 @@ if (isset($_SESSION['user'])) {
             position: relative;
             min-height: 150px;
             overflow: hidden;
+            display: flex;
+            gap:10px;
         }
 
         .word-display {
@@ -295,6 +297,17 @@ if (isset($_SESSION['user'])) {
         #exit-btn:hover {
             background-color: #5a6268;
         }
+
+        .area-img {
+            width: 20%;
+            min-width:30%;
+            display: flex;
+            align-items: center;
+        }
+        .area-img img{
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(46, 139, 87, 0.7);
+        }
     </style>
 </head>
 
@@ -329,7 +342,12 @@ if (isset($_SESSION['user'])) {
     <div class="page-container">
         <div class="game-container">
 
+        
+
             <div class="typing-area">
+                <div class="area-img">
+                    <img src="../img/plantas/biznaga.png" alt="">
+                </div>
                 <div class="word-display" id="word-display"></div>
                 <div class="progress-bar">
                     <div class="progress" id="progress"></div>
@@ -398,7 +416,7 @@ if (isset($_SESSION['user'])) {
                     <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
 
                     <p><strong>Sin tiempo:</strong> Combinación de ambos (máximo 8)</p>
-                    <button class="difficulty-btn" data-difficulty="notime">Sin tiempo</button>
+                    <button class="difficulty-btn" data-difficulty="notime">Práctica sin límite</button>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>

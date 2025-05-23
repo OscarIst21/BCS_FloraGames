@@ -479,8 +479,8 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn">Salir del juego</a>
                     <a href="?reset=1" class="btn btn-success">Jugar de nuevo</a>
+                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn">Salir</a>
                 </div>
             </div>
         </div>

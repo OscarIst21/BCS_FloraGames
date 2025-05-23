@@ -38,48 +38,59 @@ if(isset($_SESSION['user'])) {
         .password-container {
             position: relative;
         }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+        .alert-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .error-input {
+            border-color: #dc3545 !important;
+        }
     </style>
 </head>
 <body>
     <?php include '../components/header.php'; ?>
 
-    <?php
-    // Eliminar esta línea: session_start();
-    if (isset($_SESSION['sweet_alert'])) {
-        $alert = $_SESSION['sweet_alert'];
-        echo "
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-center',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
-                });
-
-                Toast.fire({
-                    icon: '" . $alert['type'] . "',
-                    title: '" . $alert['title'] . "',
-                    text: '" . $alert['text'] . "'
-                });
-            });
-        </script>";
-        unset($_SESSION['sweet_alert']);
-    }
-    ?>
     <div class="contenedor">
         <div class="form-container" id="loginForm">
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Iniciar Sesión</h2>
-            <form action="../config/loginActions.php" method="post" class="form-fields">
+
+            <?php if(isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger">
+                    <?= $_SESSION['error']; ?>
+                    <?php unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if(isset($_SESSION['success'])): ?>
+                <div class="alert alert-success">
+                    <?= $_SESSION['success']; ?>
+                    <?php unset($_SESSION['success']); ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="../config/loginActions.php" method="post" class="form-fields" id="loginFormElement">
                 <div class="form-group">
                     <label for="username">Correo electrónico</label>
                     <input type="text" id="username" name="username" required>
+                    <div class="error-message" id="username-error"></div>
                 </div>
                 <div class="form-group">
                     <label for="password">Contraseña</label>
@@ -89,6 +100,7 @@ if(isset($_SESSION['user'])) {
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
+                    <div class="error-message" id="password-error"></div>
                 </div>
                 <div class="form-group checkbox">
                     <input type="checkbox" id="remember" name="remember">
@@ -111,6 +123,7 @@ if(isset($_SESSION['user'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Toggle de contraseña
         const toggleButton = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
         
@@ -125,11 +138,98 @@ if(isset($_SESSION['user'])) {
                     icon.classList.replace('fa-eye-slash', 'fa-eye');
                 }
             });
-            console.log('Toggle de contraseña configurado correctamente');
-        } else {
-            console.error('No se encontraron los elementos necesarios');
+        }
+
+        // Validación en tiempo real
+        const usernameInput = document.getElementById('username');
+        //const passwordInput = document.getElementById('password');
+        const loginForm = document.getElementById('loginFormElement');
+
+        if (usernameInput) {
+            usernameInput.addEventListener('input', function() {
+                validateUsername();
+            });
+        }
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                validatePassword();
+            });
+        }
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                }
+            });
         }
     });
+
+    function validateForm() {
+        let isValid = true;
+        
+        if (!validateUsername()) {
+            isValid = false;
+        }
+        
+        if (!validatePassword()) {
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+
+    function validateUsername() {
+        const username = document.getElementById('username')?.value.trim();
+        const errorElement = document.getElementById('username-error');
+        
+        if (!username) {
+            showError('username', 'username-error', 'Por favor, ingresa tu correo');
+            return false;
+        } else {
+            clearError('username', 'username-error');
+            return true;
+        }
+    }
+
+    function validatePassword() {
+        const password = document.getElementById('password')?.value;
+        const errorElement = document.getElementById('password-error');
+        
+        if (!password) {
+            showError('password', 'password-error', 'Por favor, ingresa tu contraseña');
+            return false;
+        } else if (password.length < 6) {
+            showError('password', 'password-error', 'La contraseña debe tener al menos 6 caracteres');
+            return false;
+        } else {
+            clearError('password', 'password-error');
+            return true;
+        }
+    }
+
+    function showError(inputId, errorElementId, message) {
+        const input = document.getElementById(inputId);
+        const errorElement = document.getElementById(errorElementId);
+        
+        if (input && errorElement) {
+            input.classList.add('error-input');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function clearError(inputId, errorElementId) {
+        const input = document.getElementById(inputId);
+        const errorElement = document.getElementById(errorElementId);
+        
+        if (input && errorElement) {
+            input.classList.remove('error-input');
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+    }
     </script>
 </body>
 </html>

@@ -14,17 +14,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Validación en tiempo real
+     // Validación en tiempo real
+    const nameInput = document.getElementById('reg_name');
     const emailInput = document.getElementById('reg_email');
     const birthdateInput = document.getElementById('reg_birthdate');
     const passwordInput = document.getElementById('reg_password');
     const confirmPasswordInput = document.getElementById('reg_confirm_password');
 
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            validateName();
+            // Limpiar el error cuando se empiece a escribir
+            if (this.value.trim().length > 0) {
+                clearError('reg_name', 'name-error');
+            }
+        });
+        nameInput.addEventListener('blur', validateName);
+    }
     if (emailInput) emailInput.addEventListener('blur', validateEmail);
     if (birthdateInput) birthdateInput.addEventListener('blur', validateBirthdate);
     if (passwordInput) passwordInput.addEventListener('input', validatePassword);
     if (confirmPasswordInput) confirmPasswordInput.addEventListener('input', validateConfirmPassword);
 });
+
+function validateName() {
+    const name = document.getElementById('reg_name')?.value.trim();
+    if (!name || name.length < 2) {
+        showError('reg_name', 'name-error', 'El nombre debe tener al menos 2 caracteres');
+        return false;
+    } else {
+        clearError('reg_name', 'name-error');
+        return true;
+    }
+}
 
 // Función para alternar entre mostrar/ocultar contraseña
 function setupPasswordToggle(toggleId, passwordId) {
@@ -50,12 +72,8 @@ function validateForm() {
     let isValid = true;
     
     // Validar nombre
-    const name = document.getElementById('reg_name')?.value.trim();
-    if (!name || name.length < 2) {
-        showError('reg_name', 'name-error', 'El nombre debe tener al menos 2 caracteres');
+    if (!validateName()) {
         isValid = false;
-    } else {
-        clearError('reg_name', 'name-error');
     }
     
     // Validar email

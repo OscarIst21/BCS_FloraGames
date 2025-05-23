@@ -21,59 +21,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $password = $_POST['password'];
         $confirm_password = $_POST['confirm_password'];
 
-        // Validate name
-        if (strlen($nombre) < 2) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error de validación',
-                'text' => 'El nombre debe tener al menos 2 caracteres'
-            ];
-            header("Location: ../view/register.php");
-            exit();
-        }
-
-        // Validate email format
-        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error de validación',
-                'text' => 'Por favor, ingresa un correo electrónico válido'
-            ];
-            header("Location: ../view/register.php");
-            exit();
-        }
-
         // Check if email already exists
         $stmt = $conn->prepare("SELECT COUNT(*) FROM usuarios WHERE correo_electronico = ?");
         $stmt->execute([$correo]);
         if ($stmt->fetchColumn() > 0) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error de registro',
-                'text' => 'Este correo electrónico ya está registrado'
-            ];
+            $_SESSION['error'] = 'Este correo electrónico ya está registrado';
             header("Location: ../view/register.php");
             exit();
         }
 
         // Validate passwords match
         if ($password !== $confirm_password) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error de validación',
-                'text' => 'Las contraseñas no coinciden'
-            ];
+            $_SESSION['error'] ='Las contraseñas no coinciden';
             header("Location: ../view/register.php");
             exit();
         }
 
         // Validate password length
         if (strlen($password) < 6) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error de validación',
-                'text' => 'La contraseña debe tener al menos 6 caracteres'
-            ];
+            $_SESSION['error'] =  'La contraseña debe tener al menos 6 caracteres';
             header("Location: ../view/register.php");
             exit();
         }
@@ -84,11 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $age = $birthDate->diff($today)->y;
 
         if ($birthDate > $today || $age < 5) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error de validación',
-                'text' => 'Fecha de naciemiento no valida'
-            ];
+            $_SESSION['error'] ='Fecha de naciemiento no valida';
             header("Location: ../view/register.php");
             exit();
         }
@@ -127,20 +89,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // Limpiar datos del formulario guardados
             unset($_SESSION['form_data']);
-
-            $_SESSION['sweet_alert'] = [
-                'type' => 'success',
-                'title' => '¡Registro exitoso!',
-                'text' => 'Bienvenido/a a Flora Games, ' . $nombre
-            ];
+            unset($_SESSION['error']);
+            $_SESSION['success'] = 'Bienvenido/a a Flora Games, ' . $nombre;
             header("Location: ../index.php");
             exit();
         } catch (PDOException $e) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error al registrar',
-                'text' => 'Ocurrió un error al crear la cuenta. Por favor, intenta nuevamente.'
-            ];
+            $_SESSION['error'] = 'Ocurrió un error al crear la cuenta. Por favor, intenta nuevamente.';
             header("Location: ../view/register.php");
             exit();
         }
@@ -152,11 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Validate empty fields
         if (empty($login) || empty($password)) {
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error',
-                'text' => 'Por favor, completa todos los campos'
-            ];
+            $_SESSION['error'] = 'Por favor, completa todos los campos';
             header("Location: ../view/login.php");
             exit();
         }
@@ -182,29 +132,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     setcookie('remember_me', $cookie_value, time() + 86400 * 30, "/"); // 30 días
                 }
 
-                $_SESSION['sweet_alert'] = [
-                    'type' => 'success',
-                    'title' => '¡Bienvenido!',
-                    'text' => '¡Hola, ' . $user['nombre'] . '!'
-                ];
+                 unset($_SESSION['error']);
+                $_SESSION['success'] = '¡Bienvenido, ' . $user['nombre'] . '!';
                 header("Location: ../index.php");
                 exit();
             } else {
-                $_SESSION['sweet_alert'] = [
-                    'type' => 'error',
-                    'title' => 'Error',
-                    'text' => 'El Correo o contraseña son incorrectos'
-                ];
+                $_SESSION['error'] = 'El correo o contraseña son incorrectos';
                 header("Location: ../view/login.php");
                 exit();
             }
         } catch (PDOException $e) {
             error_log("Error de login: " . $e->getMessage());
-            $_SESSION['sweet_alert'] = [
-                'type' => 'error',
-                'title' => 'Error',
-                'text' => 'Ocurrió un error al iniciar sesión. Por favor, inténtalo nuevamente.'
-            ];
+            $_SESSION['error'] = 'Ocurrió un error al iniciar sesión. Por favor, inténtalo nuevamente.';
             header("Location: ../view/login.php");
             exit();
         }

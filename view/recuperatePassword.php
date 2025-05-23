@@ -34,6 +34,17 @@
         .form-container.active {
             display: block;
         }
+        .error-message {
+            color: #dc3545;          /* rojo Bootstrap */
+            font-size: 0.875rem;     /* 14 px aprox. */
+            margin-top: .25rem;
+        }
+
+        .success-message {
+            color: #28a745;          /* verde Bootstrap */
+            font-size: 0.875rem;
+            margin-top: .25rem;
+        }
     </style>
 </head>
 <body>
@@ -50,6 +61,12 @@
                 <div class="form-group">  
                     <label for="email">Correo electrónico</label>
                     <input type="email" id="email" name="email" required>
+
+                    <?php if (!empty($_SESSION['flash']['email_error'])): ?>
+                        <p class="error-message"><?= htmlspecialchars($_SESSION['flash']['email_error']) ?></p>
+                    <?php elseif (!empty($_SESSION['flash']['email_success'])): ?>
+                        <p class="success-message"><?= htmlspecialchars($_SESSION['flash']['email_success']) ?></p>
+                    <?php endif; ?>
                 </div>  
                 <button type="submit" name="send_code" class="button">Enviar código de recuperación</button>
                 <div class="switch-form">
@@ -66,6 +83,11 @@
                 <div class="form-group">
                     <label for="token">Ingrese el código de 6 dígitos</label>
                     <input type="text" id="token" name="token" pattern="\d{6}" maxlength="6" required>
+                    <?php if (!empty($_SESSION['flash']['token_error'])): ?>
+                        <p class="error-message"><?= htmlspecialchars($_SESSION['flash']['token_error']) ?></p>
+                    <?php elseif (!empty($_SESSION['flash']['token_success'])): ?>
+                        <p class="success-message"><?= htmlspecialchars($_SESSION['flash']['token_success']) ?></p>
+                    <?php endif; ?>
                 </div>
                 <button type="submit" name="verify_code" class="button">Verificar código</button>
                 <div class="switch-form">
@@ -84,6 +106,12 @@
                     <label for="new_password">Nueva contraseña</label>
                     <div class="password-container">
                         <input type="password" id="new_password" name="new_password" minlength="6" required>
+                        <?php if (!empty($_SESSION['flash']['password_error'])): ?>
+                    <p class="error-message"><?= htmlspecialchars($_SESSION['flash']['password_error']) ?></p>
+                <?php elseif (!empty($_SESSION['flash']['password_success'])): ?>
+                    <p class="success-message"><?= htmlspecialchars($_SESSION['flash']['password_success']) ?></p>
+                <?php endif; ?>
+
                         <button type="button" class="password-toggle" id="toggleNewPassword">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -107,23 +135,6 @@
     <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <?php
-    if (isset($_SESSION['sweet_alert'])) {
-        $alert = $_SESSION['sweet_alert'];
-        echo "<script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    icon: '" . $alert['type'] . "',
-                    title: '" . $alert['title'] . "',
-                    text: '" . $alert['text'] . "'
-                });
-            });
-        </script>";
-        unset($_SESSION['sweet_alert']);
-    }
-    ?>
-    
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Toggle para mostrar/ocultar contraseña

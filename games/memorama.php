@@ -474,11 +474,15 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="continue-btn">Continuar</button>
-                    <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
+                    <button type="button" class="btn btn-success" id="continue-btn">Continuar</button>
+                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="notificacion-planta" class="notificacion">
+        <span id="mensaje-notificacion"></span>
     </div>
 
      <?php include '../components/footer.php'; ?>
@@ -605,6 +609,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                             
                             setTimeout(() => {
                                 if (data.match) {
+                                    mostrarNotificacion(data.card); //Notificación
                                     // Si son pares, marcarlas como emparejadas
                                     flippedCards.forEach(c => c.classList.add('matched'));
                                     
@@ -628,6 +633,18 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                 });
             }
             
+            function mostrarNotificacion(cardData) {
+                const notificacion = document.getElementById('notificacion-planta');
+                const mensaje = document.getElementById('mensaje-notificacion');
+                
+                // Usar cardData.card_name en lugar de buscar en un objeto local
+                mensaje.textContent = `¡Felicidades! Encontraste la planta ${cardData.card_name || 'especial'}`;
+                
+                notificacion.classList.add('mostrar');
+                setTimeout(() => {
+                    notificacion.classList.remove('mostrar');
+                }, 3000);
+            }
             // Función para iniciar el temporizador
             function startTimer() {
                 // Si es modo sin tiempo, no mostrar temporizador

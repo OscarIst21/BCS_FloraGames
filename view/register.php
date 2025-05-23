@@ -2,35 +2,11 @@
     session_start();
     // Recuperar datos del formulario si existen
     $formData = $_SESSION['form_data'] ?? [];
+    $error = $_SESSION['error'] ?? '';
+    $success = $_SESSION['success'] ?? '';
     unset($_SESSION['form_data']);
-    
-    if (isset($_SESSION['sweet_alert'])) {
-        $alert = $_SESSION['sweet_alert'];
-        echo "
-        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-center',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
-                });
-
-                Toast.fire({
-                    icon: '" . $alert['type'] . "',
-                    title: '" . $alert['title'] . "',
-                    text: '" . $alert['text'] . "'
-                });
-            });
-        </script>";
-        unset($_SESSION['sweet_alert']);
-    }
+    unset($_SESSION['error']);
+    unset($_SESSION['success']);
     ?>
     
 <!DOCTYPE html>
@@ -44,7 +20,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
-    
+    <style>
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .error-input {
+            border-color: #dc3545 !important;
+        }
+    </style>
 </head>
 <body>
     <?php include '../components/header.php'; ?>
@@ -53,6 +54,17 @@
     <div class="contenedor">
         <div class="form-container" id="registerForm">
             <h2 style="background-color: #246741; padding: 1rem; color: white;">Registrarse</h2>
+             <?php if ($error): ?>
+                <div class="alert alert-error">
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if ($success): ?>
+                <div class="alert alert-success">
+                    <?php echo htmlspecialchars($success); ?>
+                </div>
+            <?php endif; ?>
             <form action="../config/loginActions.php" method="post" class="form-fields" id="registrationForm">
                 <div class="form-group">
                     <label for="reg_name">Nombre o apodo</label>

@@ -16,11 +16,8 @@ if (isset($_POST['send_code'])) {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$user) {
-        $_SESSION['sweet_alert'] = [
-            'type' => 'error',
-            'title' => 'Error',
-            'text' => 'No existe una cuenta con este correo electrónico'
-        ];
+        $_SESSION['flash']['email_error'] = 'No existe una cuenta con este correo electrónico';
+        $_SESSION['step'] = 'email';
         header("Location: ../view/recuperatePassword.php");
         exit();
     }
@@ -45,17 +42,11 @@ if (isset($_POST['send_code'])) {
     $_SESSION['email'] = $email;
     
     if ($sent) {
-        $_SESSION['sweet_alert'] = [
-            'type' => 'success',
-            'title' => 'Código enviado',
-            'text' => 'Revisa tu correo electrónico'
-        ];
+        $_SESSION['flash']['email_success'] = 'Revisa tu correo electrónico';
     } else {
-        $_SESSION['sweet_alert'] = [
-            'type' => 'warning',
-            'title' => 'Advertencia',
-            'text' => 'Hubo un problema al enviar el correo, pero puedes intentar nuevamente'
-        ];
+        $_SESSION['flash']['email_error'] = 'Hubo un problema al enviar el correo, intenta nuevamente';
+        // opcionalmente vuelve al paso email:
+        $_SESSION['step'] = 'email';
     }
     header("Location: ../view/recuperatePassword.php");
     exit();
@@ -79,20 +70,11 @@ if (isset($_POST['verify_code'])) {
     $recovery = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($recovery) {
-        $_SESSION['step'] = 'reset';
+        $_SESSION['step']  = 'reset';
         $_SESSION['token'] = $token;
-        $_SESSION['sweet_alert'] = [
-            'type' => 'success',
-            'title' => 'Código válido',
-            'text' => 'Ahora puedes establecer una nueva contraseña'
-        ];
     } else {
+        $_SESSION['flash']['token_error'] = 'El código es incorrecto o ha expirado';
         $_SESSION['step'] = 'verify';
-        $_SESSION['sweet_alert'] = [
-            'type' => 'error',
-            'title' => 'Código inválido',
-            'text' => 'El código es incorrecto o ha expirado'
-        ];
     }
     
     header("Location: ../view/recuperatePassword.php");
@@ -132,18 +114,13 @@ if (isset($_POST['reset_password'])) {
         unset($_SESSION['email']);
         unset($_SESSION['token']);
         
-        $_SESSION['sweet_alert'] = [
-            'type' => 'success',
-            'title' => 'Contraseña actualizada',
-            'text' => 'Tu contraseña ha sido cambiada exitosamente'
-        ];
+        unset($_SESSION['step'], $_SESSION['email'], $_SESSION['token']);
+
+        $_SESSION['flash']['password_success'] = 'Tu contraseña ha sido cambiada exitosamente';
         header("Location: ../view/login.php");
     } else {
-        $_SESSION['sweet_alert'] = [
-            'type' => 'error',
-            'title' => 'Error',
-            'text' => 'No se pudo actualizar la contraseña. El token ha expirado o es inválido'
-        ];
+        $_SESSION['flash']['password_error'] = 'El token ha expirado o es inválido';
+        $_SESSION['step'] = 'reset';
         header("Location: ../view/recuperatePassword.php");
     }
     exit();

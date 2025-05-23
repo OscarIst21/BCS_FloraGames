@@ -491,7 +491,7 @@ function saveGameResult($won, $duration, $points) {
                 <div class="modal-body text-center">
                     <p>Has completado el puzzle correctamente</p>
                     <div class="victory-stats">
-                        <p><i class="fas fa-image me-2"></i> Planta: <span id="victory-image"><?php echo $_SESSION['']; ?></span></p>
+                        <p><i class="fas fa-image me-2"></i> Planta: <span id="victory-image"><?php echo $_SESSION['image']; ?></span></p>
                         <p><i class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves">0</span></p>
                         <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
                         <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">0</span></p>

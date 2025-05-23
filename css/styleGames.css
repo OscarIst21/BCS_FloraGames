@@ -38,6 +38,66 @@
     margin-bottom: 0.5rem;
 }
 
-        .contenedor{
-            margin: 2rem !important;
-        }
+.contenedor{
+    margin: 2rem !important;
+}
+
+.notificacion {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    display: none;
+}
+
+.notificacion.mostrar {
+    display: block;
+    opacity: 1;
+}
+
+
+/*Para mecanografia*/
+
+@media (max-width: 480px) {
+    #mecaBtn {
+        background-color: gray;
+        cursor: not-allowed;
+    }
+
+    #mecaLink {
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+}
+
+.toast-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #e63946;
+    color: white;
+    padding: 12px 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size:small;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 9999;
+}
+
+.toast-message.show {
+    opacity: 1;
+    visibility: visible;
+}
