@@ -286,7 +286,7 @@ if (isset($_SESSION['user'])) {
             background-color: #1a4d30;
         }
 
-        #exit-btn {
+        #exit-btn, #exit-btn2 {
             background-color: #6c757d;
             color: white;
             border: none;
@@ -448,7 +448,7 @@ if (isset($_SESSION['user'])) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="continue-btn">Continuar</button>
-                    <button type="button" class="btn btn-primary" id="exit-btn">Salir</button>
+                    <button type="button" class="btn btn-primary" id="exit-btn2">Salir</button>
                 </div>
             </div>
         </div>
@@ -468,6 +468,11 @@ if (isset($_SESSION['user'])) {
         const musicIcon = musicToggle.querySelector('i');
         const gameMusic = document.getElementById('gameMusic');
         gameMusic.volume = 0.5;
+
+        document.getElementById('exit-btn2').addEventListener('click', function() {
+                window.location.href = '../view/gamesMenu.php';
+            });
+            
 
         // Music control event listener
         musicToggle.addEventListener('click', function() {
@@ -586,6 +591,8 @@ if (isset($_SESSION['user'])) {
             const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
             victoryModal.hide();
             document.querySelector('.modal-backdrop')?.remove();
+             document.querySelector('.fade')?.remove();
+              document.querySelector('.show')?.remove();
             resetGame();
         });
         

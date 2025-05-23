@@ -354,16 +354,8 @@ function saveGameResult($won, $duration, $points) {
             margin: 1rem 0;
             text-align: center;
         }
-        
-        .level {
-            font-weight: 600;
-            color: #2E8B57;
-            margin-bottom: 0.5rem;
-        }
-        
     
-        
-       
+    
         .navbar {
             z-index: 1030;
         }

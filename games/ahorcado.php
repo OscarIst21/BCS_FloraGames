@@ -252,7 +252,7 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
         }
         
         .key.used {
-            opacity: 0.5;
+            opacity: 0.7;
             cursor: not-allowed;
         }
         

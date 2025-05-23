@@ -183,13 +183,12 @@ if (isset($_GET['tipo'])) {
             break;
         case 'usos':
                 getUsos();
-
-                break;
+            break;
         default:
             http_response_code(400);
             echo json_encode(['error' => 'Tipo no válido']);
     }
 } else {
-    http_response_code(400);
-    echo json_encode(['error' => 'No se especificó el tipo de datos']);
+  /*  http_response_code(400);
+   echo json_encode(['error' => 'No se especificó el tipo de datos']);*/
 }
