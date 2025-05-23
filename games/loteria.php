@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!intervalo) {
                     intervalo = setInterval(function() {
                         if (!pausado) mostrarSiguiente();
-                    }, 3500);
+                    }, 3600);
                 }
             } else {
                 // Si se pausa, detenemos el intervalo
