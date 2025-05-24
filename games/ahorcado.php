@@ -38,7 +38,7 @@ function obtenerPalabrasPorDificultad() {
         'dificil' => []
     ];
     foreach ($plantas as $planta) { // Cambiado $nombres por $plantas
-        if (mb_strlen($planta['nombre_comun']) <= 10) {
+        if (mb_strlen($planta['nombre_comun']) <= 8) {
             $palabras['facil'][] = $planta; // Guardamos el array completo
         } else {
             $palabras['dificil'][] = $planta; // Guardamos el array completo
@@ -106,13 +106,20 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
     if (!in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) && 
         !in_array($letra, $_SESSION['ahorcado_letras_incorrectas'])) {
         
-        if (strpos($_SESSION['ahorcado_palabra'], $letra) !== false) {
+        // Verificar todas las ocurrencias de la letra
+        $letras_en_palabra = array_filter(str_split(strtolower($_SESSION['ahorcado_palabra'])), function($l) use ($letra) {
+            return $l === $letra;
+        });
+        
+        if (!empty($letras_en_palabra)) {
+            // Agregar la letra a las adivinadas
             $_SESSION['ahorcado_letras_adivinadas'][] = $letra;
             
             // Verificar victoria
             $palabra_completa = true;
-            for ($i = 0; $i < strlen($_SESSION['ahorcado_palabra']); $i++) {
-                if (!in_array($_SESSION['ahorcado_palabra'][$i], $_SESSION['ahorcado_letras_adivinadas'])) {
+            $palabra_minuscula = strtolower($_SESSION['ahorcado_palabra']);
+            for ($i = 0; $i < strlen($palabra_minuscula); $i++) {
+                if (!in_array($palabra_minuscula[$i], $_SESSION['ahorcado_letras_adivinadas'])) {
                     $palabra_completa = false;
                     break;
                 }
@@ -397,8 +404,8 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
                             <?php
                             $palabra = $_SESSION['ahorcado_palabra'];
                             for ($i = 0; $i < strlen($palabra); $i++) {
-                                $letra = $palabra[$i];
-                                $mostrar = in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) ? $letra : '';
+                                $letra = strtolower($palabra[$i]);
+                                $mostrar = in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) ? $palabra[$i] : '';
                                 echo "<div class='letter-box'>$mostrar</div>";
                             }
                             ?>
@@ -519,11 +526,27 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
             resetButton.addEventListener('click', function() {
                 window.location.href = '?reset=1';
             });
-            
-            document.getElementById('exit-btn').addEventListener('click', function() {
-            window.location.href = '../view/gamesMenu.php';
-        });
-
+            const exitBtn = document.getElementById('exit-btn');
+            if (exitBtn) {
+                exitBtn.addEventListener('click', function() {
+                    fetch('../config/updatePoints.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `points=${points}&game=ahorcado`
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al actualizar puntos');
+                        }
+                        return response.text();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            }
             // Temporizador
             let timerElement = document.getElementById('timer');
             let victoryTimeElement = document.getElementById('victory-time');
@@ -578,26 +601,32 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
             
             // Función para guardar puntos
             function savePoints(points) {
-                fetch('../config/updatePoints.php', {
+            console.log('Intentando guardar puntos:', points); // Añadir para depuración
+        
+            fetch('../config/updatePoints.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `points=${points}&game=ahorcado`
+                    body: `points=${points}&game=loteria`
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Error al actualizar puntos');
+                        return response.text().then(text => {
+                            throw new Error('Error al actualizar puntos: ' + text);
+                        });
                     }
                     return response.text();
                 })
                 .then(data => {
-                    console.log('Puntos actualizados:', data);
+                    console.log('Puntos actualizados correctamente:', data);
+                    // Solo llamar a saveGameResult si ganó
+                    saveGameResult(true, seconds);
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error completo:', error);
                 });
-            }
+        }
             
             // Función para guardar resultado del juego
             function saveGameResult(won, duration) {
@@ -645,6 +674,7 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
                 saveGameResult(true, timeElapsed);
                 savePoints(points);
                 <?php endif; ?>
+
             } else {
                 modalHeader.className = 'modal-header bg-danger text-white';
                 modalTitle.textContent = '¡Más suerte para la próxima!';
