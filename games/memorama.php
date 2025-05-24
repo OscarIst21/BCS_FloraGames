@@ -178,15 +178,8 @@ function saveGameResult($won, $duration, $points) {
         'duracion' => $duration,
         'fue_ganado' => $won ? 1 : 0
     ];
-    
-    // También actualizar los puntos del usuario
-    updatePoints($points);
 }
 
-// Función para actualizar los puntos del usuario
-function updatePoints($points) {
-    // Esta función se implementará en el lado del cliente con JavaScript
-}
 
 // Calcular tiempo transcurrido
 $elapsedTime = 0;
@@ -398,7 +391,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
         </div>
         <div style="text-align:center">
             <h5 style="margin:0">Memorama</h5>
-            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
+            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>s
         </div>
         <div  style="display:flex; flex-direction:row; gap:10px">
             <div>
@@ -615,7 +608,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                                     
                                     // Verificar si todas las cartas están emparejadas
                                     if (data.allMatched) {
-                                        handleVictory(data);
+                                        mostrarModalVictoria(data);
                                     }
                                 } else {
                                     // Si no son pares, voltearlas de nuevo
@@ -686,33 +679,62 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                 }, 500);
             }
             
-            // Función para guardar puntos
-            function savePoints(points) {
-                // Solo guardar si el usuario está autenticado
-                if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                    fetch('../config/updatePoints.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `points=${points}&game=memorama`
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.text().then(text => {
-                                throw new Error('Error al actualizar puntos: ' + text);
-                            });
-                        }
-                        return response.text();
-                    })
-                    .then(data => {
-                        console.log('Puntos actualizados correctamente:', data);
-                    })
-                    .catch(error => {
-                        console.error('Error completo:', error);
-                    });
-                }
+            function mostrarModalVictoria(data) {
+                clearInterval(timerInterval);
+                document.getElementById('victory-time').textContent = document.getElementById('timer').textContent;
+                document.getElementById('victory-points').textContent = data.points;
+                // Guardar puntos en la base de datos
+                savePoints(data.points, data.timeInSeconds); // Asegúrate de que data.timeInSeconds tenga el valor correcto
+                // Mostrar modal
+                const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+                victoryModal.show();
             }
+            function savePoints(points) {
+            console.log('Intentando guardar puntos:', points);
+            fetch('../config/updatePoints.php', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `points=${points}&game=memorama`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Puntos actualizados correctamente:', data);
+            })
+            .catch(error => {
+                console.error('Error al actualizar puntos:', error);
+            });
+        }
+
+        function saveGameResult(won, duration) {
+            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+                fetch('../config/saveGameResult.php', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `usuario_id=<?php echo $_SESSION['usuario_id'] ?? ''; ?>&juego=memorama&duracion=${duration}&fue_ganado=${won ? 1 : 0}`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Resultado guardado correctamente:', data);
+                })
+                .catch(error => {
+                    console.error('Error al guardar resultado:', error);
+                });
+            }
+        }
         });
     </script>
 </body>

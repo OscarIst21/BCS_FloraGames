@@ -28,7 +28,8 @@ try {
     $stmt = $conn->prepare("UPDATE usuarios SET puntos_ganados = puntos_ganados + ? WHERE id = ?");
     $stmt->execute([$points, $userId]);
     
-    echo "Puntos actualizados correctamente";
+    header('Content-Type: application/json');
+    echo json_encode(["success" => true, "message" => "Puntos actualizados correctamente"]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo "Error al actualizar puntos: " . $e->getMessage();
