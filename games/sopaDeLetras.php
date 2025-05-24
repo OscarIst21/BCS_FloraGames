@@ -22,6 +22,10 @@ function obtenerPalabras() {
         }
     }
 
+    // Filtrar palabras que no excedan el tamaño del tablero
+    $todosNombres = array_filter($todosNombres, function($nombre) {
+        return mb_strlen($nombre) <= 15;
+    });
     // Mezclar todos los nombres
     shuffle($todosNombres);
 
@@ -833,7 +837,7 @@ if (isset($_SESSION['user'])) {
                 // Configurar botones del modal de victoria
                 document.getElementById('retry-btn').onclick = function() {
                     bootstrap.Modal.getInstance(document.getElementById('victoryModal')).hide();
-                    initGame();
+                    window.location.reload(); // Esto recarga la página y genera nuevas palabras
                 };
                 document.getElementById('exit-btn').onclick = function() {
                     window.location.href = '../view/gamesMenu.php';
