@@ -16,7 +16,14 @@ if (!isset($_SESSION['puzzle_difficulty'])) {
 }
 
 if (!isset($_SESSION['puzzle_image'])) {
-    $_SESSION['puzzle_image'] = isset($_GET['image']) ? $_GET['image'] : rand(1, 15);
+    if (isset($_GET['image'])) {
+        $_SESSION['puzzle_image'] = $_GET['image'];
+    } else {
+        $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
+        $plantaRandom = $plantas[array_rand($plantas)];
+        $_SESSION['puzzle_image'] = $plantaRandom['foto']; // Guarda el nombre de la imagen
+        $_SESSION['puzzle_nombre'] = $plantaRandom['nombre_comun']; // Opcional: guarda el nombre
+    }
 }
 
 // Calcular tiempo transcurrido
@@ -175,7 +182,7 @@ function isPuzzleSolvable($tiles, $gridSize) {
 // Función para calcular puntos
 function calculatePoints($moves, $duration) {
     // Base de puntos
-    $basePoints = 100;
+    $basePoints = 300;
     
     // Determinar multiplicador según dificultad
     $difficultyMultiplier = 1;
@@ -380,7 +387,7 @@ function saveGameResult($won, $duration, $points) {
         </div>
         <div style="text-align:center">
             <h5 style="margin:0">Puzzle deslizante</h5>
-            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
+            <div class="level">Modo facil - <?php echo $_SESSION['puzzle_nombre']; ?>: </div>
         </div>
         <divstyle="display:flex; flex-direction:row; gap:10px">
             <div>
@@ -426,19 +433,12 @@ function saveGameResult($won, $duration, $points) {
                     $tileNumber = $state[$i];
                     $isEmpty = ($tileNumber == 0);
                     $tileClass = $isEmpty ? 'puzzle-tile empty' : 'puzzle-tile';
-                    
                     echo "<div class='$tileClass' data-index='$i' data-tile='$tileNumber'>";
-                    
                     if (!$isEmpty) {
-                        // Calcular la posición de la pieza en la imagen original
                         $row = floor(($tileNumber - 1) / $gridSize);
                         $col = ($tileNumber - 1) % $gridSize;
-                        
-                        // Calcular el porcentaje para el clip-path
-                        $percentPerTile = 100 / $gridSize;
-                        
                         echo "<div class='number'>$tileNumber</div>";
-                        echo "<div class='tile-image' style='background-image: url(\"../img/niveles/$imageNumber.png\"); background-size: " . ($gridSize * 100) . "%; background-position: " . ($col * 100 / ($gridSize - 1)) . "% " . ($row * 100 / ($gridSize - 1)) . "%;'></div>";
+                        echo "<div class='tile-image' style='background-image: url(\"../img/plantas/{$imageNumber}\"); background-size: " . ($gridSize * 100) . "%; background-position: " . ($col * 100 / ($gridSize - 1)) . "% " . ($row * 100 / ($gridSize - 1)) . "%;'></div>";
                     }
                     echo "</div>";
                 }
@@ -446,13 +446,15 @@ function saveGameResult($won, $duration, $points) {
             </div>
         </div>
         
-        <div class="image-selector mt-4">
+        <div class="image-selector mt-4" style="display: none;">
             <h6 class="w-100 text-center mb-2" style="color:White">Selecciona una planta:</h6>
             <?php
             for ($i = 1; $i <= 15; $i++) {
-                $selected = ($i == $_SESSION['puzzle_image']) ? 'selected' : '';
-                echo "<div class='image-option $selected' data-image='$i'>";
-                echo "<img src='../img/niveles/$i.png' alt='Imagen $i'>";
+                $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
+                $planta = $plantas[$i-1];
+                $selected = ($planta['foto'] == $_SESSION['puzzle_image']) ? 'selected' : '';
+                echo "<div class='image-option $selected' data-image='{$planta['foto']}'>";
+                echo "<img src='../img/plantas/{$planta['foto']}' alt='Imagen {$planta['nombre_comun']}'>";
                 echo "</div>";
             }
             ?>
@@ -491,7 +493,7 @@ function saveGameResult($won, $duration, $points) {
                 <div class="modal-body text-center">
                     <p>Has completado el puzzle correctamente</p>
                     <div class="victory-stats">
-                        <p><i class="fas fa-image me-2"></i> Planta: <span id="victory-image"><?php echo $_SESSION['image']; ?></span></p>
+                        <p><i class="fas fa-image me-2"></i> Planta: <span id="victory-image"><?php echo $_SESSION['puzzle_nombre']; ?></span></p>
                         <p><i class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves">0</span></p>
                         <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
                         <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">0</span></p>
@@ -499,7 +501,7 @@ function saveGameResult($won, $duration, $points) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="continue-btn">Continuar</button>
-                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
+                    <button type="button" class="btn btn-secondary" id="exit-btn2">Salir</button>
                 </div>
             </div>
         </div>
@@ -529,6 +531,7 @@ function saveGameResult($won, $duration, $points) {
             let timerInterval;
             let startTime = <?php echo isset($_SESSION['puzzle_start_time']) ? $_SESSION['puzzle_start_time'] : 'Math.floor(Date.now() / 1000)'; ?>;
             let elapsedTime = <?php echo isset($elapsedTime) ? $elapsedTime : 0; ?>;
+            let timeElapsed = elapsedTime; // Add this line to initialize timeElapsed
             let gameMode = '<?php echo isset($_SESSION['puzzle_difficulty']) ? $_SESSION['puzzle_difficulty'] : ''; ?>';
             
             // Modales
@@ -596,74 +599,9 @@ function saveGameResult($won, $duration, $points) {
             document.getElementById('exit-btn').addEventListener('click', function() {
                 window.location.href = '../view/gamesMenu.php';
             });
-            
-            // Función para mover una pieza
-            function moveTile(tile) {
-                const index = parseInt(tile.dataset.index);
-                
-                // Enviar solicitud AJAX para mover la pieza
-                fetch('PuzzleDeslizante.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=move&index=${index}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Actualizar el estado del puzzle
-                        updatePuzzleState(data.state);
-                        
-                        // Actualizar contador de movimientos
-                        movesElement.textContent = data.moves;
-                        
-                        // Verificar si el puzzle está resuelto
-                        if (data.solved) {
-                            // Detener el temporizador
-                            clearInterval(timerInterval);
-                            
-                            // Actualizar estadísticas de victoria
-                            document.getElementById('victory-moves').textContent = data.moves;
-                            document.getElementById('victory-time').textContent = data.time;
-                            document.getElementById('victory-points').textContent = data.points;
-                            
-                            // Cuando el usuario gana el juego
-                            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                                // Guardar puntos en la base de datos
-                                fetch('../config/updatePoints.php', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                    },
-                                    body: `points=${data.points}&game=puzzleDeslizante`
-                                })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.text().then(text => {
-                                            throw new Error('Error al actualizar puntos: ' + text);
-                                        });
-                                    }
-                                    return response.text();
-                                })
-                                .then(data => {
-                                    console.log('Puntos actualizados correctamente:', data);
-                                })
-                                .catch(error => {
-                                    console.error('Error completo:', error);
-                                });
-                            }
-                            
-                            // Mostrar modal de victoria
-                            setTimeout(() => {
-                                victoryModal.show();
-                            }, 500);
-                        }
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-            
+            document.getElementById('exit-btn2').addEventListener('click', function() {
+                window.location.href = '../view/gamesMenu.php';
+            });
             // Función para iniciar el temporizador
             function startTimer() {
                 // Actualizar el temporizador cada segundo
@@ -691,72 +629,117 @@ function saveGameResult($won, $duration, $points) {
                 window.location.href = '../view/gamesMenu.php';
             });
             
-            // Función para mover una pieza
-            function moveTile(tile) {
-                const index = parseInt(tile.dataset.index);
-                
-                // Enviar solicitud AJAX para mover la pieza
-                fetch('PuzzleDeslizante.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=move&index=${index}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Actualizar el estado del puzzle
-                        updatePuzzleState(data.state);
-                        
-                        // Actualizar contador de movimientos
-                        movesElement.textContent = data.moves;
-                        
-                        // Verificar si el puzzle está resuelto
-                        if (data.solved) {
-                            // Detener el temporizador
-                            clearInterval(timerInterval);
-                            
-                            // Actualizar estadísticas de victoria
-                            document.getElementById('victory-moves').textContent = data.moves;
-                            document.getElementById('victory-time').textContent = data.time;
-                            document.getElementById('victory-points').textContent = data.points;
-                            
-                            // Cuando el usuario gana el juego
-                            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                                // Guardar puntos en la base de datos
-                                fetch('../config/updatePoints.php', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                    },
-                                    body: `points=${data.points}&game=puzzleDeslizante`
-                                })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.text().then(text => {
-                                            throw new Error('Error al actualizar puntos: ' + text);
-                                        });
-                                    }
-                                    return response.text();
-                                })
-                                .then(data => {
-                                    console.log('Puntos actualizados correctamente:', data);
-                                })
-                                .catch(error => {
-                                    console.error('Error completo:', error);
-                                });
-                            }
-                            
-                            // Mostrar modal de victoria
-                            setTimeout(() => {
-                                victoryModal.show();
-                            }, 500);
-                        }
-                    }
-                }).catch(error => console.error('Error:', error));
-            }
             
+
+function moveTile(tile) {
+    const index = parseInt(tile.dataset.index);
+    
+    fetch('PuzzleDeslizante.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `action=move&index=${index}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updatePuzzleState(data.state);
+            movesElement.textContent = data.moves;
+            
+            if (data.solved) {
+                clearInterval(timerInterval);
+                
+                // Actualizar estadísticas de victoria
+                document.getElementById('victory-moves').textContent = data.moves;
+                document.getElementById('victory-time').textContent = data.time;
+                document.getElementById('victory-points').textContent = data.points;
+                
+                // Guardar resultados si el usuario está autenticado
+                if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+                    saveGameData(data.points, data.duration || elapsedTime)
+                        .then(() => {
+                            victoryModal.show();
+                        })
+                        .catch(error => {
+                            console.error('Error al guardar datos:', error);
+                            victoryModal.show(); // Mostrar modal aunque falle el guardado
+                        });
+                } else {
+                    victoryModal.show();
+                }
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Función para guardar todos los datos del juego
+function saveGameData(points, duration) {
+    return savePoints(points)
+        .then(() => saveGameResult(true, duration));
+}
+
+// Función para guardar puntos
+function savePoints(points) {
+    return new Promise((resolve, reject) => {
+        fetch('../config/updatePoints.php', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `points=${points}&game=puzzleDeslizante&usuario_id=<?php echo $_SESSION['usuario_id'] ?? ''; ?>`
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Error en la respuesta');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                resolve(data);
+            } else {
+                reject(data.message || 'Error desconocido');
+            }
+        })
+        .catch(error => reject(error));
+    });
+}
+// Función para guardar el resultado del juego
+function saveGameResult(won, duration) {
+    return new Promise((resolve, reject) => {
+        // Solo guardar si el usuario está autenticado
+        if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+            // Crear objeto con los datos
+            const data = {
+                usuario_id: <?php echo $_SESSION['usuario_id'] ?? 'null'; ?>,
+                duracion: duration,
+                fue_ganado: won ? 1 : 0
+            };
+            
+            fetch('../config/saveGameResult.php', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la respuesta');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    resolve(data);
+                } else {
+                    reject(data.message || 'Error desconocido');
+                }
+            })
+            .catch(error => reject(error));
+        } else {
+            resolve({success: true, message: 'Usuario no autenticado, no se guardó resultado'});
+        }
+    });
+}
             // Función para actualizar el estado del puzzle en la interfaz
             function updatePuzzleState(state) {
                 // Limpiar el grid
@@ -790,7 +773,7 @@ function saveGameResult($won, $duration, $points) {
                         // Agregar imagen como fondo
                         const imageElement = document.createElement('div');
                         imageElement.className = 'tile-image';
-                        imageElement.style.backgroundImage = `url("../img/niveles/${imageNumber}.png")`;
+                        imageElement.style.backgroundImage = `url("../img/plantas/${imageNumber}")`;
                         imageElement.style.backgroundSize = `${gridSize * 100}%`;
                         imageElement.style.backgroundPosition = `${col * 100 / (gridSize - 1)}% ${row * 100 / (gridSize - 1)}%`;
                         
@@ -803,8 +786,33 @@ function saveGameResult($won, $duration, $points) {
                     puzzleGrid.appendChild(tileElement);
                 }
             }
+            window.addEventListener('load', function() {
+         // Limpiar cualquier estado guardado
+                localStorage.removeItem('puzzleState');
+            sessionStorage.removeItem('puzzleProgress');
+            
+            // Reiniciar variables del juego
+            initGame();
+            resetGameState();
         });
+
+        // Función para reiniciar el estado del juego
+        function resetGameState() {
+            // Reiniciar todas las variables del juego
+            currentPuzzle = null;
+            moves = 0;
+            timeElapsed = 0;
+            
+            // Reiniciar la interfaz
+            updatePuzzleDisplay();
+            resetTimer();
+        }
+
+        });
+        
         </script>
 </body>
 </html>
+
+
 
