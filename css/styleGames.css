@@ -131,6 +131,32 @@
      .v2{
         flex-direction: column-reverse !important;
      }
+
+     .carta-celda{
+        max-width: 200px !important;
+     }
+     #carta{
+            justify-items: stretch !important;
+     }
+     #mazo-actual{
+        max-height: 400px !important;
+     }
+     #planta-actual{
+        max-width: 40% !important;
+     }
+     .cont-lot{
+        flex-direction: column-reverse;
+     }
+     .fl-responsive{
+        display: flex !important;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+     }
+
+     .card {
+        width: auto !important;
+     }
 }
 
 .timer{

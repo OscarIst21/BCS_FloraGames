@@ -44,15 +44,6 @@ $_SESSION['loteria_index'] = 0;
     
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
-
-
-.container {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    align-items: flex-start;
-}
-
 /* Contenedor principal del tablero */
 #carta {
     width: auto;
@@ -233,7 +224,7 @@ $_SESSION['loteria_index'] = 0;
             </div>
         </div>
         <div class="hd-sec-gm" style="display:flex; flex-direction:row; gap:10px">
-            <h5><i class="fa-solid fa-clock"></i></h5>
+            <h5><i class="fa-solid fa-clock me-2"></i></h5>
             <div class="timer">
                 <h5 id="timer">00:00</h5>
             </div>
@@ -303,8 +294,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-    <div class="contenedor">
-    <div class="container mt-4">
+    <div class="contenedor cont-lot">
+
         <!-- Tablero de lotería -->
         <div id="carta" class="mb-4">
             <div class="row g-3">
@@ -325,18 +316,23 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- Mazo y controles -->
         <div id="mazo-actual">
             <h5 class="mb-3 text-center" style="color: #246741;">Planta Actual</h5>
-            <div id="planta-actual" class="mb-3"></div>
-            <div class="controls text-center">
-                <button id="prev-btn" class="btn btn-secondary"><i class="fas fa-arrow-left"></i></button>
-                <button id="pause-btn" class="btn btn-warning"><i class="fas fa-pause"></i> </button>
-                <button id="next-btn" class="btn btn-secondary" style="display:none"><i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div class="mt-3 text-center">
-                <small class="text-muted">Cartas restantes: <span id="cartas-restantes"><?php echo count($mazo); ?></span></small>
+            <div class="fl-responsive">
+                <div id="planta-actual" class="mb-3"></div>
+                <div>
+                    <div class="controls text-center">
+                        <button id="prev-btn" class="btn btn-secondary"><i class="fas fa-arrow-left"></i></button>
+                        <button id="pause-btn" class="btn btn-warning"><i class="fas fa-pause"></i> </button>
+                        <button id="next-btn" class="btn btn-secondary" style="display:none"><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">Cartas restantes: <span id="cartas-restantes"><?php echo count($mazo); ?></span></small>
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
-</div>
+
     <!-- Modal de selección de dificultad -->
     <div class="modal fade" id="difficultyModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="difficultyModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
