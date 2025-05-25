@@ -69,16 +69,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ':contrasena' => $contrasena
             ]);
 
-            // Obtener el ID del usuario recién insertado (corregido para PDO)
+            // Obtener el ID del usuario recién insertado
             $userId = $conn->lastInsertId();
 
             // Iniciar sesión automáticamente
             $_SESSION['usuario_id'] = $userId;
             $_SESSION['user'] = $nombre;
             $_SESSION['email'] = $correo;
-            $_SESSION['nivel_id'] = 1; // Nivel inicial para nuevos usuarios
-            $_SESSION['foto_perfil'] = 'usuario0.png'; 
-            $_SESSION['color_fondo'] = ''; // Color de fondo vacío para nuevos usuarios
+            $_SESSION['nivel_id'] = 1;
+            $_SESSION['foto_perfil'] = 'usuario0.png';
+            $_SESSION['color_fondo'] = '';
+            $_SESSION['show_welcome'] = true; // Add this line for welcome modal
 
             // Enviar correo de bienvenida
             $correoEnviado = enviarCorreoBienvenida($correo, $nombre);

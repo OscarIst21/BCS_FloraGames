@@ -95,6 +95,27 @@ require_once __DIR__ . '/config/init.php';
     </div>
 
     <?php include 'components/footer.php'; ?>
+    
+    <!-- Modal components should be before scripts -->
+    <?php include 'components/welcomeMessage.php'; ?>
+    
+    <!-- Single Bootstrap JS load -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php if (isset($_SESSION['show_welcome']) && $_SESSION['show_welcome']): ?>
+                const welcomeModal = document.getElementById('welcomeModal');
+                if (welcomeModal) {
+                    const bsModal = new bootstrap.Modal(welcomeModal, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    bsModal.show();
+                    <?php unset($_SESSION['show_welcome']); ?>
+                }
+            <?php endif; ?>
+        });
+    </script>
 </body>
 </html>

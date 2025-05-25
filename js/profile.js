@@ -84,19 +84,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Seleccionar color de fondo
+    // Add modal show event listener
+    const avatarModal = document.getElementById('avatarModal');
+    avatarModal.addEventListener('show.bs.modal', function() {
+        // Remove all selected colors first
+        colorOptions.forEach(opt => opt.classList.remove('selected'));
+        
+        // Select only the current background color
+        const currentColor = colorFondo.value;
+        colorOptions.forEach(option => {
+            if (option.dataset.color === currentColor) {
+                option.classList.add('selected');
+            }
+        });
+    });
+    
+    // Modify the existing color selection code
     colorOptions.forEach(option => {
         option.addEventListener('click', function() {
-            // Quitar selección anterior
             colorOptions.forEach(opt => opt.classList.remove('selected'));
-            // Añadir selección actual
             this.classList.add('selected');
             
             selectedColor = this.dataset.color;
-            
-            // Actualizar vista previa
             avatarPreview.style.backgroundColor = selectedColor;
-            
-            // Actualizar campo oculto
             colorFondo.value = selectedColor;
             
             checkForChanges();
