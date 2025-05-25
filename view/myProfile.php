@@ -18,12 +18,19 @@ try {
     $db = new Database();
     $conn = $db->getConnection();
 
-    $stmt = $conn->prepare("SELECT nombre, correo_electronico as email, foto_perfil, color_fondo FROM usuarios WHERE id = :id");
+     $stmt = $conn->prepare("SELECT nombre, correo_electronico as email, foto_perfil, color_fondo, fecha_registro, puntos_ganados, nivel_de_usuario_id FROM usuarios WHERE id = :id");
     $stmt->bindParam(':id', $userId);
     $stmt->execute();
 
     $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
+    // Initialize progress variable
+    $nivelusuario = 0;
+    if ($userData['nivel_de_usuario_id'] == 1) {
+        $nivelusuario = ($userData['puntos_ganados'] / 100) * 100; // Assuming 100 points needed for level 2
+    }
+    
+    $fechaFormateada = date('d/m/Y', strtotime($userData['fecha_registro']));
     // Si no hay foto de perfil, usar la predeterminada
     if (empty($userData['foto_perfil'])) {
         $userData['foto_perfil'] = 'usuario0.png';
