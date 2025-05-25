@@ -7,15 +7,15 @@ function obtenerPalabrasPorDificultad() {
     $db = new Database();
     $conn = $db->getConnection();
 
-    // Palabras fáciles: nombres comunes
-    $stmt = $conn->prepare("SELECT nombre_comun FROM ficha_planta");
+    // Palabras fáciles: nombres comunes con sus IDs y fotos
+    $stmt = $conn->prepare("SELECT id, nombre_comun, foto FROM ficha_planta");
     $stmt->execute();
-    $nombres = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $nombres = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Palabras difíciles: curiosidades
-    $stmt2 = $conn->prepare("SELECT curiosidad FROM ficha_planta WHERE curiosidad IS NOT NULL AND curiosidad != ''");
+    // Palabras difíciles: curiosidades con sus IDs y fotos
+    $stmt2 = $conn->prepare("SELECT id, curiosidad, foto FROM ficha_planta WHERE curiosidad IS NOT NULL AND curiosidad != ''");
     $stmt2->execute();
-    $curiosidades = $stmt2->fetchAll(PDO::FETCH_COLUMN);
+    $curiosidades = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
     $palabras = [
         'facil' => $nombres,
@@ -344,9 +344,9 @@ if (isset($_SESSION['user'])) {
         
 
             <div class="typing-area">
-                <div class="area-img">
-                    <img src="../img/plantas/biznaga.png" alt="">
-                </div>
+            <div class="area-img">
+    <img src="../img/plantas/biznaga.png" alt="Planta" id="plant-image">
+</div>
                 <div class="word-display" id="word-display"></div>
                 <div class="progress-bar">
                     <div class="progress" id="progress"></div>
@@ -522,21 +522,47 @@ if (isset($_SESSION['user'])) {
 
         // Palabras y frases para el juego desde PHP
         <?php
-            $palabras = obtenerPalabrasPorDificultad();
-            // Codificamos a JSON y escapamos para JS
-            $palabras_json = json_encode($palabras, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            echo "const words = {";
-            echo "easy: " . json_encode(array_map('mb_strtoupper', $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
-            echo "hard: " . json_encode($palabras['dificil'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
-            // Para notime, mezclamos ambos y limitamos a 8 elementos
-            $notime = array_merge(
-                array_map('mb_strtoupper', $palabras['facil']),
-                $palabras['dificil']
-            );
-            shuffle($notime);
-            $notime = array_slice($notime, 0, 8);
-            echo "notime: " . json_encode($notime, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            echo "};";
+        $palabras = obtenerPalabrasPorDificultad();
+
+        // Preparar datos para JavaScript
+        echo "const plantData = {";
+        echo "easy: " . json_encode(array_map(function($item) {
+            return [
+                'text' => mb_strtoupper($item['nombre_comun']),
+                'id' => $item['id'],
+                'photo' => $item['foto']
+            ];
+        }, $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+
+        echo "hard: " . json_encode(array_map(function($item) {
+            return [
+                'text' => $item['curiosidad'],
+                'id' => $item['id'],
+                'photo' => $item['foto']
+            ];
+        }, $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+
+        // Para notime, mezclamos ambos y limitamos a 8 elementos
+        $notime = array_merge(
+            array_map(function($item) {
+                return [
+                    'text' => mb_strtoupper($item['nombre_comun']),
+                    'id' => $item['id'],
+                    'photo' => $item['foto']
+                ];
+            }, $palabras['facil']),
+            array_map(function($item) {
+                return [
+                    'text' => $item['curiosidad'],
+                    'id' => $item['id'],
+                    'photo' => $item['foto']
+                ];
+            }, $palabras['dificil'])
+        );
+        shuffle($notime);
+        $notime = array_slice($notime, 0, 8);
+        echo "notime: " . json_encode($notime, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        echo "};";
         ?>
 
 
@@ -657,18 +683,22 @@ if (isset($_SESSION['user'])) {
 
         // Función para mostrar una nueva palabra o frase
         function showNewWord() {
-            // Seleccionar palabra aleatoria según el modo de juego
-            const wordList = words[gameMode];
-            const randomIndex = Math.floor(Math.random() * wordList.length);
-            const selectedText = wordList[randomIndex].toUpperCase();
+        // Seleccionar palabra aleatoria según el modo de juego
+        const wordList = plantData[gameMode];
+        const randomIndex = Math.floor(Math.random() * wordList.length);
+        const selectedItem = wordList[randomIndex];
+        const selectedText = selectedItem.text;
+        console.log('Planta seleccionada:', selectedItem); // Para depuración
+        // Actualizar la imagen de la planta
+        updatePlantImage(selectedItem.photo);
 
-            // Dividir en palabras si es una frase
-            currentWords = selectedText.split(' ');
-            currentWordIndex = 0;
-            currentLetterIndex = 0;
+        // Resto del código sigue igual...
+        currentWords = selectedText.split(' ');
+        currentWordIndex = 0;
+        currentLetterIndex = 0;
 
-            // Limpiar display
-            wordDisplay.innerHTML = '';
+        // Limpiar display
+        wordDisplay.innerHTML = '';
 
             // Crear contenedores para cada palabra
             for (let i = 0; i < currentWords.length; i++) {
@@ -710,19 +740,36 @@ if (isset($_SESSION['user'])) {
             // Actualizar palabra actual
             currentWord = currentWords[0];
         }
-
+        function updatePlantImage(photoPath) {
+    const imgElement = document.getElementById('plant-image');
+    if (photoPath) {
+        // Eliminar '../' si ya está en la ruta
+        const cleanPath = photoPath.replace(/^\.\.\//, '');
+        imgElement.src = '../img/plantas/' + cleanPath;
+        imgElement.style.display = 'block'; // Asegurarse de que se muestra
+        console.log('Intentando cargar imagen:', '../' + cleanPath); // Para depuración
+    } else {
+        imgElement.src = '../img/plantas/biznaga.png';
+        //console.log('Usando imagen por defecto'); // Para depuración
+    }
+    
+    // Manejar errores de carga de imagen
+    imgElement.onerror = function() {
+        //console.error('Error al cargar la imagen:', this.src);
+        this.src = '../img/plantas/biznaga.png';
+    };
+}
         // Función para manejar las pulsaciones de teclas
         function handleKeyPress(e) {
             // Ignorar teclas especiales
-            if (e.ctrlKey || e.altKey || e.metaKey) return;
-
+            if (e.ctrlKey || e.altKey || e.metaKey || e.keyCode === 186) return;
             // Prevenir el comportamiento predeterminado para la tecla de espacio
             if (e.key === ' ' || e.code === 'Space') {
                 e.preventDefault();
             }
 
             // Obtener la tecla presionada
-            const key = e.key.toUpperCase();
+            const key = normalizeChar(e.key.toUpperCase());
 
             // Animar tecla en el teclado virtual
             animateKey(key.toLowerCase());
@@ -734,7 +781,9 @@ if (isset($_SESSION['user'])) {
                 showNewWord();
                 return;
             }
-
+            function normalizeChar(char) {
+            return char.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
             // Obtener los contenedores de palabras y las letras de la palabra actual
             const wordContainers = wordDisplay.querySelectorAll('.word-container');
             const currentWordContainer = wordContainers[currentWordIndex];
@@ -789,7 +838,7 @@ if (isset($_SESSION['user'])) {
             }
 
             // Verificar si la tecla es correcta para la letra actual
-            const currentLetter = currentWord[currentLetterIndex];
+            const currentLetter = normalizeChar(currentWord[currentLetterIndex]);
 
             if (key === currentLetter) {
                 // Letra correcta
@@ -940,19 +989,20 @@ if (isset($_SESSION['user'])) {
             initGame();
         }
         
-        // Función para manejar la victoria
         function handleVictory() {
             // Detener el temporizador
             clearInterval(timerInterval);
             
-            // Calcular estadísticas finales
+            // Mostrar modal inmediatamente
+            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+            victoryModal.show();
+            
+            // Calcular estadísticas finales (después de mostrar el modal)
             const finalWpm = calculateWPM();
             const finalAccuracy = calculateAccuracy();
-            
-            // Calcular puntos basados en precisión y velocidad
             const points = calculatePoints(finalWpm, finalAccuracy, gameMode);
             
-            // Actualizar estadísticas en el modal de victoria
+            // Actualizar estadísticas en el modal
             document.getElementById('victory-time').textContent = formatTime(timeElapsed);
             document.getElementById('victory-mode').textContent = gameMode === 'easy' ? 'Fácil' : 
                                                                  gameMode === 'hard' ? 'Difícil' : 'Sin tiempo';
@@ -960,14 +1010,9 @@ if (isset($_SESSION['user'])) {
             document.getElementById('victory-accuracy').textContent = finalAccuracy + '%';
             document.getElementById('victory-points').textContent = points;
             
-            // Guardar resultado en la base de datos (victoria)
+            // Guardar resultados en segundo plano
             saveGameResult(true, timeElapsed, finalAccuracy, finalWpm);
             
-            // Mostrar modal de victoria
-            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
-            victoryModal.show();
-            
-            // Si el usuario está autenticado, guardar puntos
             <?php if (isset($_SESSION['usuario_id'])): ?>
             savePoints(points);
             <?php endif; ?>
