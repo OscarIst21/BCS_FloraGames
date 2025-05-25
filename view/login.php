@@ -102,7 +102,7 @@ if(isset($_SESSION['user'])) {
                     </div>
                     <div class="error-message" id="password-error"></div>
                 </div>
-                <div class="form-group checkbox">
+                <div class="form-group checkbox" style="display:none">
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">Mantener sesión iniciada</label>
                 </div>

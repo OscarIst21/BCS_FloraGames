@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Your welcome message content here -->
+                <p>¡Bienvenido a “Flora Games”! 🌿🌵<br>Prepárate para descubrir y aprender de forma divertida sobre las increíbles plantas que habitan nuestra región. ¡Observa, juega y conviértete en un experto de la naturaleza sudcaliforniana!</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" data-bs-dismiss="modal">¡Empezar!</button>
