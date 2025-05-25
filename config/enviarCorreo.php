@@ -29,7 +29,7 @@ function enviarCorreoBienvenida($destinatario, $nombre) {
 
         // Contenido del correo
         $mail->isHTML(true);
-        $mail->Subject = '¡Bienvenido a BSC_FloraGames! 🌿 Tu cuenta ha sido creada con éxito';
+        $mail->Subject = '¡Bienvenido a BCS_FloraGames! 🌿 Tu cuenta ha sido creada con éxito';
 
         $mail->Body = "
             <p>Hola <strong>$nombre</strong>,</p>

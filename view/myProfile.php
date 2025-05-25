@@ -63,7 +63,28 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
+    <style>
+        .notificacion {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            display: none;
+        }
 
+        .notificacion.mostrar {
+            display: block;
+            opacity: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -71,12 +92,12 @@ try {
     <div class="page-container">
         <div class="contenedor">
 
-        <section class="hero-section">
-            <div class="hero-content">
-                <h1 class="hero-title">Mi perfil</h1>
-                <p>Consulta tus estadísticas, logros e insignias conseguidas</p>
-            </div> 
-        </section>
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-title">Mi perfil</h1>
+                    <p>Consulta tus estadísticas, logros e insignias conseguidas</p>
+                </div> 
+            </section>
 
             <div class="profile-container">
                 <div class="profile-header">
@@ -336,6 +357,10 @@ try {
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="notificacion-exito" class="notificacion">
+        <span id="mensaje-notificacion"></span>
     </div>
 
     <?php include '../components/footer.php'; ?>

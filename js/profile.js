@@ -84,13 +84,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Seleccionar color de fondo
-    // Add modal show event listener
     const avatarModal = document.getElementById('avatarModal');
     avatarModal.addEventListener('show.bs.modal', function() {
         // Remove all selected colors first
         colorOptions.forEach(opt => opt.classList.remove('selected'));
         
-        // Select only the current background color
         const currentColor = colorFondo.value;
         colorOptions.forEach(option => {
             if (option.dataset.color === currentColor) {
@@ -98,8 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Modify the existing color selection code
+
     colorOptions.forEach(option => {
         option.addEventListener('click', function() {
             colorOptions.forEach(opt => opt.classList.remove('selected'));
@@ -161,6 +158,30 @@ document.addEventListener('DOMContentLoaded', function() {
         checkForChanges();
     });
     
+
+    function mostrarNotificacion() {
+        const notificacion = document.getElementById('notificacion-exito');
+        const mensaje = document.getElementById('mensaje-notificacion');
+        
+        // Usar cardData.card_name en lugar de buscar en un objeto local
+        mensaje.textContent = `Datos actualizados correctamente`;
+        
+        notificacion.classList.add('mostrar');
+        setTimeout(() => {
+            notificacion.classList.remove('mostrar');
+        }, 3000);
+    }
+
+    // Mostrar notificación si los datos fueron actualizados
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('actualizado') === '1') {
+        mostrarNotificacion();
+
+        // Eliminar el parámetro de la URL sin recargar
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+
     // Editar nombre
     const editarNombre = document.getElementById('editarNombre');
     const nombreDisplay = document.getElementById('nombreDisplay');

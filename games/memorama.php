@@ -391,7 +391,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
         </div>
         <div style="text-align:center">
             <h5 style="margin:0">Memorama</h5>
-            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>s
+            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
         </div>
         <div  style="display:flex; flex-direction:row; gap:10px">
             <div>
@@ -462,7 +462,7 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                     <div class="victory-stats">
                         <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time" style="margin-left: 5px;">00:00</span></p>
                         <p><i class="fas fa-trophy me-2"></i> Modo: <span id="victory-mode" style="margin-left: 5px;"><?php echo $difficultyText; ?></span></p>
-                        <p><i class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves" style="margin-left: 5px;">0</span></p>
+                        <p style="display:none"><i  class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves" style="margin-left: 5px;">0</span></p>
                         <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points" style="margin-left: 5px;">0</span></p>
                     </div>
                 </div>
