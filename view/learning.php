@@ -2,16 +2,6 @@
 require_once __DIR__.'/../config/init.php';
 require_once __DIR__.'/../connection/database.php';
 
-// Elimina la conexión y consulta a la base de datos
-//$plantas = json_decode(file_get_contents(__DIR__.'/../plantas.json'), true);
-// Obtener todas las plantas de la base de datos
-//$db = new Database();
-//$conn = $db->getConnection();
-//$stmt = $conn->prepare("SELECT * FROM ficha_planta");
-//$stmt->execute();
-//$plantas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Cargar solo desde el JSON generado
 $plantas = json_decode(file_get_contents(__DIR__.'/../config/plantas.json'), true);
 
 // ORDENAR ALFABÉTICAMENTE POR NOMBRE COMÚN
@@ -58,7 +48,18 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
                 border: 1px solid rgb(222, 226, 230);
                 padding: 10px;
         }
-
+ .btn-audio {
+        margin-top: 15px;
+        width: 100%;
+        text-align: center;
+    }
+    .btn-audio.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    #plantAudio {
+        display: none; /* Ocultar el elemento de audio, lo controlamos mediante JS */
+    }
     </style>
 </head>
 <body>
@@ -184,7 +185,10 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
                         </button>
                         </div> 
                         
-                        <a href="" class="btn-audio"><i class="fa-solid fa-volume-high me-2"></i></i>Escuchar audio</a>
+                        <a href="#" class="btn btn-success btn-audio" data-audio="">
+                            <i class="fa-solid fa-volume-high me-2"></i>Escuchar audio
+                        </a>
+                        <audio id="plantAudio" src=""></audio>
                     </div>
                     <div class="col-md-6">
                         <!-- Información de la planta -->
@@ -421,7 +425,6 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     // Opcional: mostrar todas al cargar
     // filtrarPlantas('all');
 
-<!-- Fin del script de filtrado -->
     document.addEventListener('DOMContentLoaded', function() {
     // Datos de las plantas desde PHP
     const plantas = <?php echo json_encode($plantas); ?>;
@@ -433,8 +436,17 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     const grid = document.querySelector('.plants-grid');
     const paginacion = document.querySelector('.pagination');
     const inputBusqueda = document.getElementById('inputBusqueda');
-    const plantModal = new bootstrap.Modal(document.getElementById('plantModal'));
-
+// Resetear carrusel al abrir el modal
+const plantModal = document.getElementById('plantModal');
+plantModal.addEventListener('show.bs.modal', function(event) {
+    const carousel = document.querySelector('#carouselExampleIndicators');
+    const carouselInstance = bootstrap.Carousel.getInstance(carousel);
+    
+    // Reset carousel to first slide
+    if (carouselInstance) {
+        carouselInstance.to(0);
+    }
+});
     // Función para determinar la clase del badge
     function getBadgeClass(situacion) {
         situacion = situacion.toLowerCase();
@@ -544,7 +556,9 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
     }
 
     // Configurar el modal con los datos de la planta
+    // Configurar el modal con los datos de la planta
     function setupModal(card) {
+        // Primero actualizamos el contenido del modal
         document.getElementById('plantModalLabel').textContent = card.dataset.nombre;
         document.querySelector('#plantModal [data-field="nombre"]').textContent = card.dataset.nombre;
         document.querySelector('#plantModal [data-field="cientifico"]').innerHTML = `<em>${card.dataset.cientifico}</em>`;
@@ -555,26 +569,79 @@ $plantasPagina = array_slice($plantas, $inicio, $plantasPorPagina);
         document.querySelector('#plantModal [data-field="situacion"]').textContent = card.dataset.situacion;
         document.querySelector('#plantModal [data-field="usos"]').textContent = card.dataset.usos;
         
-        // Imágenes
-        document.querySelector('#plantModal .carousel-item.active img').src = `../img/plantas/${card.dataset.foto}`;
-        document.querySelectorAll('#plantModal .carousel-item img')[1].src = `../img/plantas/${card.dataset.dibujo}`;
+        // Actualizar imágenes
+        const carouselItems = document.querySelectorAll('#plantModal .carousel-item');
+        carouselItems[0].querySelector('img').src = `../img/plantas/${card.dataset.foto}`;
+        carouselItems[1].querySelector('img').src = `../img/plantas/${card.dataset.dibujo}`;
+        
+        // Inicializar o reiniciar el carrusel
+        const carouselElement = document.querySelector('#carouselExampleIndicators');
+        const carousel = new bootstrap.Carousel(carouselElement, {
+            interval: false
+        });
+        carousel.to(0); // Ir al primer slide
         
         // Audio
         const audioBtn = document.querySelector('#plantModal .btn-audio');
-        audioBtn.href = card.dataset.audio ? `../audio/${card.dataset.audio}` : '#';
-        if (!card.dataset.audio) {
-            audioBtn.classList.add('disabled');
-        } else {
-            audioBtn.classList.remove('disabled');
-        }
+        const audioPlayer = document.getElementById('plantAudio');
+        const modalElement = document.getElementById('plantModal');
+    modalElement.addEventListener('hidden.bs.modal', function() {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        const icon = audioBtn.querySelector('i');
+        icon.classList.replace('fa-volume-up', 'fa-volume-high');
+    });
+
+    if (card.dataset.audio && card.dataset.audio.trim() !== '') {
+        audioBtn.classList.remove('disabled');
+        const audioPath = `../assets/plantas/${card.dataset.audio}`;
+        
+        audioBtn.onclick = function(e) {
+            e.preventDefault();
+            
+            // Si el audio está reproduciéndose, pausarlo
+            if (!audioPlayer.paused && audioPlayer.src === audioPath) {
+                audioPlayer.pause();
+                const icon = audioBtn.querySelector('i');
+                icon.classList.replace('fa-volume-up', 'fa-volume-high');
+                return;
+            }
+            
+            // Si es un audio diferente, cambiar la fuente
+            if (audioPlayer.src !== audioPath) {
+                audioPlayer.src = audioPath;
+            }
+            
+            // Reproducir el audio
+            audioPlayer.play()
+                .then(() => {
+                    const icon = audioBtn.querySelector('i');
+                    icon.classList.replace('fa-volume-high', 'fa-volume-up');
+                    
+                    audioPlayer.onended = function() {
+                        icon.classList.replace('fa-volume-up', 'fa-volume-high');
+                    };
+                })
+                .catch(error => {
+                    console.error("Error al reproducir:", error);
+                    alert('Error al reproducir el audio. Inténtalo de nuevo.');
+                });
+        };
+    } else {
+        audioBtn.classList.add('disabled');
+        audioBtn.onclick = null;
+    }
+        
+        // Mostrar el modal
+        const modal = new bootstrap.Modal(document.getElementById('plantModal'));
+        modal.show();
     }
 
-    // Event Delegation para las tarjetas
+   // Event Delegation para las tarjetas
     grid.addEventListener('click', (e) => {
         const card = e.target.closest('.plant-card');
         if (card) {
             setupModal(card);
-            plantModal.show();
         }
     });
 
