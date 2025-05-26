@@ -428,6 +428,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h5 class="card-title">${planta.nombre_comun}</h5>
                     </div>
                 </div>`;
+                const cartasRestantes = mazo.length - idx - 1;
+                document.getElementById('cartas-restantes').textContent = cartasRestantes;
+                console.log(`Cartas restantes: ${cartasRestantes}`);
         }
 
         // Variables para puntos y modo
@@ -511,6 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (index >= mazo.length) {
                 clearInterval(intervalo);
                 document.getElementById('planta-actual').innerHTML = "<h4>¡Fin del mazo!</h4>";
+                document.getElementById('cartas-restantes').textContent = '0';
                 // Solo mostrar el modal de victoria si todas las cartas están marcadas
                 if (todasLasCartasMarcadas()) {
                     mostrarModalVictoria();
@@ -527,6 +531,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 index -= 2;
                 cartasSalidas.pop(); // Quitar la última carta salida
                 mostrarSiguiente();
+                const cartasRestantes = mazo.length - index;
+                document.getElementById('cartas-restantes').textContent = cartasRestantes;
+                console.log(`Cartas restantes (retroceder): ${cartasRestantes}`);
             }
         }
 
