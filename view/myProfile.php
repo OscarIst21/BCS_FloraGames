@@ -121,9 +121,9 @@ try {
                             <a href="#" id="editarNombre" style="color: #436745;"><i class="fa-solid fa-pencil"></i></a>
                             <input type="text" name="nombre" id="nombreInput" value="<?php echo htmlspecialchars($userData['nombre']); ?>" style="display: none; width: 100%;" class="form-control">
                         </div>
+                         <div id="nombreError" style="color: red; font-size: 0.9em; display: none; margin-top: 5px;">El nombre debe tener al menos 2 caracteres.</div>
 
                         <div class="info-item">
-                            
                             <span class="info-value"><i class="fa-solid fa-envelope me-2"></i><?php echo htmlspecialchars($userData['email']); ?></span>
                         </div>
 

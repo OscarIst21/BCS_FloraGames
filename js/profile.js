@@ -200,13 +200,32 @@ document.addEventListener('DOMContentLoaded', function() {
         nombreDisplay.style.display = 'inline';
         editarNombre.style.display = 'inline';
         nombreInput.style.display = 'none';
+
+        const trimmedValue = nombreInput.value.trim();
+        const errorLabel = document.getElementById('nombreError');
+
+        if (trimmedValue.length < 2) {
+            errorLabel.style.display = 'block';
+        } else {
+            errorLabel.style.display = 'none';
+        }
         
         checkForChanges();
     });
     
-    // Escuchar cambios en el input de nombre mientras se edita
-    nombreInput.addEventListener('input', checkForChanges);
-    
+    nombreInput.addEventListener('input', function () {
+    const trimmedValue = nombreInput.value.trim();
+    const errorLabel = document.getElementById('nombreError');
+
+    if (trimmedValue.length < 2) {
+        errorLabel.style.display = 'block';
+    } else {
+        errorLabel.style.display = 'none';
+    }
+
+    checkForChanges();
+});
+
     // Inicializar estado del botón
     checkForChanges();
 });
