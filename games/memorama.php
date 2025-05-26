@@ -526,7 +526,7 @@ if (isset($_SESSION['memorama_difficulty'])) {
         let seconds = 0;
         let flippedCards = [];
         let matchedPairs = 0;
-        let moves = <?php echo isset($_SESSION['memorama_moves']) ? $_SESSION['memorama_moves'] : '2'; ?>;
+        let moves = <?php echo isset($_SESSION['memorama_moves']) ? $_SESSION['memorama_moves'] : '7'; ?>;
         let totalPairs = <?php echo isset($_SESSION['memorama_pairs']) ? $_SESSION['memorama_pairs'] : '6'; ?>;
         let isProcessing = false;
         let difficultyModal;
@@ -652,6 +652,9 @@ if (isset($_SESSION['memorama_difficulty'])) {
             document.getElementById('victory-time').textContent = document.getElementById('timer').textContent;
             document.getElementById('victory-points').textContent = calculatePoints();
             document.getElementById('victory-moves').textContent = moves;
+
+            saveGameResult(1,document.getElementById('timer').textContent);
+            savePoints(calculatePoints());
             victoryModal.show();
         }
 
@@ -675,12 +678,12 @@ if (isset($_SESSION['memorama_difficulty'])) {
         });
 
         document.getElementById('reset-btn').addEventListener('click', function() {
-            if (confirm('¿Estás seguro de que quieres reiniciar el juego?')) {
-                fetch('memorama.php?reset=1')
-                    .then(() => {
-                        window.location.reload();
-                    });
-            }
+            fetch('memorama.php?reset=1')
+                .then(() => {
+                    // En lugar de recargar la página, mostrar el modal de dificultad
+                    timer
+                    difficultyModal.show();
+                });
         });
 
         document.getElementById('musicToggle').addEventListener('click', function() {
@@ -710,7 +713,31 @@ if (isset($_SESSION['memorama_difficulty'])) {
                 }, 3000);
             }
         document.addEventListener('DOMContentLoaded', initGame);
-
+        function savePoints(points) {
+            console.log('Intentando guardar puntos:', points); // Añadir para depuración
+            
+            fetch('../config/updatePoints.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `points=${points}&game=sopaDeLetras`
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('Error al actualizar puntos: ' + text);
+                        });
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log('Puntos actualizados correctamente:', data);
+                })
+                .catch(error => {
+                    console.error('Error completo:', error);
+                });
+        }
         function saveGameResult(won, duration) {
             // Solo guardar si el usuario está autenticado
             if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
