@@ -1,8 +1,103 @@
 <?php
-session_start();
+require_once __DIR__ . '/../config/init.php';
+require_once __DIR__ . '/../connection/database.php';
+require_once __DIR__ . '/../config/dataPlanta.php';
 
-// Reiniciar el juego si se solicita
-if (isset($_GET['reset']) || !isset($_SESSION['memorama_cards'])) {
+// Reiniciar el juego al cargar la página sin parámetros
+if (!isset($_GET['check_difficulty']) && !isset($_GET['set_difficulty']) && !isset($_POST['action'])) {
+    unset($_SESSION['memorama_cards']);
+    unset($_SESSION['memorama_flipped']);
+    unset($_SESSION['memorama_matched']);
+    unset($_SESSION['memorama_moves']);
+    unset($_SESSION['memorama_start_time']);
+    unset($_SESSION['memorama_difficulty']);
+    unset($_SESSION['memorama_pairs']);
+}
+
+// Manejar peticiones AJAX
+if (isset($_GET['check_difficulty'])) {
+    $response = [
+        'difficulty_set' => isset($_SESSION['memorama_difficulty']),
+        'difficulty' => isset($_SESSION['memorama_difficulty']) ? $_SESSION['memorama_difficulty'] : null,
+        'total_pairs' => isset($_SESSION['memorama_pairs']) ? $_SESSION['memorama_pairs'] : 0
+    ];
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+
+// Manejar establecimiento de dificultad
+if (isset($_GET['set_difficulty'])) {
+    $_SESSION['memorama_difficulty'] = $_GET['set_difficulty'];
+    
+    // Determinar número de pares según la dificultad
+    $numPairs = 6; // Valor predeterminado
+    
+    if ($_SESSION['memorama_difficulty'] == 'easy') {
+        $numPairs = 6;
+    } elseif ($_SESSION['memorama_difficulty'] == 'hard') {
+        $numPairs = 10;
+    } elseif ($_SESSION['memorama_difficulty'] == 'notime') {
+        $numPairs = 8;
+    }
+    
+    $_SESSION['memorama_pairs'] = $numPairs;
+    
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// Función para obtener imágenes de plantas
+function obtenerImagenesPlantas() {
+    $db = new Database();
+    $conn = $db->getConnection();
+    $stmt = $conn->prepare("SELECT id, nombre_comun FROM ficha_planta");
+    $stmt->execute();
+    $plantas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Filtrar plantas que tienen imágenes disponibles
+    $plantasConImagenes = [];
+    foreach ($plantas as $planta) {
+        $nombreImagen = strtolower(str_replace(' ', '', explode(',', $planta['nombre_comun'])[0]));
+        if (file_exists(__DIR__ . "/../img/plantas/{$nombreImagen}.png")) {
+            $plantasConImagenes[] = [
+                'id' => $planta['id'],
+                'nombre' => $planta['nombre_comun'],
+                'imagen' => $nombreImagen
+            ];
+        }
+    }
+    
+    // Mezclar el array de plantas
+    shuffle($plantasConImagenes);
+    
+    return $plantasConImagenes;
+}
+
+// Variables para usuarios no autenticados
+$userId = null;
+$musicEnabled = true; // Valor predeterminado
+
+// Verificar si el usuario está autenticado
+if (isset($_SESSION['user'])) {
+    // Obtener preferencia de música de la base de datos
+    $userId = $_SESSION['usuario_id'];
+    
+    try {
+        $db = new Database();
+        $conn = $db->getConnection();
+        $stmt = $conn->prepare("SELECT musica_activada FROM usuarios WHERE id = ?");
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $musicEnabled = (bool)$result['musica_activada'];
+    } catch (PDOException $e) {
+        error_log("Error fetching music preference: " . $e->getMessage());
+    }
+}
+
+// Reiniciar el juego si se solicita o al salir
+if (isset($_GET['reset']) || isset($_GET['exit'])) {
     unset($_SESSION['memorama_cards']);
     unset($_SESSION['memorama_flipped']);
     unset($_SESSION['memorama_matched']);
@@ -13,39 +108,59 @@ if (isset($_GET['reset']) || !isset($_SESSION['memorama_cards'])) {
 }
 
 // Inicializar variables de sesión si no existen
-if (!isset($_SESSION['memorama_difficulty'])) {
-    $_SESSION['memorama_difficulty'] = isset($_GET['difficulty']) ? $_GET['difficulty'] : '';
+if (!isset($_SESSION['memorama_difficulty']) && isset($_GET['difficulty'])) {
+    $_SESSION['memorama_difficulty'] = $_GET['difficulty'];
 }
 
-// Inicializar el juego si no existe o si se cambió la dificultad
-if (!isset($_SESSION['memorama_cards']) || (isset($_GET['difficulty']) && $_GET['difficulty'] != $_SESSION['memorama_difficulty'])) {
-    // Actualizar dificultad si se proporciona
-    if (isset($_GET['difficulty'])) {
-        $_SESSION['memorama_difficulty'] = $_GET['difficulty'];
+// Inicializar el juego si se ha seleccionado una dificultad
+if (isset($_SESSION['memorama_difficulty']) && !isset($_SESSION['memorama_cards'])) {
+    // Establecer la dificultad
+    if (isset($_GET['set_difficulty'])) {
+        $_SESSION['memorama_difficulty'] = $_GET['set_difficulty'];
+        
+        // Determinar número de pares según la dificultad
+        $numPairs = 6; // Valor predeterminado
+        
+        if ($_SESSION['memorama_difficulty'] == 'easy') {
+            $numPairs = 6;
+        } elseif ($_SESSION['memorama_difficulty'] == 'hard') {
+            $numPairs = 8; // Cambiado de 10 a 8 como solicitaste
+        } elseif ($_SESSION['memorama_difficulty'] == 'notime') {
+            $numPairs = 8;
+        }
+        
+        $_SESSION['memorama_pairs'] = $numPairs;
+        
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit;
     }
     
-    // Determinar número de pares según la dificultad
+    // Determinar número de pares según la dificultad (fuera del bloque set_difficulty)
     $numPairs = 6; // Valor predeterminado
     
     if ($_SESSION['memorama_difficulty'] == 'easy') {
-        $numPairs = rand(6, 10);
+        $numPairs = 6;
     } elseif ($_SESSION['memorama_difficulty'] == 'hard') {
-        $numPairs = rand(10, 15);
+        $numPairs = 8; // Cambiado de 10 a 8 como solicitaste
     } elseif ($_SESSION['memorama_difficulty'] == 'notime') {
-        $numPairs = rand(6, 10);
+        $numPairs = 8;
     }
     
-    $_SESSION['memorama_pairs'] = $numPairs;
-    
-    // Crear array con números del 1 al 15 (imágenes disponibles)
-    $availableImages = range(1, 15);
-    shuffle($availableImages);
+    // Obtener imágenes de plantas
+    $plantasDisponibles = obtenerImagenesPlantas();
     
     // Seleccionar los primeros N pares según la dificultad
-    $selectedImages = array_slice($availableImages, 0, $numPairs);
+    $plantasSeleccionadas = array_slice($plantasDisponibles, 0, $numPairs);
     
-    // Duplicar las imágenes para crear pares
-    $cards = array_merge($selectedImages, $selectedImages);
+    // Crear array de cartas (duplicando cada planta para formar pares)
+    $cards = [];
+    foreach ($plantasSeleccionadas as $planta) {
+        $cards[] = $planta;
+        $cards[] = $planta;
+    }
+    
+    // Mezclar las cartas
     shuffle($cards);
     
     $_SESSION['memorama_cards'] = $cards;
@@ -81,8 +196,8 @@ if (isset($_POST['action'])) {
             if ($flippedCount == 2) {
                 $_SESSION['memorama_moves']++;
                 
-                $card1 = $_SESSION['memorama_cards'][$flippedIndexes[0]];
-                $card2 = $_SESSION['memorama_cards'][$flippedIndexes[1]];
+                $card1 = $_SESSION['memorama_cards'][$flippedIndexes[0]]['id'];
+                $card2 = $_SESSION['memorama_cards'][$flippedIndexes[1]]['id'];
                 
                 // Si son pares, marcarlas como emparejadas
                 if ($card1 == $card2) {
@@ -180,7 +295,6 @@ function saveGameResult($won, $duration, $points) {
     ];
 }
 
-
 // Calcular tiempo transcurrido
 $elapsedTime = 0;
 if (isset($_SESSION['memorama_start_time'])) {
@@ -189,10 +303,12 @@ if (isset($_SESSION['memorama_start_time'])) {
 
 // Determinar texto de dificultad
 $difficultyText = 'Fácil';
-if ($_SESSION['memorama_difficulty'] == 'hard') {
-    $difficultyText = 'Difícil';
-} elseif ($_SESSION['memorama_difficulty'] == 'notime') {
-    $difficultyText = 'Sin tiempo';
+if (isset($_SESSION['memorama_difficulty'])) {
+    if ($_SESSION['memorama_difficulty'] == 'hard') {
+        $difficultyText = 'Difícil';
+    } elseif ($_SESSION['memorama_difficulty'] == 'notime') {
+        $difficultyText = 'Sin tiempo';
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -391,13 +507,13 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
         </div>
         <div style="text-align:center">
             <h5 style="margin:0">Memorama</h5>
-            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
+            <div class="level">Modo: <span id="difficulty-display"><?php echo $difficultyText; ?></span></div>
         </div>
         <div  style="display:flex; flex-direction:row; gap:10px">
             <div>
                 <div  class="hd-sec-gm-v2" style="display:flex; flex-direction:row; gap:10px">
                     <div>
-                        <h5><span id="found-words-count">0</span>/<span id="total-words-count">0</span></h5>
+                        <h5><span id="matched-pairs">0</span>/<span id="total-pairs"><?php echo isset($_SESSION['memorama_pairs']) ? $_SESSION['memorama_pairs'] : '0'; ?></span></h5>
                     </div>
                     
             <div class="timer"><h5><i class="fa-solid fa-clock me-2"></i></h5><h5 id="timer"> 00:00</h5></div>
@@ -412,14 +528,16 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
 
         <div class="cards-grid">
             <?php
-            for ($i = 0; $i < count($_SESSION['memorama_cards']); $i++) {
-                $card = $_SESSION['memorama_cards'][$i];
-                $flipped = $_SESSION['memorama_flipped'][$i] ? 'flipped' : '';
-                $matched = $_SESSION['memorama_matched'][$i] ? 'matched' : '';
-                echo "<div class='cardMemory $flipped $matched' data-index='$i' data-card='$card'>";
-                echo "<div class='front'></div>";
-                echo "<div class='back'><img src='../img/niveles/$card.png' alt='Imagen $card'></div>";
-                echo "</div>";
+            if (isset($_SESSION['memorama_cards'])) {
+                for ($i = 0; $i < count($_SESSION['memorama_cards']); $i++) {
+                    $card = $_SESSION['memorama_cards'][$i];
+                    $flipped = $_SESSION['memorama_flipped'][$i] ? 'flipped' : '';
+                    $matched = $_SESSION['memorama_matched'][$i] ? 'matched' : '';
+                    echo "<div class='cardMemory $flipped $matched' data-index='$i' data-card='{$card['id']}'>";
+                    echo "<div class='front'></div>";
+                    echo "<div class='back'><img src='../img/plantas/{$card['imagen']}.png' alt='{$card['nombre']}'></div>";
+                    echo "</div>";
+                }
             }
             ?>
         </div>
@@ -434,14 +552,14 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                     <h5 class="modal-title" id="difficultyModalLabel">Selecciona la dificultad</h5>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Fácil:</strong> 6 a 10 pares de cartas con tiempo</p>
-                    <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
+                    <p><strong>Fácil:</strong> 6 pares de cartas con tiempo</p>
+                    <button class="btn btn-primary difficulty-btn" data-difficulty="easy">Fácil</button>
 
-                    <p><strong>Difícil:</strong> 10 a 15 pares de cartas con tiempo</p>
-                    <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+                    <p><strong>Difícil:</strong> 10 pares de cartas con tiempo</p>
+                    <button class="btn btn-danger difficulty-btn" data-difficulty="hard">Difícil</button>
 
-                    <p><strong>Sin tiempo:</strong> 6 a 10 pares de cartas</p>
-                    <button class="difficulty-btn" data-difficulty="notime">Sin tiempo</button>
+                    <p><strong>Sin tiempo:</strong> 8 pares de cartas</p>
+                    <button class="btn btn-warning difficulty-btn" data-difficulty="notime">Sin tiempo</button>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
@@ -462,13 +580,13 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
                     <div class="victory-stats">
                         <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time" style="margin-left: 5px;">00:00</span></p>
                         <p><i class="fas fa-trophy me-2"></i> Modo: <span id="victory-mode" style="margin-left: 5px;"><?php echo $difficultyText; ?></span></p>
-                        <p style="display:none"><i  class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves" style="margin-left: 5px;">0</span></p>
+                        <p><i class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves" style="margin-left: 5px;">0</span></p>
                         <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points" style="margin-left: 5px;">0</span></p>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="continue-btn">Continuar</button>
-                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
+                    <button type="button" class="btn btn-secondary" id="exit-btn2">Salir</button>
                 </div>
             </div>
         </div>
@@ -479,264 +597,207 @@ if ($_SESSION['memorama_difficulty'] == 'hard') {
     </div>
 
      <?php include '../components/footer.php'; ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Variables globales
+    let timer;
+    let seconds = 0;
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let totalPairs = <?php echo isset($_SESSION['memorama_pairs']) ? $_SESSION['memorama_pairs'] : '0'; ?>;
+    let isProcessing = false;
+    let difficultyModal;
+    let victoryModal;
+    
+    // Función para inicializar el juego
+    function initGame() {
+        // Reiniciar variables
+        flippedCards = [];
+        matchedPairs = 0;
+        seconds = 0;
+        isProcessing = false;
         
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elementos del DOM
-        // Botones de selección de dificultad
-        document.querySelectorAll('.difficulty-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const diff = btn.dataset.difficulty;         // easy | hard | notime
-                window.location.href = `?difficulty=${diff}`; // recarga con el parámetro
-            });
-        });
-
-
-            // Music control initialization
-        const musicToggle = document.getElementById('musicToggle');
-        const musicIcon = musicToggle.querySelector('i');
-        const gameMusic = document.getElementById('gameMusic');
-        gameMusic.volume = 0.5;
-
-        // Music control event listener
-        musicToggle.addEventListener('click', function() {
-            if (gameMusic.paused) {
-                gameMusic.play();
-                musicIcon.classList.remove('fa-volume-xmark');
-                musicIcon.classList.add('fa-volume-high');
-                updateMusicPreference(1);
-            } else {
-                gameMusic.pause();
-                musicIcon.classList.remove('fa-volume-high');
-                musicIcon.classList.add('fa-volume-xmark');
-                updateMusicPreference(0);
-            }
-        });
-
-        function updateMusicPreference(enabled) {
-            <?php if (isset($_SESSION['user'])): ?>
-            fetch('../config/updateMusicPreference.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `music_enabled=${enabled}`
+        // Actualizar contadores
+        document.getElementById('timer').textContent = '00:00';
+        document.getElementById('matched-pairs').textContent = '0';
+        document.getElementById('total-pairs').textContent = totalPairs; // Actualizar el total de pares inmediatamente
+        
+        // Inicializar modales
+        difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
+        victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+        
+        // Verificar si ya hay una dificultad seleccionada
+        fetch('memorama.php?check_difficulty=1')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.difficulty_set) {
+                    // Si no hay dificultad, mostrar el modal
+                    difficultyModal.show();
+                } else {
+                    // Si ya hay dificultad, iniciar el temporizador si es necesario
+                    if (data.difficulty !== 'notime') {
+                        startTimer();
+                    }
+                    // Actualizar el contador total de pares
+                    totalPairs = data.total_pairs;
+                    document.getElementById('total-pairs').textContent = totalPairs;
+                }
             })
-            .catch(error => console.error('Error updating music preference:', error));
-            <?php endif; ?>
-        }
-
-
-            const cards = document.querySelectorAll('.cardMemory');
-            const timerElement = document.getElementById('timer');
-            const resetButton = document.getElementById('reset-btn');
-            
-            // Variables del juego
-            let flippedCards = [];
-            let canFlip = true;
-            let timerInterval;
-            let startTime = <?php echo $_SESSION['memorama_start_time'] ?? 'Date.now() / 1000'; ?>;
-            let elapsedTime = <?php echo $elapsedTime; ?>;
-            let gameMode = '<?php echo $_SESSION['memorama_difficulty']; ?>';
-            
-            // Modales
-            const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
-            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
-            
-            // Mostrar modal de dificultad si no se ha seleccionado
-            if (!gameMode) {
+            .catch(error => {
+                console.error('Error:', error);
+                // Si hay un error, mostrar el modal de dificultad por defecto
                 difficultyModal.show();
-            } else {
-                // Iniciar temporizador si el juego ya está en progreso
-                startTimer();
-            }
-            
-            // Configurar eventos de las cartas
-            cards.forEach(card => {
-                card.addEventListener('click', () => flipCard(card));
             });
-            
-            // Configurar botón de reinicio
-            resetButton.addEventListener('click', () => {
-                window.location.href = '?reset=1';
-            });
-            
-            // Configurar botones del modal de victoria
-            document.getElementById('continue-btn').addEventListener('click', function() {
-                window.location.href = '?reset=1';
-            });
-            
-            document.getElementById('exit-btn').addEventListener('click', function() {
-                window.location.href = '../view/gamesMenu.php';
-            });
-            
-            // Función para voltear una carta
-            function flipCard(card) {
-                // Verificar si se puede voltear
-                if (!canFlip) return;
-                if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
-                
-                const index = card.dataset.index;
-                
-                // Enviar solicitud AJAX para voltear la carta
-                fetch('memorama.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=flip&index=${index}`
-                })
+        
+        // Agregar eventos a las cartas
+        const cards = document.querySelectorAll('.cardMemory');
+        cards.forEach(card => {
+            card.addEventListener('click', handleCardClick);
+        });
+    }
+    
+    // Evento para los botones de dificultad
+    document.querySelectorAll('.difficulty-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const difficulty = this.getAttribute('data-difficulty');
+            // Enviar la dificultad al servidor y recargar
+            fetch('memorama.php?set_difficulty=' + difficulty)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Voltear la carta en la interfaz
-                        card.classList.add('flipped');
-                        flippedCards.push(card);
-                        
-                        
-                        // Si hay dos cartas volteadas
-                        if (flippedCards.length === 2) {
-                            canFlip = false;
-                            
-                            setTimeout(() => {
-                                if (data.match) {
-                                    mostrarNotificacion(data.card); //Notificación
-                                    // Si son pares, marcarlas como emparejadas
-                                    flippedCards.forEach(c => c.classList.add('matched'));
-                                    
-                                    // Verificar si todas las cartas están emparejadas
-                                    if (data.allMatched) {
-                                        mostrarModalVictoria(data);
-                                    }
-                                } else {
-                                    // Si no son pares, voltearlas de nuevo
-                                    flippedCards.forEach(c => c.classList.remove('flipped'));
-                                }
-                                
-                                flippedCards = [];
-                                canFlip = true;
-                            }, 1000);
-                        }
+                        difficultyModal.hide();
+                        // Recargar con el parámetro de dificultad para evitar el reinicio
+                        window.location.href = 'memorama.php?difficulty=' + difficulty;
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
                 });
-            }
+        });
+    });
+    
+    // Función para manejar el clic en una carta
+    function handleCardClick(event) {
+        if (isProcessing) return;
+        
+        const card = event.currentTarget;
+        if (card.classList.contains('flipped') || card.classList.contains('matched')) {
+            return;
+        }
+        
+        // Voltear la carta
+        card.classList.add('flipped');
+        flippedCards.push(card);
+        
+        // Si hay dos cartas volteadas, verificar si son iguales
+        if (flippedCards.length === 2) {
+            isProcessing = true;
+            const card1 = flippedCards[0];
+            const card2 = flippedCards[1];
             
-            function mostrarNotificacion(cardData) {
-                const notificacion = document.getElementById('notificacion-planta');
-                const mensaje = document.getElementById('mensaje-notificacion');
-                
-                // Usar cardData.card_name en lugar de buscar en un objeto local
-                mensaje.textContent = `¡Felicidades! Encontraste la planta ${cardData.card_name || 'especial'}`;
-                
-                notificacion.classList.add('mostrar');
+            if (card1.getAttribute('data-card') === card2.getAttribute('data-card')) {
+                // Son iguales
                 setTimeout(() => {
-                    notificacion.classList.remove('mostrar');
-                }, 3000);
-            }
-            // Función para iniciar el temporizador
-            function startTimer() {
-                // Si es modo sin tiempo, no mostrar temporizador
-                if (gameMode === 'notime') {
-                    timerElement.textContent = '--:--';
-                    return;
-                }
-                
-                // Actualizar temporizador cada segundo
-                timerInterval = setInterval(() => {
-                    elapsedTime++;
-                    updateTimerDisplay();
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    flippedCards = [];
+                    isProcessing = false;
+                    matchedPairs++;
+                    document.getElementById('matched-pairs').textContent = matchedPairs;
+                    
+                    // Verificar si se completó el juego
+                    if (matchedPairs >= totalPairs) { // Cambiado de === a >= para mayor seguridad
+                        endGame();
+                    }
+                }, 500);
+            } else {
+                // No son iguales
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                    isProcessing = false;
                 }, 1000);
             }
             
-            // Función para actualizar la visualización del temporizador
-            function updateTimerDisplay() {
-                const minutes = Math.floor(elapsedTime / 60);
-                const seconds = elapsedTime % 60;
-                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            // Función para manejar la victoria
-            function handleVictory(data) {
-                // Detener el temporizador
-                clearInterval(timerInterval);
-                
-                // Actualizar estadísticas en el modal de victoria
-                document.getElementById('victory-time').textContent = data.time;
-                document.getElementById('victory-moves').textContent = data.moves;
-                document.getElementById('victory-points').textContent = data.points;
-                
-                // Guardar puntos en la base de datos
-                savePoints(data.points);
-                
-                // Mostrar modal de victoria
-                setTimeout(() => {
-                    victoryModal.show();
-                }, 500);
-            }
-            
-            function mostrarModalVictoria(data) {
-                clearInterval(timerInterval);
-                document.getElementById('victory-time').textContent = document.getElementById('timer').textContent;
-                document.getElementById('victory-points').textContent = data.points;
-                // Guardar puntos en la base de datos
-                savePoints(data.points, data.timeInSeconds); // Asegúrate de que data.timeInSeconds tenga el valor correcto
-                // Mostrar modal
-                const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
-                victoryModal.show();
-            }
-            function savePoints(points) {
-            console.log('Intentando guardar puntos:', points);
-            fetch('../config/updatePoints.php', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `points=${points}&game=memorama`
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Puntos actualizados correctamente:', data);
-            })
-            .catch(error => {
-                console.error('Error al actualizar puntos:', error);
+            // Actualizar el estado en el servidor
+            const cardIndices = [card1.getAttribute('data-index'), card2.getAttribute('data-index')];
+            fetch('memorama.php?update_cards=1&indices=' + JSON.stringify(cardIndices));
+        }
+    }
+    
+    // Función para iniciar el temporizador
+    function startTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => {
+            seconds++;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            document.getElementById('timer').textContent = 
+                (minutes < 10 ? '0' : '') + minutes + ':' + 
+                (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
+        }, 1000);
+    }
+    
+    // Función para finalizar el juego
+    function endGame() {
+        clearInterval(timer);
+        document.getElementById('victory-time').textContent = document.getElementById('timer').textContent;
+        document.getElementById('victory-points').textContent = calculatePoints();
+        victoryModal.show();
+    }
+    
+    // Función para calcular puntos
+    function calculatePoints() {
+        // Implementar lógica de puntos según dificultad y tiempo
+        return Math.max(1000 - seconds * 5, 100);
+    }
+    
+    // Evento para el botón de salir
+    document.getElementById('exit-btn').addEventListener('click', function() {
+        window.location.href = '../view/gamesMenu.php';
+    });
+    
+    // Evento para el botón de salir en el modal de victoria
+    document.getElementById('exit-btn2').addEventListener('click', function() {
+        window.location.href = '../view/gamesMenu.php';
+    });
+    
+    // Evento para el botón de continuar
+    document.getElementById('continue-btn').addEventListener('click', function() {
+        // Reiniciar el juego con la misma dificultad
+        fetch('memorama.php?reset=1')
+            .then(() => {
+                window.location.reload();
             });
-        }
-
-        function saveGameResult(won, duration) {
-            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                fetch('../config/saveGameResult.php', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `usuario_id=<?php echo $_SESSION['usuario_id'] ?? ''; ?>&juego=memorama&duracion=${duration}&fue_ganado=${won ? 1 : 0}`
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Resultado guardado correctamente:', data);
-                })
-                .catch(error => {
-                    console.error('Error al guardar resultado:', error);
+    });
+    
+    // Evento para el botón de reiniciar
+    document.getElementById('reset-btn').addEventListener('click', function() {
+        if (confirm('¿Estás seguro de que quieres reiniciar el juego?')) {
+            fetch('memorama.php?reset=1')
+                .then(() => {
+                    window.location.reload();
                 });
-            }
         }
-        });
-    </script>
+    });
+    
+    // Evento para el botón de música
+    document.getElementById('musicToggle').addEventListener('click', function() {
+        const audio = document.getElementById('gameMusic');
+        if (audio.paused) {
+            audio.play();
+            this.querySelector('i').classList.remove('fa-volume-xmark');
+            this.querySelector('i').classList.add('fa-volume-high');
+            fetch('../config/updateMusicPreference.php?enable=1');
+        } else {
+            audio.pause();
+            this.querySelector('i').classList.remove('fa-volume-high');
+            this.querySelector('i').classList.add('fa-volume-xmark');
+            fetch('../config/updateMusicPreference.php?enable=0');
+        }
+    });
+    
+    // Inicializar el juego al cargar la página
+    document.addEventListener('DOMContentLoaded', initGame);
+</script>
 </body>
 
 </html>
