@@ -184,8 +184,10 @@ $rankingData = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         ");
                         $stmt->execute([$currentUserId]);
                         $nivel = $stmt->fetch(PDO::FETCH_ASSOC);
+                        $progressUser = 0;
 
-                        $nivelusuario = ($nivel['nivel_de_usuario_id'] / 15) * 100;
+                        $progressUser = ($nivel['nivel_de_usuario_id'] / 15) * 100;
+
 
                     }
                 } catch (PDOException $e) {

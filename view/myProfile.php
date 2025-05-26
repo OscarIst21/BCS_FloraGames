@@ -25,9 +25,9 @@ try {
     $userData = $stmt->fetch(PDO::FETCH_ASSOC);
     
     // Initialize progress variable
-    $nivelusuario = 0;
+    $progressUser = 1;
     if ($userData['nivel_de_usuario_id'] == 1) {
-        $nivelusuario = ($userData['puntos_ganados'] / 100) * 100; // Assuming 100 points needed for level 2
+        $progressUser = ($userData['nivel_de_usuario_id'] / 15) * 100; 
     }
     
     $fechaFormateada = date('d/m/Y', strtotime($userData['fecha_registro']));
@@ -144,9 +144,9 @@ try {
                 <div>
                     <h5>Tu progreso general</h5>
                     <div class="progress" role="progressbar" aria-label="Example with label" 
-                        aria-valuenow="<?php echo round($nivelusuario); ?>" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" style="width: <?php echo round($nivelusuario); ?>%">
-                            <?php echo round($nivelusuario); ?>%
+                        aria-valuenow="<?php echo round($progressUser); ?>" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="width: <?php echo round($progressUser); ?>%">
+                            <?php echo round($progressUser); ?>%
                         </div>
                     </div>
 
