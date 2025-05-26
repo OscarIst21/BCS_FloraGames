@@ -345,7 +345,7 @@ if (isset($_SESSION['user'])) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="retry-btn">Continuar</button>
-                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
+                    <a href="../view/gamesMenu.php" class="btn btn-secondary" id="">Salir</a>
                 </div>
             </div>
         </div>

@@ -479,7 +479,7 @@ if (isset($_GET['difficulty'])) {
                     <button class="difficulty-btn" data-difficulty="dificil">Difícil</button>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
+                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn">Salir</a>
                 </div>
             </div>
         </div>
@@ -502,7 +502,7 @@ if (isset($_GET['difficulty'])) {
                 </div>
                 <div class="modal-footer">
                     <a href="?reset=1" class="btn btn-success">Jugar de nuevo</a>
-                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn">Salir</a>
+                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn2">Salir</a>
                 </div>
             </div>
         </div>
@@ -760,9 +760,8 @@ if (isset($_GET['difficulty'])) {
                 window.location.href = '?reset=1';
             });
             
-            document.getElementById('exit-btn').addEventListener('click', function() {
+            document.getElementById('exit-btn2').addEventListener('click', function() {
                 victoryModal.hide();
-
                 setTimeout(() => {
                     window.location.href = '/BCS_FloraGames/view/gamesMenu.php';
                 }, 300);
