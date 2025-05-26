@@ -109,15 +109,10 @@ if (isset($_POST['reset_password'])) {
         $stmt = $conn->prepare("DELETE FROM recuperacion_contrasena WHERE id = ?");
         $stmt->execute([$recovery['id']]);
         
-        // Limpiar sesión
-        unset($_SESSION['step']);
-        unset($_SESSION['email']);
-        unset($_SESSION['token']);
-        
-        unset($_SESSION['step'], $_SESSION['email'], $_SESSION['token']);
+        $_SESSION['step'] = 'reset';
 
-        $_SESSION['flash']['password_success'] = 'Tu contraseña ha sido cambiada exitosamente';
-        header("Location: ../view/login.php");
+        $_SESSION['flash']['password_changed'] = true;
+        header("Location: ../view/recuperatePassword.php");
     } else {
         $_SESSION['flash']['password_error'] = 'El token ha expirado o es inválido';
         $_SESSION['step'] = 'reset';
