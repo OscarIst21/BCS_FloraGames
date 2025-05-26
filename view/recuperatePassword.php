@@ -96,6 +96,7 @@
             <div class="form-container <?php echo (isset($_SESSION['step']) && $_SESSION['step'] === 'verify') ? 'active' : ''; ?>" id="step-verify">
                 <h2 style="background-color: #246741; padding: 1rem; color: white;">Verificar código</h2>
                 <form action="../config/recoverPassword.php" method="post" class="form-fields">
+                    <p style="text-align:center">Revisa tu correo electrónico</p>
                     <input type="hidden" name="email" value="<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : ''; ?>">
                     <div class="form-group">
                         <label for="token">Ingrese el código de 6 dígitos</label>

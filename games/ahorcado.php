@@ -654,7 +654,7 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
             <?php if (isset($_SESSION['ahorcado_completado']) && $_SESSION['ahorcado_completado']): ?>
            const dificultad = '<?php echo isset($_SESSION['ahorcado_dificultad']) ? $_SESSION['ahorcado_dificultad'] : 'facil'; ?>';
             const won = <?php echo $_SESSION['ahorcado_errores'] < $_SESSION['ahorcado_oportunidades'] ? 'true' : 'false'; ?>;
-            
+            const palabra = '<?php echo isset($_SESSION['ahorcado_palabra']) ? $_SESSION['ahorcado_palabra'] : ''; ?>';
             // Configurar modal según resultado
             const modalHeader = document.querySelector('#victoryModal .modal-header');
             const modalTitle = document.querySelector('#victoryModal .modal-title');
@@ -678,7 +678,7 @@ if (isset($_POST['letra']) && isset($_SESSION['ahorcado_palabra'])) {
             } else {
                 modalHeader.className = 'modal-header bg-danger text-white';
                 modalTitle.textContent = '¡Más suerte para la próxima!';
-                modalBody.textContent = 'No has adivinado la palabra esta vez';
+                modalBody.textContent = `No has adivinado la palabra esta vez, la respuesta correcta era ${palabra}, inténtalo de nuevo;
                 
                 document.getElementById('victory-time').textContent = timerElement.textContent;
                 document.getElementById('victory-level').textContent = dificultad === 'facil' ? 'Fácil' : 'Difícil';
