@@ -1031,7 +1031,35 @@ if (isset($_SESSION['user'])) {
                 });
             }
         }
-
+        function saveGameResult(won, duration) {
+            // Solo guardar si el usuario está autenticado
+            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+                
+                // Crear objeto con los datos
+                const gameData = {
+                    usuario_id: userId,
+                    duracion: Math.floor(duration), // Duración en segundos
+                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
+                };
+                
+                // Enviar datos al servidor
+                fetch('../config/saveGameResult.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gameData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Resultado guardado:', data);
+                })
+                .catch(error => {
+                    console.error('Error al guardar resultado:', error);
+                });
+            }
+        }
         // Modificar la función showVictoryModal para guardar el resultado
         function showVictoryModal() {
             // Actualizar estadísticas en el modal
