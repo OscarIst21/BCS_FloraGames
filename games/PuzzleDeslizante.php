@@ -502,7 +502,7 @@ if (isset($_SESSION['puzzle_difficulty'])) {
     <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let timerInterval;
+        let timerInterval=0;
         let elapsedTime = <?php echo $elapsedTime; ?>;
         let moves = <?php echo $_SESSION['puzzle_moves'] ?? 0; ?>;
         let gameMode = '<?php echo $_SESSION['puzzle_difficulty'] ?? ''; ?>';
@@ -529,6 +529,9 @@ if (isset($_SESSION['puzzle_difficulty'])) {
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const diff = btn.dataset.difficulty;
+                    clearInterval(timerInterval); // Stop any running timer
+                    elapsedTime = 0; // Reset timer variable
+                    document.getElementById('timer').textContent = '00:00'; // Update timer in header
                     difficultyModal.hide();
                     window.location.href = `?difficulty=${diff}`;
                 });
@@ -582,11 +585,17 @@ if (isset($_SESSION['puzzle_difficulty'])) {
         }
 
         function startTimer() {
+            elapsedTime = 0;
             clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
+            timerInterval = setInterval(function() {
                 elapsedTime++;
-                document.getElementById('timer').textContent = formatTime(elapsedTime);
+                var minutes = Math.floor(elapsedTime / 60);
+                var seconds = elapsedTime % 60;
+                document.getElementById('timer').textContent =
+                    (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
             }, 1000);
+            // Actualiza inmediatamente el elemento del tiempo al iniciar
+            document.getElementById('timer').textContent = '00:00';
         }
 
         function formatTime(seconds) {
