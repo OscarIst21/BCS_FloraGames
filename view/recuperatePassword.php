@@ -61,6 +61,17 @@
             transition: opacity 0.5s ease-in-out;
             display: none;
         }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
 
         .notificacion.mostrar {
             display: block;
@@ -124,6 +135,12 @@
             <!-- Paso 3: Cambiar contraseña -->
             <div class="form-container <?php echo (isset($_SESSION['step']) && $_SESSION['step'] === 'reset') ? 'active' : ''; ?>" id="step-reset">
                 <h2 style="background-color: #246741; padding: 1rem; color: white;">Restablecer contraseña</h2>
+                <?php if (!empty($_SESSION['flash']['password_error'])): ?>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="text-align:left">
+                                    <?= htmlspecialchars($_SESSION['flash']['password_error']) ?>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                <?php endif; ?>
                 <form action="../config/recoverPassword.php" method="post" class="form-fields" id="reset-form">
                     <input type="hidden" name="email" value="<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : ''; ?>">
                     <input type="hidden" name="token" value="<?php echo isset($_SESSION['token']) ? htmlspecialchars($_SESSION['token']) : ''; ?>">
@@ -141,12 +158,6 @@
                         <label for="confirm_password">Confirmar nueva contraseña</label>
                         <div class="password-container">
                             <input type="password" id="confirm_password" name="confirm_password" required>
-                            <?php if (!empty($_SESSION['flash']['password_error'])): ?>
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="text-align:right">
-                                    <?= htmlspecialchars($_SESSION['flash']['password_error']) ?>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            <?php endif; ?>
                             <button type="button" class="password-toggle" id="toggleConfirmPassword">
                                 <i class="fas fa-eye"></i>
                             </button>
