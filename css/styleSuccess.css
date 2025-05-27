@@ -9,6 +9,13 @@
     height: 750px;
 }
 
+@media (max-width:480px){
+    header{
+        padding: 0 !important;
+    }
+}
+   
+
 .leaderboard-header {
     text-align: center;
     color: black;

@@ -32,6 +32,15 @@ if(isset($_SESSION['user'])) {
             padding: 0;
             z-index: 2;
         }
+        @media (max-width:480px){
+            .contenedor {
+                margin: 3rem 1rem !important;
+            }
+            header{
+                padding: 0 !important;
+            }
+        }
+
         .password-toggle:hover {
             color: #333;
         }

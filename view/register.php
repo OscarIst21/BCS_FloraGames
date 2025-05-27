@@ -45,6 +45,14 @@
         .error-input {
             border-color: #dc3545 !important;
         }
+        @media (max-width:480px){
+            .contenedor {
+                margin: 3rem 1rem !important;
+            }
+            header{
+                padding: 0 !important;
+            }
+        }
     </style>
 </head>
 <body>

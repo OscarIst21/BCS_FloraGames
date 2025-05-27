@@ -3,6 +3,13 @@
     color: white;
 }
 
+@media (max-width:480px){
+    header{
+        padding: 0 !important;
+    }
+}
+   
+
 .difficulty-btn {
     width: 100%;
     margin-bottom: 10px;

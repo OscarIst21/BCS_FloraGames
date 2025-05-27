@@ -18,7 +18,7 @@
             <?php if(isset($_SESSION['user'])): ?>
                     <a href="/BCS_FloraGames/view/myProfile.php"><button class="btn btn-access  d-flex align-items-center"style="color: white;">
                         <?php if(!empty($_SESSION['foto_perfil'])): ?>
-                            <div class="profile-image-container" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>  height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                            <div class="profile-image-container" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>  border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
                                 <img src="/BCS_FloraGames/img/foto_de_Perfil/<?php echo $_SESSION['foto_perfil']; ?>" class="rounded-circle" width="30" height="30" alt="Foto de perfil">
                             </div>
                         <?php else: ?>

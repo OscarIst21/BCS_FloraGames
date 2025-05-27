@@ -1,4 +1,10 @@
-    /*Aprendizaje*/
+@media (max-width:480px){
+    header{
+        padding: 0 !important;
+    }
+}
+   
+   /*Aprendizaje*/
 .header-secundary {
     background-color: white;
     padding: 1rem;
