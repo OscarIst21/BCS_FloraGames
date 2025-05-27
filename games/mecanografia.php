@@ -472,6 +472,7 @@ if (isset($_SESSION['user'])) {
     </div>
 
     <?php include '../components/footer.php'; ?>
+    <?php include '../components/modalInsignia.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 </body>
@@ -1064,34 +1065,92 @@ if (isset($_SESSION['user'])) {
 
     // Función para guardar el resultado del juego
     function saveGameResult(won, duration, accuracy, wpm) {
-        // Solo guardar si el usuario está autenticado
-        if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-            const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
-            
-            // Crear objeto con los datos
-            const gameData = {
-                usuario_id: userId,
-                duracion: Math.floor(duration), // Duración en segundos
-                fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
-            };
-            
-            // Enviar datos al servidor
-            fetch('../config/saveGameResult.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(gameData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Resultado guardado:', data);
-            })
-            .catch(error => {
-                console.error('Error al guardar resultado:', error);
-            });
-        }
+    if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+        const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+        const gameData = {
+            usuario_id: userId,
+            duracion: Math.floor(duration),
+            fue_ganado: won ? 1 : 0
+        };
+        console.log('Enviando datos al servidor:', gameData);
+        fetch('../config/saveGameResult.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(gameData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Respuesta del servidor:', data);
+            if (data.success && data.insignia) {
+                console.log('Insignia recibida:', data.insignia);
+                try {
+                    const modalElement = document.getElementById('badgeModal');
+                    if (!modalElement) {
+                        console.error('Modal con id="badgeModal" no encontrado en el DOM');
+                        return;
+                    }
+                    const nombreElement = document.getElementById('badgeName');
+                    const descripcionElement = document.getElementById('badgeDescription');
+                    const iconoElement = document.getElementById('badgeIcon');
+                    if (!nombreElement || !descripcionElement || !iconoElement) {
+                        console.error('Elementos del modal no encontrados:', {
+                            nombre: !!nombreElement,
+                            descripcion: !!descripcionElement,
+                            icono: !!iconoElement
+                        });
+                        return;
+                    }
+                    // Cerrar el modal de victoria si está abierto
+                    const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
+                    if (victoryModal) {
+                        victoryModal.hide();
+                        console.log('Modal de victoria cerrado');
+                        // Esperar un breve momento para evitar conflictos de Bootstrap
+                        setTimeout(() => {
+                            nombreElement.textContent = 'Insignia: ' + data.insignia.nombre;
+                            descripcionElement.textContent = data.insignia.descripcion;
+                            iconoElement.src = '../img/insignias/' + data.insignia.icono_url;
+                            // Manejar errores de carga de imagen
+                            iconoElement.onerror = () => {
+                                console.error('Error al cargar la imagen:', iconoElement.src);
+                                iconoElement.src = '../img/insignias/default.png'; // Imagen por defecto
+                            };
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                            console.log('Modal de insignia mostrado');
+                        }, 500);
+                    } else {
+                        // Si no hay modal de victoria, abrir directamente
+                        nombreElement.textContent = 'Insignia: ' + data.insignia.nombre;
+                        descripcionElement.textContent = data.insignia.descripcion;
+                        iconoElement.src = '../img/insignias/' + data.insignia.icono_url;
+                        iconoElement.onerror = () => {
+                            console.error('Error al cargar la imagen:', iconoElement.src);
+                            iconoElement.src = '../img/insignias/default.png';
+                        };
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                        console.log('Modal de insignia mostrado');
+                    }
+                } catch (error) {
+                    console.error('Error al mostrar el modal:', error);
+                }
+            } else {
+                console.log('No se asignó ninguna insignia o la respuesta no fue exitosa:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error al guardar resultado:', error);
+        });
     }
+}
     document.addEventListener('DOMContentLoaded', function() {
             var skipBtn = document.getElementById('skipInstructions');   
             var comoJugarBtn = document.getElementById('comoJugar');
