@@ -382,43 +382,43 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-    <div class="contenedor cont-lot">
-
-        <!-- Tablero de lotería -->
-        <div id="carta" class="mb-4 <?php echo $modo === 'dificil' ? 'modo-dificil' : 'modo-facil'; ?>">
-            <div class="row g-3">
-                <?php
-                $cols = $modo === 'dificil' ? 4 : 3;
-                foreach ($carta as $i => $planta):
-                    if ($i % $cols === 0 && $i > 0) echo '</div><div class="row g-3">';
-                ?>
-                    <div class="col-md-<?php echo 12/$cols; ?> card-info p-2 text-center carta-celda" data-index="<?php echo $i; ?>">
-                        <img class="card-img" src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>">
-                        <div><?php echo htmlspecialchars($planta['nombre_comun']); ?></div>
-                        <img src="../img/hoja.png" class="hoja-overlay">
-                    </div>
-                <?php endforeach; ?>
+    <div class="page-container">
+        <div class="contenedor cont-lot">
+            <!-- Tablero de lotería -->
+            <div id="carta" class="mb-4 <?php echo $modo === 'dificil' ? 'modo-dificil' : 'modo-facil'; ?>">
+                <div class="row g-3">
+                    <?php
+                    $cols = $modo === 'dificil' ? 4 : 3;
+                    foreach ($carta as $i => $planta):
+                        if ($i % $cols === 0 && $i > 0) echo '</div><div class="row g-3">';
+                    ?>
+                        <div class="col-md-<?php echo 12/$cols; ?> card-info p-2 text-center carta-celda" data-index="<?php echo $i; ?>">
+                            <img class="card-img" src="../img/plantas/<?php echo htmlspecialchars($planta['foto']); ?>" alt="<?php echo htmlspecialchars($planta['nombre_comun']); ?>">
+                            <div><?php echo htmlspecialchars($planta['nombre_comun']); ?></div>
+                            <img src="../img/hoja.png" class="hoja-overlay">
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
-        </div>
 
-        <!-- Mazo y controles -->
-        <div id="mazo-actual">
-            <h5 class="mb-3 text-center" style="color: #246741;">Planta Actual</h5>
-            <div class="fl-responsive">
-                <div id="planta-actual" class="mb-3"></div>
-                <div>
-                    <div class="controls text-center">
-                        <button id="prev-btn" class="btn btn-secondary"><i class="fas fa-arrow-left"></i></button>
-                        <button id="pause-btn" class="btn btn-warning"><i class="fas fa-pause"></i> </button>
-                        <button id="next-btn" class="btn btn-secondary" style="display:none"><i class="fas fa-arrow-right"></i></button>
-                    </div>
-                    <div class="mt-3 text-center">
-                        <small class="text-muted">Cartas restantes: <span id="cartas-restantes"><?php echo count($mazo); ?></span></small>
+            <!-- Mazo y controles -->
+            <div id="mazo-actual">
+                <h5 class="mb-3 text-center" style="color: #246741;">Planta Actual</h5>
+                <div class="fl-responsive">
+                    <div id="planta-actual" class="mb-3"></div>
+                    <div>
+                        <div class="controls text-center">
+                            <button id="prev-btn" class="btn btn-secondary"><i class="fas fa-arrow-left"></i></button>
+                            <button id="pause-btn" class="btn btn-warning"><i class="fas fa-pause"></i> </button>
+                            <button id="next-btn" class="btn btn-secondary" style="display:none"><i class="fas fa-arrow-right"></i></button>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">Cartas restantes: <span id="cartas-restantes"><?php echo count($mazo); ?></span></small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <!-- Modal de selección de dificultad -->

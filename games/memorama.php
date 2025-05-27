@@ -449,22 +449,24 @@ if (isset($_SESSION['memorama_difficulty'])) {
         </div>
     </div>
 
-    <div class="contenedor">
-        <div class="container">
-            <div class="cards-grid">
-                <?php
-                if (isset($_SESSION['memorama_cards'])) {
-                    for ($i = 0; $i < count($_SESSION['memorama_cards']); $i++) {
-                        $card = $_SESSION['memorama_cards'][$i];
-                        $flipped = $_SESSION['memorama_flipped'][$i] ? 'flipped' : '';
-                        $matched = $_SESSION['memorama_matched'][$i] ? 'matched' : '';
-                        echo "<div class='cardMemory $flipped $matched' data-index='$i' data-card='{$card['id']}'>";
-                        echo "<div class='front'></div>";
-                        echo "<div class='back'><img src='../img/plantas/{$card['imagen']}.png' alt='{$card['nombre']}'></div>";
-                        echo "</div>";
+    <div class="page-container">
+        <div class="contenedor">
+            <div class="container">
+                <div class="cards-grid">
+                    <?php
+                    if (isset($_SESSION['memorama_cards'])) {
+                        for ($i = 0; $i < count($_SESSION['memorama_cards']); $i++) {
+                            $card = $_SESSION['memorama_cards'][$i];
+                            $flipped = $_SESSION['memorama_flipped'][$i] ? 'flipped' : '';
+                            $matched = $_SESSION['memorama_matched'][$i] ? 'matched' : '';
+                            echo "<div class='cardMemory $flipped $matched' data-index='$i' data-card='{$card['id']}'>";
+                            echo "<div class='front'></div>";
+                            echo "<div class='back'><img src='../img/plantas/{$card['imagen']}.png' alt='{$card['nombre']}'></div>";
+                            echo "</div>";
+                        }
                     }
-                }
-                ?>
+                    ?>
+                </div>
             </div>
         </div>
     </div>

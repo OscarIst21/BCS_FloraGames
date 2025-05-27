@@ -163,6 +163,27 @@ if (isset($_GET['difficulty'])) {
     header('Location: ahorcado.php');
     exit;
 }
+
+if (isset($_POST['ajax']) && $_POST['ajax'] === 'reset_session') {
+    header('Content-Type: application/json');
+    
+    // Limpiar todas las variables de sesión relacionadas con el juego
+    unset($_SESSION['ahorcado_iniciado']);
+    unset($_SESSION['ahorcado_dificultad']);
+    unset($_SESSION['ahorcado_palabra']);
+    unset($_SESSION['ahorcado_imagen']);
+    unset($_SESSION['ahorcado_letras_adivinadas']);
+    unset($_SESSION['ahorcado_letras_incorrectas']);
+    unset($_SESSION['ahorcado_errores']);
+    unset($_SESSION['ahorcado_tiempo_inicio']);
+    unset($_SESSION['ahorcado_tiempo_transcurrido']);
+    unset($_SESSION['ahorcado_tiempo_fin']);
+    unset($_SESSION['ahorcado_completado']);
+    unset($_SESSION['ahorcado_oportunidades']);
+    
+    echo json_encode(['success' => true]);
+    exit;
+}
 ?>
 
 <!-- El resto del HTML y JavaScript se encuentra más abajo -->
@@ -353,7 +374,7 @@ if (isset($_GET['difficulty'])) {
     
     <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
         <div class="hd-sec-gm" style="display:flex; flex-direction:row; gap:10px">
-            <button class="reset-btn" id="exit" onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
+            <button class="reset-btn" id="exit" title="Volver al menú">
                 <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
             </button>
             <button class="reset-btn" id="musicToggle" title="Música">
@@ -399,69 +420,72 @@ if (isset($_GET['difficulty'])) {
         </div>
     </div>
 
-    <div class="contenedor">
-        <div class="container mt-4">
-        <?php if (isset($_SESSION['ahorcado_palabra'])): ?>
-            <div class="game-container">
-                <div class="game-info">
-                    <div class="info-item" style="display:none">
-                      
+    <div class="page-container">
+        <div class="contenedor">
+            <div class="container mt-4">
+            <?php if (isset($_SESSION['ahorcado_palabra'])): ?>
+                <div class="game-container">
+                    <div class="game-info">
+                        <div class="info-item" style="display:none">
+                        
+                        </div>
+                        
                     </div>
-                    
-                </div>
 
-                <div class="container-img">
-                    <div class="plant-image">
-                        <?php ?>
-                            <img src="../img/plantas/<?php echo $_SESSION['ahorcado_imagen']; ?>" alt="Planta a adivinar" class="img-fluid">
-                        <?php ?>
+                    <div class="container-img">
+                        <div class="plant-image">
+                            <?php ?>
+                                <img src="../img/plantas/<?php echo $_SESSION['ahorcado_imagen']; ?>" alt="Planta a adivinar" class="img-fluid">
+                            <?php ?>
+                        </div>
+                        <div class="hangman-image">
+                            <img src="../img/ahorcado/<?php echo min($_SESSION['ahorcado_errores'] + 1, 6); ?>.png" alt="Ahorcado">
+                        
+                            <div class="word-display" style="color:white">
+                                <?php
+                                $palabra = $_SESSION['ahorcado_palabra'];
+                                for ($i = 0; $i < strlen($palabra); $i++) {
+                                    $letra = strtolower($palabra[$i]);
+                                    $mostrar = in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) ? $palabra[$i] : '';
+                                    echo "<div class='letter-box'>$mostrar</div>";
+                                }
+                                ?>
+                            </div>
+                        </div>
+                        
                     </div>
-                    <div class="hangman-image">
-                        <img src="../img/ahorcado/<?php echo min($_SESSION['ahorcado_errores'] + 1, 6); ?>.png" alt="Ahorcado">
                     
-                        <div class="word-display" style="color:white">
+
+                    <?php if (!$_SESSION['ahorcado_completado']): ?>
+                    <div class="keyboard">
                             <?php
-                            $palabra = $_SESSION['ahorcado_palabra'];
-                            for ($i = 0; $i < strlen($palabra); $i++) {
-                                $letra = strtolower($palabra[$i]);
-                                $mostrar = in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) ? $palabra[$i] : '';
-                                echo "<div class='letter-box'>$mostrar</div>";
+                            foreach (range('a', 'z') as $letra) {
+                                $clase = 'key';
+                                if (in_array($letra, $_SESSION['ahorcado_letras_adivinadas'] ?? [])) {
+                                    $clase .= ' used correct';
+                                } elseif (in_array($letra, $_SESSION['ahorcado_letras_incorrectas'] ?? [])) {
+                                    $clase .= ' used incorrect';
+                                }
+                                echo "<button type='button' class='$clase' data-letra='$letra'" . 
+                                    (in_array($letra, array_merge($_SESSION['ahorcado_letras_adivinadas'] ?? [], $_SESSION['ahorcado_letras_incorrectas'] ?? [])) ? 
+                                    ' disabled' : '') . ">$letra</button>";
                             }
                             ?>
                         </div>
-                    </div>
-                    
+                    <?php else: ?>
+                        <div class="text-center mt-4" style="color:white">
+                            <h4><?php echo $_SESSION['ahorcado_errores'] < $_SESSION['ahorcado_oportunidades'] ? 
+                                '¡Felicidades! Has ganado' : '¡Game Over!'; ?></h4>
+                            <p>La palabra era: <strong><?php echo strtoupper($_SESSION['ahorcado_palabra']); ?></strong></p>
+                            <a href="?reset=1" class="btn btn-success mt-3">Jugar de nuevo</a>
+                            
+                        </div>
+                    <?php endif; ?>
                 </div>
-                
-
-                <?php if (!$_SESSION['ahorcado_completado']): ?>
-                   <div class="keyboard">
-                        <?php
-                        foreach (range('a', 'z') as $letra) {
-                            $clase = 'key';
-                            if (in_array($letra, $_SESSION['ahorcado_letras_adivinadas'] ?? [])) {
-                                $clase .= ' used correct';
-                            } elseif (in_array($letra, $_SESSION['ahorcado_letras_incorrectas'] ?? [])) {
-                                $clase .= ' used incorrect';
-                            }
-                            echo "<button type='button' class='$clase' data-letra='$letra'" . 
-                                (in_array($letra, array_merge($_SESSION['ahorcado_letras_adivinadas'] ?? [], $_SESSION['ahorcado_letras_incorrectas'] ?? [])) ? 
-                                ' disabled' : '') . ">$letra</button>";
-                        }
-                        ?>
-                    </div>
-                <?php else: ?>
-                    <div class="text-center mt-4" style="color:white">
-                        <h4><?php echo $_SESSION['ahorcado_errores'] < $_SESSION['ahorcado_oportunidades'] ? 
-                            '¡Felicidades! Has ganado' : '¡Game Over!'; ?></h4>
-                        <p>La palabra era: <strong><?php echo strtoupper($_SESSION['ahorcado_palabra']); ?></strong></p>
-                        <a href="?reset=1" class="btn btn-success mt-3">Jugar de nuevo</a>
-                        
-                    </div>
-                <?php endif; ?>
+            <?php endif; ?>
             </div>
-        <?php endif; ?>
-    </div>
+        </div>
+
     </div>
 
     <!-- Modal de selección de dificultad -->
@@ -788,6 +812,29 @@ if (isset($_GET['difficulty'])) {
                 }, 300);
             });
         });
+
+        // Manejar clic en el botón Exit
+        document.getElementById('exit').addEventListener('click', function() {
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'ajax=reset_session'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '../view/gamesMenu.php';
+                }
+            })
+            .catch(error => {
+                console.error('Error al reiniciar sesión:', error);
+                // Redirigir incluso si hay un error para no bloquear al usuario
+                window.location.href = '../view/gamesMenu.php';
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             var skipBtn = document.getElementById('skipInstructions');   
             var comoJugarBtn = document.getElementById('comoJugar');

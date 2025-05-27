@@ -389,49 +389,51 @@ if (isset($_SESSION['puzzle_difficulty'])) {
         </div>
     </div>
 
-    <div class="contenedor">
-        <div class="container">
-            <div class="game-info">
-                <div class="info-item">
-                    <span><span id="image-number"><?php echo htmlspecialchars($_SESSION['puzzle_image']); ?></span></span>
+    <div class="page-container">
+        <div class="contenedor">
+            <div class="container">
+                <div class="game-info">
+                    <div class="info-item">
+                        <span><span id="image-number"><?php echo htmlspecialchars($_SESSION['puzzle_image']); ?></span></span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="puzzle-container">
-                <div class="puzzle-grid" id="puzzle-grid">
-                    <?php
-                    $imageNumber = $_SESSION['puzzle_image'];
-                    $state = $_SESSION['puzzle_state'] ?? [];
-                    $gridSize = $_SESSION['puzzle_grid_size'] ?? 3;
-                    
-                    for ($i = 0; $i < $gridSize * $gridSize; $i++) {
-                        $tileNumber = $state[$i] ?? 0;
-                        $isEmpty = ($tileNumber == 0);
-                        $tileClass = $isEmpty ? 'puzzle-tile empty' : 'puzzle-tile';
-                        echo "<div class='$tileClass' data-index='$i' data-tile='$tileNumber'>";
-                        if (!$isEmpty) {
-                            $row = floor(($tileNumber - 1) / $gridSize);
-                            $col = ($tileNumber - 1) % $gridSize;
-                            echo "<div class='number'>$tileNumber</div>";
-                            echo "<div class='tile-image' style='background-image: url(\"../img/plantas/{$imageNumber}\"); background-size: " . ($gridSize * 100) . "%; background-position: " . ($col * 100 / ($gridSize - 1)) . "% " . ($row * 100 / ($gridSize - 1)) . "%;'></div>";
+                <div class="puzzle-container">
+                    <div class="puzzle-grid" id="puzzle-grid">
+                        <?php
+                        $imageNumber = $_SESSION['puzzle_image'];
+                        $state = $_SESSION['puzzle_state'] ?? [];
+                        $gridSize = $_SESSION['puzzle_grid_size'] ?? 3;
+                        
+                        for ($i = 0; $i < $gridSize * $gridSize; $i++) {
+                            $tileNumber = $state[$i] ?? 0;
+                            $isEmpty = ($tileNumber == 0);
+                            $tileClass = $isEmpty ? 'puzzle-tile empty' : 'puzzle-tile';
+                            echo "<div class='$tileClass' data-index='$i' data-tile='$tileNumber'>";
+                            if (!$isEmpty) {
+                                $row = floor(($tileNumber - 1) / $gridSize);
+                                $col = ($tileNumber - 1) % $gridSize;
+                                echo "<div class='number'>$tileNumber</div>";
+                                echo "<div class='tile-image' style='background-image: url(\"../img/plantas/{$imageNumber}\"); background-size: " . ($gridSize * 100) . "%; background-position: " . ($col * 100 / ($gridSize - 1)) . "% " . ($row * 100 / ($gridSize - 1)) . "%;'></div>";
+                            }
+                            echo "</div>";
                         }
+                        ?>
+                    </div>
+                </div>
+                
+                <div class="image-selector mt-4" style="display: none;">
+                    <h6 class="w-100 text-center mb-2" style="color:white">Selecciona una planta:</h6>
+                    <?php
+                    $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
+                    foreach ($plantas as $planta) {
+                        $selected = ($planta['foto'] == $_SESSION['puzzle_image']) ? 'selected' : '';
+                        echo "<div class='image-option $selected' data-image='{$planta['foto']}'>";
+                        echo "<img src='../img/plantas/{$planta['foto']}' alt='{$planta['nombre_comun']}'>";
                         echo "</div>";
                     }
                     ?>
                 </div>
-            </div>
-            
-            <div class="image-selector mt-4" style="display: none;">
-                <h6 class="w-100 text-center mb-2" style="color:white">Selecciona una planta:</h6>
-                <?php
-                $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
-                foreach ($plantas as $planta) {
-                    $selected = ($planta['foto'] == $_SESSION['puzzle_image']) ? 'selected' : '';
-                    echo "<div class='image-option $selected' data-image='{$planta['foto']}'>";
-                    echo "<img src='../img/plantas/{$planta['foto']}' alt='{$planta['nombre_comun']}'>";
-                    echo "</div>";
-                }
-                ?>
             </div>
         </div>
     </div>
