@@ -100,6 +100,16 @@ if (isset($_POST['reset_password'])) {
     $recovery = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($recovery) {
+        // Fetch current hashed password from usuarios
+        $stmt = $conn->prepare("SELECT contrasena FROM usuarios WHERE correo_electronico = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user && password_verify($newPassword, $user['contrasena'])) {
+            $_SESSION['flash']['password_error'] = 'No puedes usar la contraseña anterior. Elige una nueva.';
+            $_SESSION['step'] = 'reset';
+            header("Location: ../view/recuperatePassword.php");
+            exit();
+        }
         // Actualizar contraseña
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
         $stmt = $conn->prepare("UPDATE usuarios SET contrasena = ? WHERE correo_electronico = ?");

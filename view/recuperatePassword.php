@@ -142,9 +142,10 @@
                         <div class="password-container">
                             <input type="password" id="confirm_password" name="confirm_password" required>
                             <?php if (!empty($_SESSION['flash']['password_error'])): ?>
-                                <p class="error-message" style="text-align:right"><?= htmlspecialchars($_SESSION['flash']['password_error']) ?></p>
-                            <?php elseif (!empty($_SESSION['flash']['password_success'])): ?>
-                                <p class="success-message"><?= htmlspecialchars($_SESSION['flash']['password_success']) ?></p>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="text-align:right">
+                                    <?= htmlspecialchars($_SESSION['flash']['password_error']) ?>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
                             <?php endif; ?>
                             <button type="button" class="password-toggle" id="toggleConfirmPassword">
                                 <i class="fas fa-eye"></i>
