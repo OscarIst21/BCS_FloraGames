@@ -485,6 +485,7 @@ if (isset($_SESSION['memorama_difficulty'])) {
                     <button class="difficulty-btn" data-difficulty="notime">Sin tiempo</button>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="comoJugar">¿Cómo jugar?</button>
                     <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
@@ -527,8 +528,7 @@ if (isset($_SESSION['memorama_difficulty'])) {
                     <p>2.- El objetivo es encontrar todos los pares con la menor cantidad de movimientos en el menor tiempo posible.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
-                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
+                    <button type="button" class="btn btn-success" id="skipInstructions">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -732,6 +732,30 @@ if (isset($_SESSION['memorama_difficulty'])) {
                 }, 3000);
             }
         document.addEventListener('DOMContentLoaded', initGame);
+        document.addEventListener('DOMContentLoaded', function() {
+            var skipBtn = document.getElementById('skipInstructions');   
+            var comoJugarBtn = document.getElementById('comoJugar');
+            var instructionsModalEl = document.getElementById('instructionsModal');
+            var instructionsModal = new bootstrap.Modal(instructionsModalEl, {backdrop: 'static', keyboard: false});
+            var dificultadModalEl = document.getElementById('difficultyModal');
+            var dificultadModal = dificultadModalEl ? bootstrap.Modal.getOrCreateInstance(dificultadModalEl) : null;
+            
+            comoJugarBtn.addEventListener('click', function() {
+                if (dificultadModalEl && dificultadModalEl.classList.contains('show')) {
+                    dificultadModal.hide();
+                }
+                instructionsModal.show();
+            });
+            skipBtn.addEventListener('click', function() {
+                instructionsModal.hide();
+                if (dificultadModal) {
+                    dificultadModal.show();
+                }
+            });
+        });
+        </script>
+    </div>
+    <script>
         function savePoints(points) {
             console.log('Intentando guardar puntos:', points); // Añadir para depuración
             
