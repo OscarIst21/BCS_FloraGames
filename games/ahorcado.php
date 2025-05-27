@@ -21,7 +21,13 @@ if (isset($_SESSION['user'])) {
         error_log("Error fetching music preference: " . $e->getMessage());
     }
 }
-
+function normalizarCaracter($letra) {
+    $mapaAcentos = [
+        'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+        'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U'
+    ];
+    return isset($mapaAcentos[$letra]) ? $mapaAcentos[$letra] : $letra;
+}
 // Obtener nombres de plantas desde la base de datos
 function obtenerPalabrasPorDificultad() {
     $db = new Database();
@@ -37,7 +43,7 @@ function obtenerPalabrasPorDificultad() {
     foreach ($plantas as $planta) {
         if (mb_strlen($planta['nombre_comun']) <= 8) {
             $palabras['facil'][] = $planta;
-        } else {
+        } else if(mb_strlen($planta['nombre_comun']) <= 15){
             $palabras['dificil'][] = $planta;
         }
     }
@@ -71,16 +77,26 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'process_letter' && isset($_SESS
     if (!in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) && 
         !in_array($letra, $_SESSION['ahorcado_letras_incorrectas'])) {
         
-        $letras_en_palabra = array_filter(str_split(strtolower($_SESSION['ahorcado_palabra'])), function($l) use ($letra) {
-            return $l === $letra;
-        });
+        // Normalizar la palabra y la letra ingresada
+        $palabra_minuscula = strtolower($_SESSION['ahorcado_palabra']);
+        $letra_normalizada = normalizarCaracter($letra);
+        $letras_en_palabra = [];
+        
+        // Comparar letras normalizadas, ignorando espacios
+        for ($i = 0; $i < strlen($palabra_minuscula); $i++) {
+            if ($palabra_minuscula[$i] !== ' ' && normalizarCaracter($palabra_minuscula[$i]) === $letra_normalizada) {
+                $letras_en_palabra[] = $i; // Guardar posiciones de coincidencias
+            }
+        }
         
         if (!empty($letras_en_palabra)) {
             $_SESSION['ahorcado_letras_adivinadas'][] = $letra;
+            // Verificar si la palabra está completa, ignorando espacios
             $palabra_completa = true;
-            $palabra_minuscula = strtolower($_SESSION['ahorcado_palabra']);
             for ($i = 0; $i < strlen($palabra_minuscula); $i++) {
-                if (!in_array($palabra_minuscula[$i], $_SESSION['ahorcado_letras_adivinadas'])) {
+                if ($palabra_minuscula[$i] !== ' ' && 
+                    !in_array(normalizarCaracter($palabra_minuscula[$i]), 
+                             array_map('normalizarCaracter', $_SESSION['ahorcado_letras_adivinadas']))) {
                     $palabra_completa = false;
                     break;
                 }
@@ -106,13 +122,19 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'process_letter' && isset($_SESS
         $response['success'] = true;
     }
     
-    // Generar la palabra para mostrar
+    // Generar la palabra para mostrar, incluyendo espacios
     $word_display = '';
     $palabra = $_SESSION['ahorcado_palabra'];
     for ($i = 0; $i < strlen($palabra); $i++) {
-        $letra = strtolower($palabra[$i]);
-        $mostrar = in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) ? $palabra[$i] : '';
-        $word_display .= "<div class='letter-box'>$mostrar</div>";
+        $letra_palabra = strtolower($palabra[$i]);
+        if ($letra_palabra === ' ') {
+            $word_display .= "<div class='letter-box' style='border-bottom:none'> </div>"; // Espacio sin línea inferior
+        } else {
+            $mostrar = in_array(normalizarCaracter($letra_palabra), 
+                               array_map('normalizarCaracter', $_SESSION['ahorcado_letras_adivinadas'])) 
+                       ? $palabra[$i] : '';
+            $word_display .= "<div class='letter-box'>$mostrar</div>";
+        }
     }
     $response['word_display'] = $word_display;
     $response['errors'] = $_SESSION['ahorcado_errores'];
@@ -442,15 +464,22 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'reset_session') {
                             <img src="../img/ahorcado/<?php echo min($_SESSION['ahorcado_errores'] + 1, 6); ?>.png" alt="Ahorcado">
                         
                             <div class="word-display" style="color:white">
-                                <?php
-                                $palabra = $_SESSION['ahorcado_palabra'];
-                                for ($i = 0; $i < strlen($palabra); $i++) {
-                                    $letra = strtolower($palabra[$i]);
-                                    $mostrar = in_array($letra, $_SESSION['ahorcado_letras_adivinadas']) ? $palabra[$i] : '';
-                                    echo "<div class='letter-box'>$mostrar</div>";
-                                }
-                                ?>
-                            </div>
+                        <?php
+                        $palabra = $_SESSION['ahorcado_palabra'];
+                        for ($i = 0; $i < strlen($palabra); $i++) {
+                            $letra = strtolower($palabra[$i]);
+                            if ($letra === ' ') {
+                                $mostrar = ' '; // Mostrar espacio directamente
+                            } else {
+                                $mostrar = in_array(normalizarCaracter($letra), 
+                                                array_map('normalizarCaracter', $_SESSION['ahorcado_letras_adivinadas'] ?? [])) 
+                                        ? $palabra[$i] : '';
+                            }
+                            echo "<div class='letter-box'>$mostrar</div>";
+                        }
+                        ?>
+                    </div>
+                        </div>
                         </div>
                         
                     </div>
