@@ -1,5 +1,29 @@
 <?php
 session_start();
+require_once __DIR__ . '/../connection/database.php';
+
+// Initialize user and music preference
+$userId = null;
+$musicEnabled = true;
+
+if (isset($_SESSION['usuario_id'])) {
+    $userId = $_SESSION['usuario_id'];
+    try {
+        $db = new Database();
+        $conn = $db->getConnection();
+        $stmt = $conn->prepare("SELECT musica_activada FROM usuarios WHERE id = ?");
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $musicEnabled = (bool)$result['musica_activada'];
+    } catch (PDOException $e) {
+        error_log("Error fetching music preference: " . $e->getMessage());
+    }
+}
+
+// Always reset difficulty on initial load to force modal
+if (!isset($_GET['difficulty']) && !isset($_POST['action']) && !isset($_GET['reset']) && !isset($_GET['image'])) {
+    unset($_SESSION['puzzle_difficulty']);
+}
 
 // Reiniciar el juego si se solicita
 if (isset($_GET['reset']) || !isset($_SESSION['puzzle_state'])) {
@@ -7,7 +31,9 @@ if (isset($_GET['reset']) || !isset($_SESSION['puzzle_state'])) {
     unset($_SESSION['puzzle_moves']);
     unset($_SESSION['puzzle_start_time']);
     unset($_SESSION['puzzle_image']);
-    unset($_SESSION['puzzle_difficulty']); // También reiniciar la dificultad
+    unset($_SESSION['puzzle_nombre']);
+    unset($_SESSION['puzzle_difficulty']);
+    unset($_SESSION['puzzle_grid_size']);
 }
 
 // Inicializar variables de sesión si no existen
@@ -18,11 +44,18 @@ if (!isset($_SESSION['puzzle_difficulty'])) {
 if (!isset($_SESSION['puzzle_image'])) {
     if (isset($_GET['image'])) {
         $_SESSION['puzzle_image'] = $_GET['image'];
+        $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
+        foreach ($plantas as $planta) {
+            if ($planta['foto'] === $_GET['image']) {
+                $_SESSION['puzzle_nombre'] = $planta['nombre_comun'];
+                break;
+            }
+        }
     } else {
         $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
         $plantaRandom = $plantas[array_rand($plantas)];
-        $_SESSION['puzzle_image'] = $plantaRandom['foto']; // Guarda el nombre de la imagen
-        $_SESSION['puzzle_nombre'] = $plantaRandom['nombre_comun']; // Opcional: guarda el nombre
+        $_SESSION['puzzle_image'] = $plantaRandom['foto'];
+        $_SESSION['puzzle_nombre'] = $plantaRandom['nombre_comun'];
     }
 }
 
@@ -34,24 +67,19 @@ if (isset($_SESSION['puzzle_start_time'])) {
 
 // Inicializar el juego si no existe o si se cambió la dificultad
 if (!isset($_SESSION['puzzle_state']) || (isset($_GET['difficulty']) && $_GET['difficulty'] != $_SESSION['puzzle_difficulty'])) {
-    // Actualizar dificultad si se proporciona
     if (isset($_GET['difficulty'])) {
         $_SESSION['puzzle_difficulty'] = $_GET['difficulty'];
     }
     
-    // Determinar número de piezas según la dificultad
-    $gridSize = 3; // Valor predeterminado (3x3 = 9 piezas, 8 + espacio vacío)
-    
+    $gridSize = 3; // Default (3x3)
     if ($_SESSION['puzzle_difficulty'] == 'hard') {
-        $gridSize = 4; // 4x4 = 16 piezas, 15 + espacio vacío
+        $gridSize = 4; // 4x4
     }
     
-    // Crear estado inicial del puzzle (0 representa el espacio vacío)
     $totalTiles = ($gridSize * $gridSize) - 1;
     $tiles = range(1, $totalTiles);
-    $tiles[] = 0; // Espacio vacío
+    $tiles[] = 0; // Empty space
     
-    // Mezclar las piezas (asegurando que sea resoluble)
     do {
         shuffle($tiles);
     } while (!isPuzzleSolvable($tiles, $gridSize));
@@ -70,20 +98,15 @@ if (isset($_POST['action'])) {
         $index = (int)$_POST['index'];
         $state = $_SESSION['puzzle_state'];
         
-        // Encontrar la posición del espacio vacío
         $emptyIndex = array_search(0, $state);
         
-        // Verificar si el movimiento es válido (adyacente al espacio vacío)
         if (isValidMove($index, $emptyIndex)) {
-            // Intercambiar la pieza con el espacio vacío
             $state[$emptyIndex] = $state[$index];
             $state[$index] = 0;
             
-            // Actualizar el estado y contar el movimiento
             $_SESSION['puzzle_state'] = $state;
             $_SESSION['puzzle_moves']++;
             
-            // Verificar si el puzzle está resuelto
             $solved = isPuzzleSolved($state);
             
             $response = [
@@ -93,7 +116,6 @@ if (isset($_POST['action'])) {
                 'solved' => $solved
             ];
             
-            // Si está resuelto, calcular puntos
             if ($solved) {
                 $endTime = time();
                 $duration = $endTime - $_SESSION['puzzle_start_time'];
@@ -102,7 +124,6 @@ if (isset($_POST['action'])) {
                 $response['points'] = $points;
                 $response['time'] = formatTime($duration);
                 
-                // Guardar resultado en la base de datos si el usuario está autenticado
                 if (isset($_SESSION['usuario_id'])) {
                     saveGameResult(true, $duration, $points);
                 }
@@ -119,17 +140,13 @@ if (isset($_POST['action'])) {
 function isValidMove($tileIndex, $emptyIndex) {
     $gridSize = $_SESSION['puzzle_grid_size'];
     
-    // Calcular la posición en la cuadrícula
     $tileRow = floor($tileIndex / $gridSize);
     $tileCol = $tileIndex % $gridSize;
     $emptyRow = floor($emptyIndex / $gridSize);
     $emptyCol = $emptyIndex % $gridSize;
     
-    // El movimiento es válido si la pieza está adyacente al espacio vacío
     return (
-        // Misma fila, columna adyacente
         ($tileRow == $emptyRow && abs($tileCol - $emptyCol) == 1) ||
-        // Misma columna, fila adyacente
         ($tileCol == $emptyCol && abs($tileRow - $emptyRow) == 1)
     );
 }
@@ -139,7 +156,6 @@ function isPuzzleSolved($state) {
     $gridSize = $_SESSION['puzzle_grid_size'];
     $totalTiles = $gridSize * $gridSize;
     
-    // El puzzle está resuelto si las piezas están en orden del 1 al N y el espacio vacío al final
     $solved = true;
     for ($i = 0; $i < $totalTiles - 1; $i++) {
         if ($state[$i] != $i + 1) {
@@ -155,25 +171,19 @@ function isPuzzleSolvable($tiles, $gridSize) {
     $inversions = 0;
     $emptyPosition = array_search(0, $tiles);
     
-    // Contar inversiones
     for ($i = 0; $i < count($tiles) - 1; $i++) {
         if ($tiles[$i] == 0) continue;
-        
         for ($j = $i + 1; $j < count($tiles); $j++) {
             if ($tiles[$j] == 0) continue;
-            
             if ($tiles[$i] > $tiles[$j]) {
                 $inversions++;
             }
         }
     }
     
-    // Para grid de tamaño impar (3x3, 5x5, etc.)
     if ($gridSize % 2 == 1) {
         return $inversions % 2 == 0;
-    } 
-    // Para grid de tamaño par (4x4, 6x6, etc.)
-    else {
+    } else {
         $emptyRow = floor($emptyPosition / $gridSize);
         return ($emptyRow % 2 == 0) ? ($inversions % 2 == 1) : ($inversions % 2 == 0);
     }
@@ -181,22 +191,10 @@ function isPuzzleSolvable($tiles, $gridSize) {
 
 // Función para calcular puntos
 function calculatePoints($moves, $duration) {
-    // Base de puntos
     $basePoints = 300;
-    
-    // Determinar multiplicador según dificultad
-    $difficultyMultiplier = 1;
-    if ($_SESSION['puzzle_difficulty'] == 'hard') {
-        $difficultyMultiplier = 1.5;
-    }
-    
-    // Penalización por movimientos (menos movimientos = más puntos)
+    $difficultyMultiplier = ($_SESSION['puzzle_difficulty'] == 'hard') ? 1.5 : 1;
     $movesFactor = max(0.5, 1 - ($moves / 100));
-    
-    // Penalización por tiempo (menos tiempo = más puntos)
     $timeFactor = max(0.5, 1 - ($duration / 300));
-    
-    // Calcular puntos totales
     return round($basePoints * $difficultyMultiplier * $movesFactor * $timeFactor);
 }
 
@@ -209,72 +207,78 @@ function formatTime($seconds) {
 
 // Función para guardar el resultado del juego
 function saveGameResult($won, $duration, $points) {
-    // Preparar datos para la API
-    $data = [
-        'usuario_id' => $_SESSION['usuario_id'],
-        'duracion' => $duration,
-        'fue_ganado' => $won ? 1 : 0,
-        'puntos' => $points  // Añadir los puntos a los datos enviados
-    ];
-    
-    // Convertir a JSON
-    $jsonData = json_encode($data);
-    
-    // Configurar la solicitud
-    $ch = curl_init('../config/saveGameResult.php');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($jsonData)
-    ]);
-    
-    // Ejecutar la solicitud
-    $result = curl_exec($ch);
-    curl_close($ch);
-    
-    return $result;
+    if (!isset($_SESSION['usuario_id'])) {
+        return;
+    }
+
+    try {
+        $db = new Database();
+        $conn = $db->getConnection();
+        
+        $stmt = $conn->prepare("
+            INSERT INTO resultados_juegos (usuario_id, juego, duracion, fue_ganado, puntos, fecha)
+            VALUES (?, ?, ?, ?, ?, NOW())
+        ");
+        $stmt->execute([
+            $_SESSION['usuario_id'],
+            'puzzleDeslizante',
+            $duration,
+            $won ? 1 : 0,
+            $points
+        ]);
+
+        $stmt = $conn->prepare("
+            UPDATE usuarios 
+            SET puntos_totales = puntos_totales + ?
+            WHERE id = ?
+        ");
+        $stmt->execute([$points, $_SESSION['usuario_id']]);
+    } catch (PDOException $e) {
+        error_log("Error al guardar resultado: " . $e->getMessage());
+    }
+}
+
+// Texto de dificultad para mostrar
+$difficultyText = 'Fácil';
+if (isset($_SESSION['puzzle_difficulty'])) {
+    if ($_SESSION['puzzle_difficulty'] == 'hard') {
+        $difficultyText = 'Difícil';
+    }
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Puzzle Deslizante</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Deslizante - BCS Flora Games</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/styleGames.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
     <style>
-     
-        .game-info{
-            display:none;
+        .game-info {
+            display: none;
         }
-
         .info-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
         .puzzle-container {
             background-color: rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             padding: 1rem;
             margin-bottom: 1rem;
         }
-        
         .puzzle-grid {
             display: grid;
-            grid-template-columns: repeat(<?php echo $_SESSION['puzzle_grid_size']; ?>, 1fr);
+            grid-template-columns: repeat(<?php echo $_SESSION['puzzle_grid_size'] ?? 3; ?>, 1fr);
             grid-gap: 5px;
             max-width: 500px;
             margin: 0 auto;
         }
-        
         .puzzle-tile {
             position: relative;
             aspect-ratio: 1/1;
@@ -287,16 +291,13 @@ function saveGameResult($won, $duration, $points) {
             overflow: hidden;
             transition: transform 0.2s;
         }
-      
         .puzzle-tile:not(.empty):hover {
             transform: scale(0.95);
         }
-        
         .puzzle-tile.empty {
             background-color: transparent;
             cursor: default;
         }
-        
         .puzzle-tile .number {
             position: absolute;
             top: 5px;
@@ -312,7 +313,6 @@ function saveGameResult($won, $duration, $points) {
             font-size: 12px;
             z-index: 1;
         }
-        
         .tile-image {
             position: absolute;
             top: 0;
@@ -321,7 +321,6 @@ function saveGameResult($won, $duration, $points) {
             height: 100%;
             background-repeat: no-repeat;
         }
-        
         .image-selector {
             display: flex;
             flex-wrap: wrap;
@@ -331,7 +330,6 @@ function saveGameResult($won, $duration, $points) {
             border-radius: 10px;
             padding: 1rem;
         }
-        
         .image-option {
             width: 60px;
             height: 60px;
@@ -341,32 +339,20 @@ function saveGameResult($won, $duration, $points) {
             transition: transform 0.2s;
             border: 2px solid transparent;
         }
-        
         .image-option:hover {
             transform: scale(1.1);
         }
-        
         .image-option.selected {
             border-color: #2E8B57;
         }
-        
         .image-option img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        
-
-        .victory-stats {
-            margin: 1rem 0;
-            text-align: center;
-        }
-    
-    
         .navbar {
             z-index: 1030;
         }
-        
     </style>
 </head>
 <body>
@@ -374,92 +360,80 @@ function saveGameResult($won, $duration, $points) {
 
     <div class="header-secundary" style="color:#246741; display: flex; align-items: center;">
         <div class="hd-sec-gm" style="display:flex; flex-direction:row; gap:10px">
-            <button class="reset-btn"onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
-               <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
+            <button class="reset-btn" onclick="window.location.href='../view/gamesMenu.php'" title="Volver al menú">
+                <h5><i class="fas fa-sign-out-alt fa-flip-horizontal"></i></h5>
             </button>
-            <button class="reset-btn" id="musicToggle"  title="Música">
-                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>" ></i></h5>
+            <button class="reset-btn" id="musicToggle" title="Música">
+                <h5><i class="fa-solid <?php echo $musicEnabled ? 'fa-volume-high' : 'fa-volume-xmark'; ?>"></i></h5>
             </button>
             <audio id="gameMusic" loop <?php echo $musicEnabled ? 'autoplay' : ''; ?>>
                 <source src="../assets/musica.mp3" type="audio/mp3">
             </audio>
-            <button class="reset-btn btn-success" id="reset-btn"  title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></h5></i></button>
+            <button class="reset-btn btn-success" id="reset-btn" title="Reiniciar"><h5><i class="fa-solid fa-arrow-rotate-right"></i></h5></button>
         </div>
         <div style="text-align:center">
-            <h5 style="margin:0">Puzzle deslizante</h5>
-            <div class="level">Modo facil - <?php echo $_SESSION['puzzle_nombre']; ?>: </div>
+            <h5 style="margin:0">Puzzle Deslizante</h5>
+            <div class="level">Modo: <?php echo $difficultyText; ?> - Planta: <?php echo htmlspecialchars($_SESSION['puzzle_nombre'] ?? 'Desconocida'); ?></div>
         </div>
-        <divstyle="display:flex; flex-direction:row; gap:10px">
+        <div style="display:flex; flex-direction:row; gap:10px">
             <div>
                 <div class="hd-sec-gm-v3" style="display:flex; flex-direction:row; gap:10px">
                     <div class="me-2">
-                        <h5><span><i class="fa-solid fa-up-down-left-right me-2"></i><span id="moves"><?php echo $_SESSION['puzzle_moves']; ?></span></span></h5> 
+                        <h5><i class="fa-solid fa-up-down-left-right me-2"></i><span id="moves"><?php echo $_SESSION['puzzle_moves'] ?? 0; ?></span></h5>
                     </div>
-                    
-                     <div class="timer"> <h5><i class="fa-solid fa-clock me-2"></i></h5><h5 id="timer"> 00:00</h5></div>
+                    <div class="timer">
+                        <h5><i class="fa-solid fa-clock me-2"></i><span id="timer"><?php echo formatTime($elapsedTime); ?></span></h5>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <?php
-    // Texto de dificultad para mostrar
-    $difficultyText = 'Sin seleccionar';
-    if (isset($_SESSION['puzzle_difficulty'])) {
-        if ($_SESSION['puzzle_difficulty'] == 'easy') {
-            $difficultyText = 'Fácil';
-        } elseif ($_SESSION['puzzle_difficulty'] == 'hard') {
-            $difficultyText = 'Difícil';
-        }
-    }
-    ?>
 
     <div class="contenedor">
-    <div class="container">
-        <div class="game-info">
-            <div class="info-item">
-                <span><span id="image-number"><?php echo $_SESSION['puzzle_image']; ?></span></span>
+        <div class="container">
+            <div class="game-info">
+                <div class="info-item">
+                    <span><span id="image-number"><?php echo htmlspecialchars($_SESSION['puzzle_image']); ?></span></span>
+                </div>
+            </div>
+
+            <div class="puzzle-container">
+                <div class="puzzle-grid" id="puzzle-grid">
+                    <?php
+                    $imageNumber = $_SESSION['puzzle_image'];
+                    $state = $_SESSION['puzzle_state'] ?? [];
+                    $gridSize = $_SESSION['puzzle_grid_size'] ?? 3;
+                    
+                    for ($i = 0; $i < $gridSize * $gridSize; $i++) {
+                        $tileNumber = $state[$i] ?? 0;
+                        $isEmpty = ($tileNumber == 0);
+                        $tileClass = $isEmpty ? 'puzzle-tile empty' : 'puzzle-tile';
+                        echo "<div class='$tileClass' data-index='$i' data-tile='$tileNumber'>";
+                        if (!$isEmpty) {
+                            $row = floor(($tileNumber - 1) / $gridSize);
+                            $col = ($tileNumber - 1) % $gridSize;
+                            echo "<div class='number'>$tileNumber</div>";
+                            echo "<div class='tile-image' style='background-image: url(\"../img/plantas/{$imageNumber}\"); background-size: " . ($gridSize * 100) . "%; background-position: " . ($col * 100 / ($gridSize - 1)) . "% " . ($row * 100 / ($gridSize - 1)) . "%;'></div>";
+                        }
+                        echo "</div>";
+                    }
+                    ?>
+                </div>
             </div>
             
-        </div>
-
-        <div class="puzzle-container">
-            <div class="puzzle-grid" id="puzzle-grid">
+            <div class="image-selector mt-4" style="display: none;">
+                <h6 class="w-100 text-center mb-2" style="color:white">Selecciona una planta:</h6>
                 <?php
-                $imageNumber = $_SESSION['puzzle_image'];
-                $state = $_SESSION['puzzle_state'];
-                $gridSize = $_SESSION['puzzle_grid_size'];
-                
-                for ($i = 0; $i < $gridSize * $gridSize; $i++) {
-                    $tileNumber = $state[$i];
-                    $isEmpty = ($tileNumber == 0);
-                    $tileClass = $isEmpty ? 'puzzle-tile empty' : 'puzzle-tile';
-                    echo "<div class='$tileClass' data-index='$i' data-tile='$tileNumber'>";
-                    if (!$isEmpty) {
-                        $row = floor(($tileNumber - 1) / $gridSize);
-                        $col = ($tileNumber - 1) % $gridSize;
-                        echo "<div class='number'>$tileNumber</div>";
-                        echo "<div class='tile-image' style='background-image: url(\"../img/plantas/{$imageNumber}\"); background-size: " . ($gridSize * 100) . "%; background-position: " . ($col * 100 / ($gridSize - 1)) . "% " . ($row * 100 / ($gridSize - 1)) . "%;'></div>";
-                    }
+                $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
+                foreach ($plantas as $planta) {
+                    $selected = ($planta['foto'] == $_SESSION['puzzle_image']) ? 'selected' : '';
+                    echo "<div class='image-option $selected' data-image='{$planta['foto']}'>";
+                    echo "<img src='../img/plantas/{$planta['foto']}' alt='{$planta['nombre_comun']}'>";
                     echo "</div>";
                 }
                 ?>
             </div>
         </div>
-        
-        <div class="image-selector mt-4" style="display: none;">
-            <h6 class="w-100 text-center mb-2" style="color:White">Selecciona una planta:</h6>
-            <?php
-            for ($i = 1; $i <= 15; $i++) {
-                $plantas = json_decode(file_get_contents(__DIR__ . '/../config/plantas.json'), true);
-                $planta = $plantas[$i-1];
-                $selected = ($planta['foto'] == $_SESSION['puzzle_image']) ? 'selected' : '';
-                echo "<div class='image-option $selected' data-image='{$planta['foto']}'>";
-                echo "<img src='../img/plantas/{$planta['foto']}' alt='Imagen {$planta['nombre_comun']}'>";
-                echo "</div>";
-            }
-            ?>
-        </div>
-    </div>
     </div>
 
     <!-- Modal de selección de dificultad -->
@@ -471,10 +445,9 @@ function saveGameResult($won, $duration, $points) {
                 </div>
                 <div class="modal-body">
                     <p><strong>Fácil:</strong> (8 piezas)</p>
-                    <button class="difficulty-btn" data-difficulty="easy">Fácil</button>
-
+                    <button class="difficulty-btn " data-difficulty="easy">Fácil</button>
                     <p><strong>Difícil:</strong> (15 piezas)</p>
-                    <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
+                    <button class="difficulty-btn " data-difficulty="hard">Difícil</button>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
@@ -493,7 +466,7 @@ function saveGameResult($won, $duration, $points) {
                 <div class="modal-body text-center">
                     <p>Has completado el puzzle correctamente</p>
                     <div class="victory-stats">
-                        <p><i class="fas fa-image me-2"></i> Planta: <span id="victory-image"><?php echo $_SESSION['puzzle_nombre']; ?></span></p>
+                        <p><i class="fas fa-image me-2"></i> Planta: <span id="victory-image"><?php echo htmlspecialchars($_SESSION['puzzle_nombre'] ?? 'Desconocida'); ?></span></p>
                         <p><i class="fas fa-sync-alt me-2"></i> Movimientos: <span id="victory-moves">0</span></p>
                         <p><i class="fas fa-clock me-2"></i> Tiempo: <span id="victory-time">00:00</span></p>
                         <p><i class="fas fa-star me-2"></i> Puntos: <span id="victory-points">0</span></p>
@@ -507,312 +480,173 @@ function saveGameResult($won, $duration, $points) {
         </div>
     </div>
 
-     <?php include '../components/footer.php'; ?>
+    <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        let timerInterval;
+        let elapsedTime = <?php echo $elapsedTime; ?>;
+        let moves = <?php echo $_SESSION['puzzle_moves'] ?? 0; ?>;
+        let gameMode = '<?php echo $_SESSION['puzzle_difficulty'] ?? ''; ?>';
+        const isAuthenticated = <?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>;
+        let difficultyModal;
+        let victoryModal;
 
-            // Botones de selección de dificultad
-            document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const diff = btn.dataset.difficulty;         // easy | hard | notime
-                    window.location.href = `?difficulty=${diff}`; // recarga con el parámetro
-                });
-            });
-
-            // Elementos del DOM
-            const puzzleGrid = document.getElementById('puzzle-grid');
-            const movesElement = document.getElementById('moves');
-            const timerElement = document.getElementById('timer');
-            const resetButton = document.getElementById('reset-btn');
-            const imageOptions = document.querySelectorAll('.image-option');
-            
-            // Variables del juego
-            let timerInterval;
-            let startTime = <?php echo isset($_SESSION['puzzle_start_time']) ? $_SESSION['puzzle_start_time'] : 'Math.floor(Date.now() / 1000)'; ?>;
-            let elapsedTime = <?php echo isset($elapsedTime) ? $elapsedTime : 0; ?>;
-            let timeElapsed = elapsedTime; // Add this line to initialize timeElapsed
-            let gameMode = '<?php echo isset($_SESSION['puzzle_difficulty']) ? $_SESSION['puzzle_difficulty'] : ''; ?>';
-            
-            // Modales
-            const difficultyModalElement = document.getElementById('difficultyModal');
-            const difficultyModal = new bootstrap.Modal(difficultyModalElement, {
+        function initGame() {
+            // Initialize modals
+            difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'), {
                 backdrop: 'static',
                 keyboard: false
             });
-        
-            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
-            
-            // Función para guardar puntos en la base de datos
-            function savePoints(points) {
-                fetch('../config/updatePoints.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `points=${points}&game=puzzleDeslizante`
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log('Puntos actualizados:', data);
-                })
-                .catch(error => {
-                    console.error('Error al actualizar puntos:', error);
-                });
-            }
-        
-            // Mostrar modal de dificultad si no se ha seleccionado
+            victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+
+            // Show difficulty modal if no difficulty is set
             if (!gameMode) {
-                // Asegurarse de que el modal se muestre correctamente
-                setTimeout(() => {
-                    difficultyModal.show();
-                }, 500);
+                difficultyModal.show();
             } else {
-                // Iniciar temporizador si el juego ya está en progreso
                 startTimer();
             }
-        
-            // Configurar eventos de las piezas del puzzle
+
+            // Set up event listeners
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const diff = btn.dataset.difficulty;
+                    difficultyModal.hide();
+                    window.location.href = `?difficulty=${diff}`;
+                });
+            });
+
             const tiles = document.querySelectorAll('.puzzle-tile:not(.empty)');
             tiles.forEach(tile => {
                 tile.addEventListener('click', () => moveTile(tile));
             });
-        
-            // Configurar botón de reinicio
-            resetButton.addEventListener('click', () => {
-                window.location.href = '?reset=1';
+
+            document.getElementById('reset-btn').addEventListener('click', () => {
+                if (confirm('¿Estás seguro de que quieres reiniciar el juego?')) {
+                    clearInterval(timerInterval);
+                    window.location.href = '?reset=1';
+                }
             });
-        
-            // Configurar selección de imagen
-            imageOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const imageNumber = this.dataset.image;
-                    window.location.href = `?image=${imageNumber}`;
+
+            document.querySelectorAll('.image-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const image = option.dataset.image;
+                    window.location.href = `?image=${image}`;
                 });
             });
-        
-            // Configurar botones del modal de victoria
-            document.getElementById('continue-btn').addEventListener('click', function() {
-                window.location.href = '?reset=1';
-            });
-        
-            document.getElementById('exit-btn').addEventListener('click', function() {
-                window.location.href = '../view/gamesMenu.php';
-            });
-            document.getElementById('exit-btn2').addEventListener('click', function() {
-                window.location.href = '../view/gamesMenu.php';
-            });
-            // Función para iniciar el temporizador
-            function startTimer() {
-                // Actualizar el temporizador cada segundo
-                timerInterval = setInterval(() => {
-                    elapsedTime++;
-                    
-                    // Formatear el tiempo (minutos:segundos)
-                    timerElement.textContent = formatTime(elapsedTime);
-                }, 1000);
-            }
-            
-            // Función para formatear el tiempo en JavaScript
-            function formatTime(seconds) {
-                const minutes = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            }
-            
-            // Configurar botones del modal de victoria
-            document.getElementById('continue-btn').addEventListener('click', function() {
-                window.location.href = '?reset=1';
-            });
-        
-            document.getElementById('exit-btn').addEventListener('click', function() {
-                window.location.href = '../view/gamesMenu.php';
-            });
-            
-            
 
-function moveTile(tile) {
-    const index = parseInt(tile.dataset.index);
-    
-    fetch('PuzzleDeslizante.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `action=move&index=${index}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            updatePuzzleState(data.state);
-            movesElement.textContent = data.moves;
-            
-            if (data.solved) {
-                clearInterval(timerInterval);
-                
-                // Actualizar estadísticas de victoria
-                document.getElementById('victory-moves').textContent = data.moves;
-                document.getElementById('victory-time').textContent = data.time;
-                document.getElementById('victory-points').textContent = data.points;
-                
-                // Guardar resultados si el usuario está autenticado
-                if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                    saveGameData(data.points, data.duration || elapsedTime)
-                        .then(() => {
-                            victoryModal.show();
-                        })
-                        .catch(error => {
-                            console.error('Error al guardar datos:', error);
-                            victoryModal.show(); // Mostrar modal aunque falle el guardado
-                        });
+            document.getElementById('continue-btn').addEventListener('click', () => {
+                window.location.href = '?reset=1';
+            });
+
+            document.getElementById('exit-btn').addEventListener('click', () => {
+                window.location.href = '../view/gamesMenu.php';
+            });
+
+            document.getElementById('exit-btn2').addEventListener('click', () => {
+                window.location.href = '../view/gamesMenu.php';
+            });
+
+            document.getElementById('musicToggle').addEventListener('click', () => {
+                const audio = document.getElementById('gameMusic');
+                if (audio.paused) {
+                    audio.play();
+                    this.querySelector('i').classList.remove('fa-volume-xmark');
+                    this.querySelector('i').classList.add('fa-volume-high');
+                    fetch('../config/updateMusicPreference.php?enable=1');
                 } else {
-                    victoryModal.show();
+                    audio.pause();
+                    this.querySelector('i').classList.remove('fa-volume-high');
+                    this.querySelector('i').classList.add('fa-volume-xmark');
+                    fetch('../config/updateMusicPreference.php?enable=0');
                 }
-            }
+            });
         }
-    })
-    .catch(error => console.error('Error:', error));
-}
 
-// Función para guardar todos los datos del juego
-function saveGameData(points, duration) {
-    return savePoints(points)
-        .then(() => saveGameResult(true, duration));
-}
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                elapsedTime++;
+                document.getElementById('timer').textContent = formatTime(elapsedTime);
+            }, 1000);
+        }
 
-// Función para guardar puntos
-function savePoints(points) {
-    return new Promise((resolve, reject) => {
-        fetch('../config/updatePoints.php', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `points=${points}&game=puzzleDeslizante&usuario_id=<?php echo $_SESSION['usuario_id'] ?? ''; ?>`
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Error en la respuesta');
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                resolve(data);
-            } else {
-                reject(data.message || 'Error desconocido');
-            }
-        })
-        .catch(error => reject(error));
-    });
-}
-// Función para guardar el resultado del juego
-function saveGameResult(won, duration) {
-    return new Promise((resolve, reject) => {
-        // Solo guardar si el usuario está autenticado
-        if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-            // Crear objeto con los datos
-            const data = {
-                usuario_id: <?php echo $_SESSION['usuario_id'] ?? 'null'; ?>,
-                duracion: duration,
-                fue_ganado: won ? 1 : 0
-            };
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function moveTile(tile) {
+            const index = parseInt(tile.dataset.index);
             
-            fetch('../config/saveGameResult.php', {
+            fetch('PuzzleDeslizante.php', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `action=move&index=${index}`
             })
-            .then(response => {
-                if (!response.ok) throw new Error('Error en la respuesta');
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    resolve(data);
-                } else {
-                    reject(data.message || 'Error desconocido');
+                    updatePuzzleState(data.state);
+                    moves = data.moves;
+                    document.getElementById('moves').textContent = moves;
+                    
+                    if (data.solved) {
+                        clearInterval(timerInterval);
+                        document.getElementById('victory-moves').textContent = data.moves;
+                        document.getElementById('victory-time').textContent = data.time;
+                        document.getElementById('victory-points').textContent = data.points;
+                        
+                        victoryModal.show();
+                    }
                 }
             })
-            .catch(error => reject(error));
-        } else {
-            resolve({success: true, message: 'Usuario no autenticado, no se guardó resultado'});
+            .catch(error => console.error('Error:', error));
         }
-    });
-}
-            // Función para actualizar el estado del puzzle en la interfaz
-            function updatePuzzleState(state) {
-                // Limpiar el grid
-                puzzleGrid.innerHTML = '';
+
+        function updatePuzzleState(state) {
+            const puzzleGrid = document.getElementById('puzzle-grid');
+            puzzleGrid.innerHTML = '';
+            const gridSize = Math.sqrt(state.length);
+            const imageNumber = document.getElementById('image-number').textContent;
+            
+            for (let i = 0; i < state.length; i++) {
+                const tileNumber = state[i];
+                const isEmpty = (tileNumber == 0);
+                const tileClass = isEmpty ? 'puzzle-tile empty' : 'puzzle-tile';
                 
-                // Recrear las piezas con el nuevo estado
-                const gridSize = Math.sqrt(state.length);
-                const imageNumber = document.getElementById('image-number').textContent;
+                const tileElement = document.createElement('div');
+                tileElement.className = tileClass;
+                tileElement.dataset.index = i;
+                tileElement.dataset.tile = tileNumber;
                 
-                for (let i = 0; i < state.length; i++) {
-                    const tileNumber = state[i];
-                    const isEmpty = (tileNumber == 0);
-                    const tileClass = isEmpty ? 'puzzle-tile empty' : 'puzzle-tile';
+                if (!isEmpty) {
+                    const row = Math.floor((tileNumber - 1) / gridSize);
+                    const col = (tileNumber - 1) % gridSize;
                     
-                    const tileElement = document.createElement('div');
-                    tileElement.className = tileClass;
-                    tileElement.dataset.index = i;
-                    tileElement.dataset.tile = tileNumber;
+                    const numberElement = document.createElement('div');
+                    numberElement.className = 'number';
+                    numberElement.textContent = tileNumber;
+                    tileElement.appendChild(numberElement);
                     
-                    if (!isEmpty) {
-                        // Calcular la posición de la pieza en la imagen original
-                        const row = Math.floor((tileNumber - 1) / gridSize);
-                        const col = (tileNumber - 1) % gridSize;
-                        
-                        // Agregar número
-                        const numberElement = document.createElement('div');
-                        numberElement.className = 'number';
-                        numberElement.textContent = tileNumber;
-                        tileElement.appendChild(numberElement);
-                        
-                        // Agregar imagen como fondo
-                        const imageElement = document.createElement('div');
-                        imageElement.className = 'tile-image';
-                        imageElement.style.backgroundImage = `url("../img/plantas/${imageNumber}")`;
-                        imageElement.style.backgroundSize = `${gridSize * 100}%`;
-                        imageElement.style.backgroundPosition = `${col * 100 / (gridSize - 1)}% ${row * 100 / (gridSize - 1)}%`;
-                        
-                        tileElement.appendChild(imageElement);
-                        
-                        // Agregar evento de clic
-                        tileElement.addEventListener('click', () => moveTile(tileElement));
-                    }
+                    const imageElement = document.createElement('div');
+                    imageElement.className = 'tile-image';
+                    imageElement.style.backgroundImage = `url("../img/plantas/${imageNumber}")`;
+                    imageElement.style.backgroundSize = `${gridSize * 100}%`;
+                    imageElement.style.backgroundPosition = `${col * 100 / (gridSize - 1)}% ${row * 100 / (gridSize - 1)}%`;
+                    tileElement.appendChild(imageElement);
                     
-                    puzzleGrid.appendChild(tileElement);
+                    tileElement.addEventListener('click', () => moveTile(tileElement));
                 }
+                
+                puzzleGrid.appendChild(tileElement);
             }
-            window.addEventListener('load', function() {
-         // Limpiar cualquier estado guardado
-                localStorage.removeItem('puzzleState');
-            sessionStorage.removeItem('puzzleProgress');
-            
-            // Reiniciar variables del juego
-            initGame();
-            resetGameState();
-        });
-
-        // Función para reiniciar el estado del juego
-        function resetGameState() {
-            // Reiniciar todas las variables del juego
-            currentPuzzle = null;
-            moves = 0;
-            timeElapsed = 0;
-            
-            // Reiniciar la interfaz
-            updatePuzzleDisplay();
-            resetTimer();
         }
 
-        });
-        
-        </script>
+        // Remove redundant savePoints and saveGameResult from JavaScript
+        // Use PHP functions via AJAX in moveTile
+
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
 </body>
 </html>
-
-
-
