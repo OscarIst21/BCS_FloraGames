@@ -208,6 +208,25 @@ $_SESSION['loteria_index'] = 0;
         .card-title{
             font-size: small !important;
         }
+        #mazo-actual{
+            padding:10px;
+        }
+        #planta-actual{
+            margin-bottom: 2px !important;
+            max-width: 35% !important;
+        }
+        #mazo-actual h5{
+            margin-bottom: 2px !important;
+        }
+        
+    }
+    @media (max-width: 400px){
+        .carta-celda{
+            max-height: 140px !important;
+            max-width: 100px !important;
+            margin: 0 !important;
+            width: 60px !important;
+        }
     }
 
     /* Animación para feedback */
