@@ -302,7 +302,7 @@ if (isset($_SESSION['puzzle_difficulty'])) {
             position: absolute;
             top: 5px;
             left: 5px;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0);
             color: white;
             border-radius: 50%;
             width: 24px;
