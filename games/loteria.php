@@ -375,6 +375,25 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
+     <!-- Modal de instrucciones -->
+    <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="instructionsModalLabel">Cómo jugar</h5>
+                </div>
+                <div class="modal-body">
+                    <p>1.- Cada jugador tiene un tablero digital y las cartas se cantan automáticamente en la pantalla.</p>
+                    <p>2.- Cuando se muestra una tarjeta, busca una igual en tu tablero. Si la tienes, coloca una ficha sobre ella.</p>
+                    <p>3.- Ganas cuando acompletes todo el tablero.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
+                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php include '../components/footer.php'; ?>    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>

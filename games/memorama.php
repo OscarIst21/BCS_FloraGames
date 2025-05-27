@@ -515,6 +515,25 @@ if (isset($_SESSION['memorama_difficulty'])) {
         </div>
     </div>
 
+     <!-- Modal de instrucciones -->
+    <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="instructionsModalLabel">Cómo jugar</h5>
+                </div>
+                <div class="modal-body">
+                    <p>1.- Toca dos cartas para voltearlas. Si son iguales, se quedan visibles. Si no coinciden, se voltean de nuevo.</p>
+                    <p>2.- El objetivo es encontrar todos los pares con la menor cantidad de movimientos en el menor tiempo posible.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
+                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="notificacion-planta" class="notificacion">
         <span id="mensaje-notificacion"></span>
     </div>

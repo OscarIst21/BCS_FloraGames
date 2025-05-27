@@ -507,6 +507,27 @@ if (isset($_GET['difficulty'])) {
             </div>
         </div>
     </div>
+
+    <!-- Modal de instrucciones -->
+    <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="instructionsModalLabel">Cómo jugar</h5>
+                </div>
+                <div class="modal-body">
+                    <p>1.- Trata de adivinar palabra secreta de la imagen y debes adivinarla letra por letra.</p>
+                    <p>2.- Se dibujan rayas para representar las letras.</p>
+                    <p>3.- Por cada acierto, se coloca la letra en su posición; por cada error, se dibuja una parte del ahorcado.</p>
+                    <p>4.- El juego termina cuando se adivina la palabra o se completa el dibujo del hombrecillo.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
+                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>

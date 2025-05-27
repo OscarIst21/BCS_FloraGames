@@ -322,7 +322,7 @@ if (isset($_SESSION['user'])) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="skipInstructions">Omitir</button>
-                    <button type="button" class="btn btn-primary" id="dontShowAgain">No volver a mostrar</button>
+                    <button type="button" class="btn btn-success" id="dontShowAgain">No volver a mostrar</button>
                 </div>
             </div>
         </div>

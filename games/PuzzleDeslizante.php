@@ -480,6 +480,25 @@ if (isset($_SESSION['puzzle_difficulty'])) {
         </div>
     </div>
 
+     <!-- Modal de instrucciones -->
+    <div class="modal fade" id="instructionsModal" tabindex="-1" aria-labelledby="instructionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="instructionsModalLabel">Cómo jugar</h5>
+                </div>
+                <div class="modal-body">
+                    <p>1.- Desliza las fichas usando la casilla vacía hasta ordenarlas correctamente.</p>
+                    <p>2.- Solo puedes mover fichas junto a la casilla vacía.</p>
+                    <p>3.- El juego termina cuando armes la imagen correctamente o se termine el tiempo.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
+                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php include '../components/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>

@@ -432,15 +432,15 @@ if (isset($_SESSION['user'])) {
                     <h5 class="modal-title" id="instructionsModalLabel">Cómo jugar</h5>
                 </div>
                 <div class="modal-body">
-                    <p>1. Escribe las palabras o frases que aparecen en pantalla.</p>
-                    <p>2. La palabra avanzará a medida que escribas correctamente.</p>
-                    <p>3. Si te equivocas, la letra aparecerá en rojo.</p>
-                    <p>4. El teclado en pantalla se iluminará con cada tecla que presiones.</p>
-                    <p>5. Intenta escribir lo más rápido y preciso posible.</p>
+                    <p>1.- Escribe las palabras o frases que aparecen en pantalla.</p>
+                    <p>2.- La palabra avanzará a medida que escribas correctamente.</p>
+                    <p>3.- Si te equivocas, la letra aparecerá en rojo.</p>
+                    <p>4.- El teclado en pantalla se iluminará con cada tecla que presiones.</p>
+                    <p>5.- Intenta escribir lo más rápido y preciso posible.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="skipInstructions">Omitir</button>
-                    <button type="button" class="btn btn-primary" id="dontShowAgain">No volver a mostrar</button>
+                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
+                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
                 </div>
             </div>
         </div>
@@ -465,7 +465,7 @@ if (isset($_SESSION['user'])) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="continue-btn">Continuar</button>
-                    <button type="button" class="btn btn-primary" id="exit-btn2">Salir</button>
+                    <button type="button" class="btn btn-success" id="exit-btn2">Salir</button>
                 </div>
             </div>
         </div>
