@@ -840,18 +840,6 @@ if (isset($_SESSION['user'])) {
                     window.location.href = '../view/gamesMenu.php';
                 };
             }
-
-            // Función para cuando se acaba el tiempo
-            function gameOver() {
-                clearInterval(timerInterval);
-                
-                // Guardar resultado en la base de datos (derrota)
-                saveGameResult(false, timeElapsed);
-                
-                alert('¡Se acabó el tiempo! Inténtalo de nuevo.');
-                resetGame();
-            }
-
             // Función para reiniciar el juego
             function resetGame() {
                 clearInterval(timerInterval);
@@ -1079,19 +1067,6 @@ if (isset($_SESSION['user'])) {
             victoryModal.show();
         }
 
-        // Modificar la función gameOver para guardar el resultado
-        function gameOver() {
-            clearInterval(timerInterval);
-            
-            // Guardar resultado en la base de datos (derrota)
-            saveGameResult(false, timeElapsed);
-            
-            // Mostrar alerta
-            alert('¡Se acabó el tiempo! Inténtalo de nuevo.');
-            
-            // Reiniciar juego
-            resetGame();
-        }
         document.addEventListener('DOMContentLoaded', function() {
             var skipBtn = document.getElementById('skipInstructions');   
             var comoJugarBtn = document.getElementById('comoJugar');

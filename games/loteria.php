@@ -45,159 +45,178 @@ $_SESSION['loteria_index'] = 0;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="icon" type="image/x-icon" href="../img/logoFG.ico">
-    <style>
-/* Contenedor principal del tablero */
-#carta {
-    width: auto;
-    background: #f8f9fa;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    margin-bottom: 20px;
-    display: grid;
-    gap: 15px;
-    justify-items: center;
-     background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
-}
-
-/* Estilos de las celdas de la carta */
-/* Estilos para las cartas rectangulares verticales */
-.carta-celda {
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 10px !important;
-    border-radius: 8px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    height: 210px; /* Altura fija para todas las cartas */
-    width: 120px; /* Ancho fijo para todas las cartas */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    margin: 5px;
-    overflow: hidden;
-}
-
-.card-img {
-    height: 80%;
-    border-radius: 4px;
-    margin-bottom: 8px;
-}
-
-.carta-celda div {
-    font-size: 12px;
-    font-weight: 600;
-    color: #246741;
-    text-align: center;
-    padding: 0 5px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limita a 2 líneas */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Ajustes para el grid de cartas */
-#carta .row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin: 0;
-}
-
-#carta .row > [class*="col-"] {
-    padding: 0.5rem !important;
-    flex: 0 0 auto;
-}
-
-/* Ajuste para el modo difícil (4 columnas) y fácil (3 columnas) */
-@media (min-width: 768px) {
-    .modo-dificil .carta-celda {
-        width: 140px;
-        height: 200px;
+<style>
+    /* Contenedor principal del tablero */
+    #carta {
+        width: auto;
+        background: #f8f9fa;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        margin-bottom: 20px;
+        display: grid;
+        gap: 15px;
+        justify-items: center;
+        background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
     }
-    .modo-dificil .card-img {
-        width: 100px;
-        height: 100px;
+
+    /* Estilos de las celdas de la carta */
+    /* Estilos para las cartas rectangulares verticales */
+    .carta-celda {
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 10px !important;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        height: 210px; /* Altura fija para todas las cartas */
+        width: 120px; /* Ancho fijo para todas las cartas */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        margin: 5px;
+        overflow: hidden;
     }
-}
-/* Estilo para las celdas marcadas */
-.carta-celda.marcada {
-    background-color: #e8f5e9;
-}
 
-.hoja-overlay {
-    display: none;
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70% !important;
-    pointer-events: none;
-    filter: drop-shadow(0 0 0.75rem white);
-    z-index: 2;
-}
+    .card-img {
+        height: 80%;
+        border-radius: 4px;
+        margin-bottom: 8px;
+    }
 
-/* Estilos para el área del mazo */
-#mazo-actual {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 350px;
-    background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
-}
+    .carta-celda div {
+        font-size: 12px;
+        font-weight: 600;
+        color: #246741;
+        text-align: center;
+        padding: 0 5px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Limita a 2 líneas */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-#planta-actual .card {
-    border: none;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+    /* Ajustes para el grid de cartas */
+    #carta .row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin: 0;
+    }
 
-#planta-actual .card-img-top {
-    height: 90%;
-    object-fit: cover;
-}
+    #carta .row > [class*="col-"] {
+        padding: 0.5rem !important;
+        flex: 0 0 auto;
+    }
 
-#planta-actual .card-body {
-    padding: 15px;
-    background: #f8f9fa;
-}
+    /* Ajuste para el modo difícil (4 columnas) y fácil (3 columnas) */
+    @media (min-width: 768px) {
+        .modo-dificil .carta-celda {
+            width: 140px;
+            height: 200px;
+        }
+        .modo-dificil .card-img {
+            width: 100px;
+            height: 100px;
+        }
+    }
+    /* Estilo para las celdas marcadas */
+    .carta-celda.marcada {
+        background-color: #e8f5e9;
+    }
 
-/* Botones de control */
-#mazo-actual .btn {
-    margin: 0 5px;
-    font-weight: 600;
-    padding: 8px 15px;
-    border-radius: 8px;
-    border: none;
-}
+    .hoja-overlay {
+        display: none;
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70% !important;
+        pointer-events: none;
+        filter: drop-shadow(0 0 0.75rem white);
+        z-index: 2;
+    }
 
-#prev-btn, #next-btn {
-    background-color: #246741;
-    color: white;
-}
+    /* Estilos para el área del mazo */
+    #mazo-actual {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 350px;
+        background: linear-gradient(135deg, #ebfff3 0%, #d4f3e1 100%);
+    }
 
-#pause-btn {
-    background-color: #ffc107;
-    color: #212529;
-}
+    #planta-actual .card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
+    #planta-actual .card-img-top {
+        height: 90%;
+        object-fit: cover;
+    }
 
-/* Animación para feedback */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-5px); }
-    40%, 80% { transform: translateX(5px); }
-}
+    #planta-actual .card-body {
+        padding: 15px;
+        background: #f8f9fa;
+    }
 
+    /* Botones de control */
+    #mazo-actual .btn {
+        margin: 0 5px;
+        font-weight: 600;
+        padding: 8px 15px;
+        border-radius: 8px;
+        border: none;
+    }
 
-    </style>
+    #prev-btn, #next-btn {
+        background-color: #246741;
+        color: white;
+    }
+
+    #pause-btn {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    @media (max-width: 480px){
+        .carta-celda{
+            max-height: 140px !important;
+            max-width: 100px !important;
+            margin: 0 !important;
+            width: 80px !important;
+        }
+        .carta-celda div {
+            font-size: 10px !important;
+        }
+        #carta .row{
+            gap: 2px;
+        }
+
+        #carta{
+            padding: 10px;
+        }
+        .card-title{
+            font-size: small !important;
+        }
+    }
+
+    /* Animación para feedback */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-5px); }
+        40%, 80% { transform: translateX(5px); }
+    }
+</style>
 </head>
 <body>
     <?php include '../components/header.php'; ?>
