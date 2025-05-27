@@ -346,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-success" id="comoJugar">¿Cómo jugar?</button>
                         <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                     </div>
                 </div>
@@ -388,8 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p>3.- Ganas cuando acompletes todo el tablero.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
-                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
+                    <button type="button" class="btn btn-success" id="skipInstructions">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -628,6 +628,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
                 difficultyModal.show();
             }, 500);
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            var skipBtn = document.getElementById('skipInstructions');   
+            var comoJugarBtn = document.getElementById('comoJugar');
+            var instructionsModalEl = document.getElementById('instructionsModal');
+            var instructionsModal = new bootstrap.Modal(instructionsModalEl, {backdrop: 'static', keyboard: false});
+            var dificultadModalEl = document.getElementById('difficultyModal');
+            var dificultadModal = dificultadModalEl ? bootstrap.Modal.getOrCreateInstance(dificultadModalEl) : null;
+            
+            comoJugarBtn.addEventListener('click', function() {
+                if (dificultadModalEl && dificultadModalEl.classList.contains('show')) {
+                    dificultadModal.hide();
+                }
+                instructionsModal.show();
+            });
+            skipBtn.addEventListener('click', function() {
+                instructionsModal.hide();
+                if (dificultadModal) {
+                    dificultadModal.show();
+                }
+            });
         });
     </script>
 </body>

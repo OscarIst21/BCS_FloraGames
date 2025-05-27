@@ -450,6 +450,7 @@ if (isset($_SESSION['puzzle_difficulty'])) {
                     <button class="difficulty-btn " data-difficulty="hard">Difícil</button>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="comoJugar">¿Cómo jugar?</button>
                     <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
@@ -490,11 +491,10 @@ if (isset($_SESSION['puzzle_difficulty'])) {
                 <div class="modal-body">
                     <p>1.- Desliza las fichas usando la casilla vacía hasta ordenarlas correctamente.</p>
                     <p>2.- Solo puedes mover fichas junto a la casilla vacía.</p>
-                    <p>3.- El juego termina cuando armes la imagen correctamente o se termine el tiempo.</p>
+                    <p>3.- El juego termina cuando armes la imagen correctamente.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="skipInstructions">Omitir</button>
-                    <button type="button" class="btn btn-secondary" id="dontShowAgain">No volver a mostrar</button>
+                <button type="button" class="btn btn-success" id="skipInstructions">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -540,10 +540,10 @@ if (isset($_SESSION['puzzle_difficulty'])) {
             });
 
             document.getElementById('reset-btn').addEventListener('click', () => {
-                if (confirm('¿Estás seguro de que quieres reiniciar el juego?')) {
+                
                     clearInterval(timerInterval);
                     window.location.href = '?reset=1';
-                }
+                
             });
 
             document.querySelectorAll('.image-option').forEach(option => {
@@ -666,6 +666,27 @@ if (isset($_SESSION['puzzle_difficulty'])) {
         // Use PHP functions via AJAX in moveTile
 
         document.addEventListener('DOMContentLoaded', initGame);
+        document.addEventListener('DOMContentLoaded', function() {
+            var skipBtn = document.getElementById('skipInstructions');   
+            var comoJugarBtn = document.getElementById('comoJugar');
+            var instructionsModalEl = document.getElementById('instructionsModal');
+            var instructionsModal = new bootstrap.Modal(instructionsModalEl, {backdrop: 'static', keyboard: false});
+            var dificultadModalEl = document.getElementById('difficultyModal');
+            var dificultadModal = dificultadModalEl ? bootstrap.Modal.getOrCreateInstance(dificultadModalEl) : null;
+            
+            comoJugarBtn.addEventListener('click', function() {
+                if (dificultadModalEl && dificultadModalEl.classList.contains('show')) {
+                    dificultadModal.hide();
+                }
+                instructionsModal.show();
+            });
+            skipBtn.addEventListener('click', function() {
+                instructionsModal.hide();
+                if (dificultadModal) {
+                    dificultadModal.show();
+                }
+            });
+        });
     </script>
 </body>
 </html>
