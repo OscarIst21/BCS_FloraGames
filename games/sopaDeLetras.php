@@ -302,6 +302,7 @@ if (isset($_SESSION['user'])) {
                     <button class="difficulty-btn" data-difficulty="hard">Difícil</button>
                 </div>
                 <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="comoJugar">¿Cómo jugar?</button>
                     <button type="button" class="btn btn-secondary" id="exit-btn">Salir</button>
                 </div>
             </div>
@@ -321,8 +322,7 @@ if (isset($_SESSION['user'])) {
                     <p>3.- El juego termina cuando se encuentran todas o se termine el tiempo.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="skipInstructions">Omitir</button>
-                    <button type="button" class="btn btn-success" id="dontShowAgain">No volver a mostrar</button>
+                    <button type="button" class="btn btn-success" id="skipInstructions">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -429,10 +429,7 @@ if (isset($_SESSION['user'])) {
             });
 
             // Configurar botones de instrucciones
-            document.getElementById('skipInstructions').addEventListener('click', function() {
-                instructionsModal.hide();
-                initGame();
-            });
+           
 
             document.getElementById('dontShowAgain').addEventListener('click', function() {
                 localStorage.setItem('sopaLetrasInstructionsShown', 'true');
@@ -1095,6 +1092,27 @@ if (isset($_SESSION['user'])) {
             // Reiniciar juego
             resetGame();
         }
+        document.addEventListener('DOMContentLoaded', function() {
+            var skipBtn = document.getElementById('skipInstructions');   
+            var comoJugarBtn = document.getElementById('comoJugar');
+            var instructionsModalEl = document.getElementById('instructionsModal');
+            var instructionsModal = new bootstrap.Modal(instructionsModalEl, {backdrop: 'static', keyboard: false});
+            var dificultadModalEl = document.getElementById('difficultyModal');
+            var dificultadModal = dificultadModalEl ? bootstrap.Modal.getOrCreateInstance(dificultadModalEl) : null;
+            
+            comoJugarBtn.addEventListener('click', function() {
+                if (dificultadModalEl && dificultadModalEl.classList.contains('show')) {
+                    dificultadModal.hide();
+                }
+                instructionsModal.show();
+            });
+            skipBtn.addEventListener('click', function() {
+                instructionsModal.hide();
+                if (dificultadModal) {
+                    dificultadModal.show();
+                }
+            });
+        });
         </script>
 </body>
 </html>
