@@ -623,11 +623,7 @@ if (isset($_SESSION['user'])) {
             });
         });
 
-        // Configurar botones de instrucciones
-        document.getElementById('skipInstructions').addEventListener('click', function() {
-            instructionsModal.hide();
-            initGame();
-        });
+        
         
         // Configurar botones del modal de victoria
         document.getElementById('continue-btn').addEventListener('click', function() {
