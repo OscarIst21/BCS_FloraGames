@@ -189,22 +189,6 @@ $_SESSION['loteria_index'] = 0;
     }
 
     @media (max-width: 480px){
-        .carta-celda{
-            max-height: 140px !important;
-            max-width: 100px !important;
-            margin: 0 !important;
-            width: 80px !important;
-        }
-        .carta-celda div {
-            font-size: 10px !important;
-        }
-        #carta .row{
-            gap: 2px;
-        }
-
-        #carta{
-            padding: 10px;
-        }
         .card-title{
             font-size: small !important;
         }
@@ -235,6 +219,70 @@ $_SESSION['loteria_index'] = 0;
         20%, 60% { transform: translateX(-5px); }
         40%, 80% { transform: translateX(5px); }
     }
+    @media (max-width: 480px) {
+        #carta.modo-facil {
+            padding: 5px; /* Reducir padding para maximizar espacio */
+            gap: 5px; /* Reducir el gap entre celdas */
+        }
+
+        #carta.modo-facil .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px; /* Reducir gap entre columnas */
+            margin: 0; /* Eliminar márgenes */
+        }
+
+        #carta.modo-facil .carta-celda {
+            max-width: calc(33.33% - 3.33px) !important; /* Cada celda ocupa 1/3 del ancho menos el gap */
+            width: calc(33.33% - 3.33px) !important; /* Forzar que ocupe exactamente 1/3 */
+            margin: 0 !important; /* Eliminar márgenes */
+            padding: 5px !important; /* Reducir padding interno */
+            height: 140px; /* Mantener altura consistente */
+            box-sizing: border-box; /* Incluir padding y border en el cálculo del ancho */
+        }
+
+        #carta.modo-facil .card-img {
+            width: 100%; /* Imagen ocupa todo el ancho de la celda */
+            height: 80%; /* Mantener proporción de la imagen */
+            object-fit: cover; /* Asegurar que la imagen se ajuste bien */
+        }
+
+        #carta.modo-facil .carta-celda div {
+            font-size: 10px; /* Ajustar tamaño de texto para que quepa */
+        }
+    }
+    @media (max-width: 480px) {
+    #carta.modo-dificil {
+        padding: 5px; /* Reducir padding para maximizar espacio */
+        gap: 5px; /* Reducir el gap entre celdas */
+    }
+
+    #carta.modo-dificil .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px; /* Reducir gap entre columnas */
+        margin: 0; /* Eliminar márgenes */
+    }
+
+    #carta.modo-dificil .carta-celda {
+        max-width: calc(25% - 3.75px) !important; /* Cada celda ocupa 1/4 del ancho menos el gap */
+        width: calc(25% - 3.75px) !important; /* Forzar que ocupe exactamente 1/4 */
+        margin: 0 !important; /* Eliminar márgenes */
+        padding: 5px !important; /* Reducir padding interno */
+        height: 140px; /* Ajustar altura para mantener proporción en 4 columnas */
+        box-sizing: border-box; /* Incluir padding y border en el cálculo del ancho */
+    }
+
+    #carta.modo-dificil .card-img {
+        width: 100%; /* Imagen ocupa todo el ancho de la celda */
+        height: 75%; /* Ajustar altura de la imagen para 4 columnas */
+        object-fit: cover; /* Asegurar que la imagen se ajuste bien */
+    }
+
+    #carta.modo-dificil .carta-celda div {
+        font-size: 9px; /* Reducir tamaño de texto para que quepa */
+    }
+}
 </style>
 </head>
 <body>
@@ -337,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="contenedor cont-lot">
 
         <!-- Tablero de lotería -->
-        <div id="carta" class="mb-4">
+        <div id="carta" class="mb-4 <?php echo $modo === 'dificil' ? 'modo-dificil' : 'modo-facil'; ?>">
             <div class="row g-3">
                 <?php
                 $cols = $modo === 'dificil' ? 4 : 3;
