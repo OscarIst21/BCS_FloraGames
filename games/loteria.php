@@ -483,6 +483,8 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
     <?php include '../components/footer.php'; ?>    
+    <?php include '../components/modalInsignia.php'; ?>
+    <?php include '../components/modalNivel.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Mostrar el modal al cargar la página
@@ -546,77 +548,172 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Mostrar modal de victoria
         function mostrarModalVictoria() {
-            clearInterval(intervalo);
-            // Mostrar tiempo
-            document.getElementById('victory-time').textContent = document.getElementById('timer').textContent;
-            // Mostrar modo
-            document.getElementById('victory-mode').textContent = modoTexto;
-            // Mostrar puntos
-            document.getElementById('victory-points').textContent = puntos;
-            // Guardar puntos y resultado si hay sesión
-            savePoints(puntos);
-            // Mostrar modal
-            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
-            victoryModal.show();
-        }
+    clearInterval(intervalo);
+    const tiempo = document.getElementById('timer').textContent;
+    document.getElementById('victory-time').textContent = tiempo;
+    document.getElementById('victory-mode').textContent = modoTexto;
+    document.getElementById('victory-points').textContent = puntos;
+    
+    // Guardar puntos y resultado
+    savePoints(puntos);
+    saveGameResult(true, tiempo); // Pasar el string de tiempo "mm:ss"
+    
+    const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+    victoryModal.show();
+}
         function savePoints(points) {
-            console.log('Intentando guardar puntos:', points); // Añadir para depuración
-        
-            fetch('../config/updatePoints.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `points=${points}&game=loteria`
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error('Error al actualizar puntos: ' + text);
-                        });
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    console.log('Puntos actualizados correctamente:', data);
-                    // Solo llamar a saveGameResult si ganó
-                    saveGameResult(true, seconds);
-                })
-                .catch(error => {
-                    console.error('Error completo:', error);
-                });
+    console.log('Intentando guardar puntos:', points);
+    
+    fetch('../config/updatePoints.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `points=${points}&game=memorama`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Puntos actualizados correctamente:', data);
+            
+            // Mostrar modal de nuevo nivel si hubo subida
+            if (data.levelUp) {
+                showLevelUpModal(data.newLevel, data.levelName, data.levelImage);
+            }
+        } else {
+            console.error('Error al actualizar puntos:', data.message);
         }
-        
-        // Función para guardar el resultado del juego
-        function saveGameResult(won, duration) {
-            // Solo guardar si el usuario está autenticado
-            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+    })
+    .catch(error => {
+        console.error('Error completo:', error);
+    });
+}
+
+function showLevelUpModal(newLevel, levelName, levelImage) {
+            // Actualizar el contenido del modal con el nuevo nivel
+            document.getElementById('newLevelDisplay').textContent = newLevel;
+            document.getElementById('levelNumberDisplay').textContent = newLevel;
+            
+            // Actualizar nombre del nivel e imagen
+            document.getElementById('levelNameDisplay').textContent = levelName;
+            document.getElementById('levelImageDisplay').src = `../img/niveles/${levelImage}`;
+            
+            // Mostrar el modal
+            const levelUpModal = new bootstrap.Modal(document.getElementById('levelUpModal'));
+            createConfetti();
+            levelUpModal.show();
+            
+        }
+        // Función para crear efecto de confeti (opcional)
+        function createConfetti() {
+            const colors = ['#246741', '#ff5252', '#ffab00', '#00bcd4', '#673ab7'];
+            const container = document.querySelector('.modal-content');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                container.appendChild(confetti);
                 
-                // Crear objeto con los datos
-                const gameData = {
-                    usuario_id: userId,
-                    duracion: Math.floor(duration), // Duración en segundos
-                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
-                };
-                
-                // Enviar datos al servidor
-                fetch('../config/saveGameResult.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(gameData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Resultado guardado:', data);
-                })
-                .catch(error => {
-                    console.error('Error al guardar resultado:', error);
-                });
+                // Eliminar después de la animación
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
             }
         }
+        function saveGameResult(won, durationStr) {
+    if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+        // Convertir tiempo "mm:ss" a segundos
+        const [minutes, seconds] = durationStr.split(':').map(Number);
+        const durationInSeconds = minutes * 60 + seconds;
+        
+        const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+        const gameData = {
+            usuario_id: userId,
+            duracion: durationInSeconds,
+            fue_ganado: won ? 1 : 0
+        };
+        
+        console.log('Enviando datos al servidor:', gameData);
+        
+        fetch('../config/saveGameResult.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(gameData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Respuesta del servidor:', data);
+            if (data.success && data.insignia) {
+                console.log('Insignia recibida:', data.insignia);
+                try {
+                    const modalElement = document.getElementById('badgeModal');
+                    if (!modalElement) {
+                        console.error('Modal con id="badgeModal" no encontrado en el DOM');
+                        return;
+                    }
+                    const nombreElement = document.getElementById('badgeName');
+                    const descripcionElement = document.getElementById('badgeDescription');
+                    const iconoElement = document.getElementById('badgeIcon');
+                    if (!nombreElement || !descripcionElement || !iconoElement) {
+                        console.error('Elementos del modal no encontrados:', {
+                            nombre: !!nombreElement,
+                            descripcion: !!descripcionElement,
+                            icono: !!iconoElement
+                        });
+                        return;
+                    }
+                    // Cerrar el modal de victoria si está abierto
+                    const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
+                    if (victoryModal) {
+                        // Esperar un breve momento para evitar conflictos de Bootstrap
+                        setTimeout(() => {
+                            nombreElement.textContent = 'Insignia: ' + data.insignia.nombre;
+                            descripcionElement.textContent = data.insignia.descripcion;
+                            iconoElement.src = '../img/insignias/' + data.insignia.icono_url;
+                            // Manejar errores de carga de imagen
+                            iconoElement.onerror = () => {
+                                console.error('Error al cargar la imagen:', iconoElement.src);
+                                iconoElement.src = '../img/insignias/default.png'; // Imagen por defecto
+                            };
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                            console.log('Modal de insignia mostrado');
+                        }, 500);
+                    } else {
+                        // Si no hay modal de victoria, abrir directamente
+                        nombreElement.textContent = 'Insignia: ' + data.insignia.nombre;
+                        descripcionElement.textContent = data.insignia.descripcion;
+                        iconoElement.src = '../img/insignias/' + data.insignia.icono_url;
+                        iconoElement.onerror = () => {
+                            console.error('Error al cargar la imagen:', iconoElement.src);
+                            iconoElement.src = '../img/insignias/default.png';
+                        };
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                        console.log('Modal de insignia mostrado');
+                    }
+                } catch (error) {
+                    console.error('Error al mostrar el modal:', error);
+                }
+            } else {
+                console.log('No se asignó ninguna insignia o la respuesta no fue exitosa:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error al guardar resultado:', error);
+        });
+    }}
         function mostrarSiguiente() {
             if (index >= mazo.length) {
                 clearInterval(intervalo);
@@ -650,7 +747,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mostrarSiguiente();
                 intervalo = setInterval(function() {
                     if (!pausado) mostrarSiguiente();
-                }, 3200);
+                }, 100);
             }
         };
 
