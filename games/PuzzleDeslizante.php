@@ -125,7 +125,6 @@ if (isset($_POST['action'])) {
                 $response['time'] = formatTime($duration);
                 
                 if (isset($_SESSION['usuario_id'])) {
-                    saveGameResult(true, $duration, $points);
                 }
             }
         }
@@ -205,38 +204,8 @@ function formatTime($seconds) {
     return sprintf('%02d:%02d', $minutes, $seconds);
 }
 
-// Función para guardar el resultado del juego
-function saveGameResult($won, $duration, $points) {
-    if (!isset($_SESSION['usuario_id'])) {
-        return;
-    }
 
-    try {
-        $db = new Database();
-        $conn = $db->getConnection();
-        
-        $stmt = $conn->prepare("
-            INSERT INTO resultados_juegos (usuario_id, juego, duracion, fue_ganado, puntos, fecha)
-            VALUES (?, ?, ?, ?, ?, NOW())
-        ");
-        $stmt->execute([
-            $_SESSION['usuario_id'],
-            'puzzleDeslizante',
-            $duration,
-            $won ? 1 : 0,
-            $points
-        ]);
 
-        $stmt = $conn->prepare("
-            UPDATE usuarios 
-            SET puntos_totales = puntos_totales + ?
-            WHERE id = ?
-        ");
-        $stmt->execute([$points, $_SESSION['usuario_id']]);
-    } catch (PDOException $e) {
-        error_log("Error al guardar resultado: " . $e->getMessage());
-    }
-}
 
 // Texto de dificultad para mostrar
 $difficultyText = 'Fácil';
@@ -502,6 +471,8 @@ if (isset($_SESSION['puzzle_difficulty'])) {
         </div>
     </div>
     <?php include '../components/footer.php'; ?>
+    <?php include '../components/modalInsignia.php'; ?>
+    <?php include '../components/modalNivel.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let timerInterval=0;
@@ -605,35 +576,41 @@ if (isset($_SESSION['puzzle_difficulty'])) {
             const secs = seconds % 60;
             return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
-
         function moveTile(tile) {
-            const index = parseInt(tile.dataset.index);
+    const index = parseInt(tile.dataset.index);
+    const startTime = <?php echo $_SESSION['puzzle_start_time'] ?? 'null'; ?>;
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    
+    fetch('PuzzleDeslizante.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `action=move&index=${index}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updatePuzzleState(data.state);
+            moves = data.moves;
+            document.getElementById('moves').textContent = moves;
             
-            fetch('PuzzleDeslizante.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `action=move&index=${index}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updatePuzzleState(data.state);
-                    moves = data.moves;
-                    document.getElementById('moves').textContent = moves;
-                    
-                    if (data.solved) {
-                        clearInterval(timerInterval);
-                        document.getElementById('victory-moves').textContent = data.moves;
-                        document.getElementById('victory-time').textContent = data.time;
-                        document.getElementById('victory-points').textContent = data.points;
-                        
-                        victoryModal.show();
-                    }
+            if (data.solved) {
+                clearInterval(timerInterval);
+                const duration = startTime ? currentTime - startTime : 0;
+                document.getElementById('victory-moves').textContent = data.moves;
+                document.getElementById('victory-time').textContent = data.time;
+                document.getElementById('victory-points').textContent = data.points;
+                
+                victoryModal.show();
+                
+                if (isAuthenticated) {
+                    savePoints(data.points);
+                    saveGameResult(true, duration);
                 }
-            })
-            .catch(error => console.error('Error:', error));
+            }
         }
-
+    })
+    .catch(error => console.error('Error:', error));
+}
         function updatePuzzleState(state) {
             const puzzleGrid = document.getElementById('puzzle-grid');
             puzzleGrid.innerHTML = '';
@@ -698,6 +675,122 @@ if (isset($_SESSION['puzzle_difficulty'])) {
                 }
             });
         });
+        function savePoints(points) {
+    console.log('Intentando guardar puntos:', points);
+    
+    fetch('../config/updatePoints.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `points=${points}&game=puzzleDeslizante` // Cambiado a puzzleDeslizante
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Puntos actualizados correctamente:', data);
+            
+            if (data.levelUp) {
+                showLevelUpModal(data.newLevel, data.levelName, data.levelImage);
+            }
+        } else {
+            console.error('Error al actualizar puntos:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error completo:', error);
+    });
+}
+function showBadgeModal(insignia) {
+    // Update modal content with badge information
+    document.getElementById('badgeName').textContent = insignia.nombre;
+    document.getElementById('badgeDescription').textContent = insignia.descripcion;
+    document.getElementById('badgeIcon').src = `../img/insignias/${insignia.icono_url}`;
+    
+    // Show the modal
+    const badgeModal = new bootstrap.Modal(document.getElementById('badgeModal'));
+    createConfetti();
+    badgeModal.show();
+}
+function showLevelUpModal(newLevel, levelName, levelImage) {
+            // Actualizar el contenido del modal con el nuevo nivel
+            document.getElementById('newLevelDisplay').textContent = newLevel;
+            document.getElementById('levelNumberDisplay').textContent = newLevel;
+            
+            // Actualizar nombre del nivel e imagen
+            document.getElementById('levelNameDisplay').textContent = levelName;
+            document.getElementById('levelImageDisplay').src = `../img/niveles/${levelImage}`;
+            
+            // Mostrar el modal
+            const levelUpModal = new bootstrap.Modal(document.getElementById('levelUpModal'));
+            createConfetti();
+            levelUpModal.show();
+            
+        }
+        // Función para crear efecto de confeti (opcional)
+        function createConfetti() {
+            const colors = ['#246741', '#ff5252', '#ffab00', '#00bcd4', '#673ab7'];
+            const container = document.querySelector('.modal-content');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                container.appendChild(confetti);
+                
+                // Eliminar después de la animación
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        function saveGameResult(won, duration) {
+    if (!isAuthenticated) return;
+
+    const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+    
+    // Ensure duration is a valid number
+    duration = typeof duration === 'number' ? duration : 0;
+    
+    const gameData = {
+        usuario_id: userId,
+        duracion: duration,
+        fue_ganado: won ? 1 : 0
+    };
+
+    console.log('Enviando datos al servidor:', gameData);
+    
+    fetch('../config/saveGameResult.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(gameData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Resultado guardado:', data);
+        if (data.insignia) {
+            // Check if the function exists before calling it
+            if (typeof showBadgeModal === 'function') {
+                showBadgeModal(data.insignia);
+            } else {
+                console.warn('showBadgeModal function not defined');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error al guardar resultado:', error);
+    });
+}
     </script>
 </body>
 </html>
