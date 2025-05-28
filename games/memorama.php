@@ -871,11 +871,6 @@ function showLevelUpModal(newLevel, levelName, levelImage) {
                 }
             });
                  
-    // Función para guardar puntos en la base de datos
-      // Función para guardar puntos en la base de datos
-
-
-        // Función para mostrar el modal de subida de nivel
        
         });
          // Función para guardar el resultado del juego

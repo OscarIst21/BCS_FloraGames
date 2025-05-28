@@ -352,6 +352,8 @@ if (isset($_SESSION['user'])) {
     </div>
 
     <?php include '../components/footer.php'; ?>
+    <?php include '../components/modalInsignia.php'; ?>
+    <?php include '../components/modalNivel.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -883,63 +885,156 @@ if (isset($_SESSION['user'])) {
             <?php endif; ?>
         }
 
-        // Función para guardar puntos
         function savePoints(points) {
-            console.log('Intentando guardar puntos:', points); // Añadir para depuración
+            console.log('Intentando guardar puntos:', points);
             
             fetch('../config/updatePoints.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `points=${points}&game=sopaDeLetras`
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error('Error al actualizar puntos: ' + text);
-                        });
-                    }
-                    return response.text();
-                })
-                .then(data => {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `points=${points}&game=memorama`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     console.log('Puntos actualizados correctamente:', data);
-                })
-                .catch(error => {
-                    console.error('Error completo:', error);
-                });
+                    
+                    // Mostrar modal de nuevo nivel si hubo subida
+                    if (data.levelUp) {
+                        showLevelUpModal(data.newLevel, data.levelName, data.levelImage);
+                    }
+                } else {
+                    console.error('Error al actualizar puntos:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error completo:', error);
+            });
         }
-        
-        // Función para guardar el resultado del juego
-        function saveGameResult(won, duration) {
-            // Solo guardar si el usuario está autenticado
-            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+        function showLevelUpModal(newLevel, levelName, levelImage) {
+            // Actualizar el contenido del modal con el nuevo nivel
+            document.getElementById('newLevelDisplay').textContent = newLevel;
+            document.getElementById('levelNumberDisplay').textContent = newLevel;
+            
+            // Actualizar nombre del nivel e imagen
+            document.getElementById('levelNameDisplay').textContent = levelName;
+            document.getElementById('levelImageDisplay').src = `../img/niveles/${levelImage}`;
+            
+            // Mostrar el modal
+            const levelUpModal = new bootstrap.Modal(document.getElementById('levelUpModal'));
+            createConfetti();
+            levelUpModal.show();
+            
+        }
+        // Función para crear efecto de confeti (opcional)
+        function createConfetti() {
+            const colors = ['#246741', '#ff5252', '#ffab00', '#00bcd4', '#673ab7'];
+            const container = document.querySelector('.modal-content');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                container.appendChild(confetti);
                 
-                // Crear objeto con los datos
-                const gameData = {
-                    usuario_id: userId,
-                    duracion: Math.floor(duration), // Duración en segundos
-                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
-                };
-                
-                // Enviar datos al servidor
-                fetch('../config/saveGameResult.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(gameData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Resultado guardado:', data);
-                })
-                .catch(error => {
-                    console.error('Error al guardar resultado:', error);
-                });
+                // Eliminar después de la animación
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
             }
         }
+        // Función para guardar el resultado del juego
+           // Función para guardar el resultado del juego
+    function saveGameResult(won, duration, accuracy, wpm) {
+    if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
+        const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
+        const gameData = {
+            usuario_id: userId,
+            duracion: Math.floor(duration),
+            fue_ganado: won ? 1 : 0
+        };
+        console.log('Enviando datos al servidor:', gameData);
+        fetch('../config/saveGameResult.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(gameData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Respuesta del servidor:', data);
+            if (data.success && data.insignia) {
+                console.log('Insignia recibida:', data.insignia);
+                try {
+                    const modalElement = document.getElementById('badgeModal');
+                    if (!modalElement) {
+                        console.error('Modal con id="badgeModal" no encontrado en el DOM');
+                        return;
+                    }
+                    const nombreElement = document.getElementById('badgeName');
+                    const descripcionElement = document.getElementById('badgeDescription');
+                    const iconoElement = document.getElementById('badgeIcon');
+                    if (!nombreElement || !descripcionElement || !iconoElement) {
+                        console.error('Elementos del modal no encontrados:', {
+                            nombre: !!nombreElement,
+                            descripcion: !!descripcionElement,
+                            icono: !!iconoElement
+                        });
+                        return;
+                    }
+                    // Cerrar el modal de victoria si está abierto
+                    const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
+                    if (victoryModal) {
+                        victoryModal.hide();
+                        console.log('Modal de victoria cerrado');
+                        // Esperar un breve momento para evitar conflictos de Bootstrap
+                        setTimeout(() => {
+                            nombreElement.textContent = 'Insignia: ' + data.insignia.nombre;
+                            descripcionElement.textContent = data.insignia.descripcion;
+                            iconoElement.src = '../img/insignias/' + data.insignia.icono_url;
+                            // Manejar errores de carga de imagen
+                            iconoElement.onerror = () => {
+                                console.error('Error al cargar la imagen:', iconoElement.src);
+                                iconoElement.src = '../img/insignias/default.png'; // Imagen por defecto
+                            };
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                            console.log('Modal de insignia mostrado');
+                        }, 500);
+                    } else {
+                        // Si no hay modal de victoria, abrir directamente
+                        nombreElement.textContent = 'Insignia: ' + data.insignia.nombre;
+                        descripcionElement.textContent = data.insignia.descripcion;
+                        iconoElement.src = '../img/insignias/' + data.insignia.icono_url;
+                        iconoElement.onerror = () => {
+                            console.error('Error al cargar la imagen:', iconoElement.src);
+                            iconoElement.src = '../img/insignias/default.png';
+                        };
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.show();
+                        console.log('Modal de insignia mostrado');
+                    }
+                } catch (error) {
+                    console.error('Error al mostrar el modal:', error);
+                }
+            } else {
+                console.log('No se asignó ninguna insignia o la respuesta no fue exitosa:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error al guardar resultado:', error);
+        });
+    }}
 
         // Función para calcular puntos
         function calculatePoints() {
@@ -986,86 +1081,222 @@ if (isset($_SESSION['user'])) {
             <?php endif; ?>
         }
 
-        // Función para guardar el resultado del juego
-        function saveGameResult(won, duration) {
-            // Solo guardar si el usuario está autenticado
-            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
-                
-                // Crear objeto con los datos
-                const gameData = {
-                    usuario_id: userId,
-                    duracion: Math.floor(duration), // Duración en segundos
-                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
-                };
-                
-                // Enviar datos al servidor
-                fetch('../config/saveGameResult.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(gameData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Resultado guardado:', data);
-                })
-                .catch(error => {
-                    console.error('Error al guardar resultado:', error);
-                });
-            }
-        }
-        function saveGameResult(won, duration) {
-            // Solo guardar si el usuario está autenticado
-            if (<?php echo isset($_SESSION['usuario_id']) ? 'true' : 'false'; ?>) {
-                const userId = <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>;
-                
-                // Crear objeto con los datos
-                const gameData = {
-                    usuario_id: userId,
-                    duracion: Math.floor(duration), // Duración en segundos
-                    fue_ganado: won ? 1 : 0 // 1 si ganó, 0 si perdió
-                };
-                
-                // Enviar datos al servidor
-                fetch('../config/saveGameResult.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(gameData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Resultado guardado:', data);
-                })
-                .catch(error => {
-                    console.error('Error al guardar resultado:', error);
-                });
-            }
-        }
-        // Modificar la función showVictoryModal para guardar el resultado
-        function showVictoryModal() {
-            // Actualizar estadísticas en el modal
-            document.getElementById('victory-time').textContent = formatTime(timeElapsed);
-            document.getElementById('victory-level').textContent = levels[currentLevel].level;
+      // =============================================
+// FUNCIONES GLOBALES PARA MANEJO DE RESULTADOS
+// =============================================
+
+// Función para guardar puntos en la base de datos
+function savePoints(points) {
+    console.log('Intentando guardar puntos:', points);
+    
+    return fetch('../config/updatePoints.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `points=${points}&game=sopa_letras`
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('Puntos actualizados correctamente:', data);
             
-            // Calcular puntos según el tiempo y nivel
-            let points = 100 * levels[currentLevel].level;
-            if (gameMode !== 'notime') {
-                const timeBonus = Math.max(0, timeLimit - timeElapsed);
-                points += timeBonus;
+            // Mostrar modal de nuevo nivel si hubo subida
+            if (data.levelUp) {
+                showLevelUpModal(data.newLevel, data.levelName, data.levelImage);
             }
-            document.getElementById('victory-points').textContent = points;
-            
-            // Guardar resultado en la base de datos (victoria)
-            saveGameResult(true, timeElapsed);
-            
-            // Mostrar modal
-            const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
-            victoryModal.show();
+            return data;
         }
+        throw new Error(data.message || 'Error al actualizar puntos');
+    })
+    .catch(error => {
+        console.error('Error al guardar puntos:', error);
+        throw error;
+    });
+}
+
+// Función para guardar resultados del juego
+function saveGameResult(won, duration) {
+    const gameData = {
+        usuario_id: <?php echo isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : 'null'; ?>,
+        juego: 'sopa_letras',
+        duracion: duration,
+        fue_ganado: won ? 1 : 0,
+        dificultad: "<?php echo isset($_SESSION['memorama_difficulty']) ? $_SESSION['memorama_difficulty'] : 'easy'; ?>"
+    };
+    
+    console.log('Enviando datos del juego:', gameData);
+    
+    return fetch('../config/saveGameResult.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(gameData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        return response.json();
+    })
+    .then(data => {
+        console.log('Resultado guardado:', data);
+        
+        // Mostrar insignia solo si se acaba de otorgar
+        if (data.success && data.insignia && data.insignia.fue_otorgada) {
+            console.log('Mostrando insignia validacion completa para mostrarla :', data.insignia);
+            showBadgeModal(data.insignia);
+
+        }
+        
+        return data;
+    })
+    .catch(error => {
+        console.error('Error al guardar resultado:', error);
+        throw error;
+    });
+}
+
+// Función para mostrar modal de subida de nivel
+function showLevelUpModal(newLevel, levelName, levelImage) {
+    // Verificar si el modal existe
+    const modalElement = document.getElementById('levelUpModal');
+    if (!modalElement) {
+        console.error('Modal de nivel no encontrado');
+        return;
+    }
+
+    // Actualizar contenido del modal
+    document.getElementById('newLevelDisplay').textContent = newLevel;
+    document.getElementById('levelNumberDisplay').textContent = newLevel;
+    document.getElementById('levelNameDisplay').textContent = levelName;
+    
+    const imgElement = document.getElementById('levelImageDisplay');
+    imgElement.src = `../img/niveles/${levelImage}`;
+    imgElement.onerror = function() {
+        this.src = '../img/niveles/default.png';
+    };
+
+    // Mostrar modal con confeti
+    const levelModal = new bootstrap.Modal(modalElement);
+    createConfetti();
+    levelModal.show();
+    
+    // Reproducir sonido
+    playSound('../assets/level-up.mp3');
+}
+
+// Función para mostrar modal de insignia
+function showBadgeModal(badgeData) {
+    console.log('Mostrando modal de insignia:', badgeData);
+    if (!badgeData || !badgeData.nombre) {
+        console.log('No hay datos de insignia para mostrar');
+        return;
+    }
+
+    const modalElement = document.getElementById('badgeModal');
+    if (!modalElement) {
+        console.error('Modal de insignia no encontrado');
+        return;
+    }
+
+    // Actualizar contenido del modal
+    document.getElementById('badgeName').textContent = badgeData.nombre;
+    document.getElementById('badgeDescription').textContent = badgeData.descripcion;
+    
+    const imgElement = document.getElementById('badgeIcon');
+    imgElement.src = `../img/insignias/${badgeData.icono_url}`;
+    imgElement.onerror = function() {
+        this.src = '../img/insignias/default.png';
+    };
+
+    const badgeModal = new bootstrap.Modal(modalElement);
+    badgeModal.show();
+}
+
+// Función para crear efecto de confeti
+function createConfetti() {
+    const colors = ['#246741', '#ff5252', '#ffab00', '#00bcd4', '#673ab7'];
+    const container = document.querySelector('.modal-content');
+    
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        container.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 5000);
+    }
+}
+
+// Función para calcular puntos del juego
+function calculateGamePoints(difficulty, timeElapsed, timeLimit, wordsFound, totalWords) {
+    let basePoints = 100;
+    if (difficulty === 'hard') basePoints = 200;
+    else if (difficulty === 'notime') basePoints = 150;
+    
+    // Bonificación por completar todas las palabras
+    const completionBonus = wordsFound === totalWords ? 50 : 0;
+    
+    // Bonificación por tiempo (solo en modos con tiempo)
+    let timeBonus = 0;
+    if (difficulty !== 'notime' && timeLimit > 0) {
+        const timePercentage = Math.max(0, (timeLimit - timeElapsed) / timeLimit);
+        timeBonus = Math.round(basePoints * timePercentage * 0.5);
+    }
+    
+    return Math.round(basePoints + completionBonus + timeBonus);
+}
+
+// =============================================
+// MODIFICACIONES EN EL CÓDIGO EXISTENTE
+// =============================================
+
+// Modificar la función showVictoryModal para usar async/await
+async function showVictoryModal() {
+    clearInterval(timerInterval);
+    
+    // Calcular puntos
+    const points = calculateGamePoints(
+        gameMode,
+        timeElapsed,
+        timeLimit,
+        foundWords.length,
+        words.length
+    );
+    
+    // Actualizar modal de victoria
+    document.getElementById('victory-time').textContent = formatTime(timeElapsed);
+    document.getElementById('victory-level').textContent = '1'; // Puedes ajustar esto si tienes niveles
+    document.getElementById('victory-points').textContent = points;
+    
+    // Mostrar modal de victoria
+    const victoryModal = new bootstrap.Modal(document.getElementById('victoryModal'));
+    victoryModal.show();
+    
+    <?php if (isset($_SESSION['usuario_id'])): ?>
+    try {
+        // Primero guardar el resultado del juego
+        await saveGameResult(true, timeElapsed);
+        // Luego guardar los puntos
+        await savePoints(points);
+    } catch (error) {
+        console.error('Error en el proceso de guardado:', error);
+    }
+    <?php endif; ?>
+}
+
+// Función formatTime (debe estar definida)
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
 
         document.addEventListener('DOMContentLoaded', function() {
             var skipBtn = document.getElementById('skipInstructions');   
