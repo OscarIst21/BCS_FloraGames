@@ -482,170 +482,188 @@ if (isset($_SESSION['user'])) {
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Music control initialization
-        const musicToggle = document.getElementById('musicToggle');
-        const musicIcon = musicToggle.querySelector('i');
-        const gameMusic = document.getElementById('gameMusic');
-        gameMusic.volume = 0.5;
+    // Music control initialization
+    const musicToggle = document.getElementById('musicToggle');
+    const musicIcon = musicToggle.querySelector('i');
+    const gameMusic = document.getElementById('gameMusic');
+    gameMusic.volume = 0.5;
 
-        document.getElementById('exit-btn2').addEventListener('click', function() {
-                window.location.href = '../view/gamesMenu.php';
-            });
-            
-
-        // Music control event listener
-        musicToggle.addEventListener('click', function() {
-            if (gameMusic.paused) {
-                gameMusic.play();
-                musicIcon.classList.remove('fa-volume-xmark');
-                musicIcon.classList.add('fa-volume-high');
-                updateMusicPreference(1);
-            } else {
-                gameMusic.pause();
-                musicIcon.classList.remove('fa-volume-high');
-                musicIcon.classList.add('fa-volume-xmark');
-                updateMusicPreference(0);
-            }
-        });
-
-        // Function to update music preference
-        function updateMusicPreference(enabled) {
-            <?php if (isset($_SESSION['user'])): ?>
-            fetch('../config/updateMusicPreference.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `music_enabled=${enabled}`
-            })
-            .catch(error => console.error('Error updating music preference:', error));
-            <?php endif; ?>
+    // Music control event listener
+    musicToggle.addEventListener('click', function() {
+        if (gameMusic.paused) {
+            gameMusic.play();
+            musicIcon.classList.remove('fa-volume-xmark');
+            musicIcon.classList.add('fa-volume-high');
+            updateMusicPreference(1);
+        } else {
+            gameMusic.pause();
+            musicIcon.classList.remove('fa-volume-high');
+            musicIcon.classList.add('fa-volume-xmark');
+            updateMusicPreference(0);
         }
+    });
 
-        // Palabras y frases para el juego desde PHP
-        <?php
-        $palabras = obtenerPalabrasPorDificultad();
+    // Function to update music preference
+    function updateMusicPreference(enabled) {
+        <?php if (isset($_SESSION['user'])): ?>
+        fetch('../config/updateMusicPreference.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `music_enabled=${enabled}`
+        })
+        .catch(error => console.error('Error updating music preference:', error));
+        <?php endif; ?>
+    }
 
-        // Preparar datos para JavaScript
-        echo "const plantData = {";
-        echo "easy: " . json_encode(array_map(function($item) {
+    // Palabras y frases para el juego desde PHP
+    <?php
+    $palabras = obtenerPalabrasPorDificultad();
+    echo "const plantData = {";
+    echo "easy: " . json_encode(array_map(function($item) {
+        return [
+            'text' => mb_strtoupper($item['nombre_comun']),
+            'id' => $item['id'],
+            'photo' => $item['foto']
+        ];
+    }, $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+
+    echo "hard: " . json_encode(array_map(function($item) {
+        return [
+            'text' => $item['curiosidad'],
+            'id' => $item['id'],
+            'photo' => $item['foto']
+        ];
+    }, $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+
+    $notime = array_merge(
+        array_map(function($item) {
             return [
                 'text' => mb_strtoupper($item['nombre_comun']),
                 'id' => $item['id'],
                 'photo' => $item['foto']
             ];
-        }, $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
-
-        echo "hard: " . json_encode(array_map(function($item) {
+        }, $palabras['facil']),
+        array_map(function($item) {
             return [
                 'text' => $item['curiosidad'],
                 'id' => $item['id'],
                 'photo' => $item['foto']
             ];
-        }, $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+        }, $palabras['dificil'])
+    );
+    shuffle($notime);
+    $notime = array_slice($notime, 0, 8);
+    echo "notime: " . json_encode($notime, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo "};";
+    ?>
 
-        // Para notime, mezclamos ambos y limitamos a 8 elementos
-        $notime = array_merge(
-            array_map(function($item) {
-                return [
-                    'text' => mb_strtoupper($item['nombre_comun']),
-                    'id' => $item['id'],
-                    'photo' => $item['foto']
-                ];
-            }, $palabras['facil']),
-            array_map(function($item) {
-                return [
-                    'text' => $item['curiosidad'],
-                    'id' => $item['id'],
-                    'photo' => $item['foto']
-                ];
-            }, $palabras['dificil'])
-        );
-        shuffle($notime);
-        $notime = array_slice($notime, 0, 8);
-        echo "notime: " . json_encode($notime, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        echo "};";
-        ?>
+    // Variables del juego
+    let currentWord = '';
+    let currentWords = [];
+    let currentWordIndex = 0;
+    let currentLetterIndex = 0;
+    let correctLetters = 0;
+    let incorrectLetters = 0;
+    let totalWords = 0;
+    let startTime = null;
+    let timerInterval = null;
+    let timeElapsed = 0;
+    let gameMode = 'easy';
 
+    // Elementos del DOM
+    const wordDisplay = document.getElementById('word-display');
+    const progressBar = document.getElementById('progress');
+    const timerElement = document.getElementById('timer');
+    const resetButton = document.getElementById('reset-btn');
+    const wordsCount = document.getElementById('words-count');
+    const accuracyElement = document.getElementById('accuracy');
+    const wpmElement = document.getElementById('wpm');
+    const levelDisplay = document.getElementById('level-display');
+    const keys = document.querySelectorAll('.key');
 
-        // Variables del juego
-        let currentWord = '';
-        let currentWords = [];
-        let currentWordIndex = 0;
-        let currentLetterIndex = 0;
-        let correctLetters = 0;
-        let incorrectLetters = 0;
-        let totalWords = 0;
-        let startTime = null;
-        let timerInterval = null;
-        let timeElapsed = 0;
-        let gameMode = 'easy'; // Por defecto
+    // Inicializar modales una sola vez
+    const difficultyModalElement = document.getElementById('difficultyModal');
+    const instructionsModalElement = document.getElementById('instructionsModal');
+    const victoryModalElement = document.getElementById('victoryModal');
+    
+    const difficultyModal = new bootstrap.Modal(difficultyModalElement, {
+        backdrop: 'static',
+        keyboard: false
+    });
+    
+    const instructionsModal = new bootstrap.Modal(instructionsModalElement);
+    const victoryModal = new bootstrap.Modal(victoryModalElement);
 
-        // Elementos del DOM
-        const wordDisplay = document.getElementById('word-display');
-        const progressBar = document.getElementById('progress');
-        const timerElement = document.getElementById('timer');
-        const resetButton = document.getElementById('reset-btn');
-        const wordsCount = document.getElementById('words-count');
-        const accuracyElement = document.getElementById('accuracy');
-        const wpmElement = document.getElementById('wpm');
-        const levelDisplay = document.getElementById('level-display');
-        const keys = document.querySelectorAll('.key');
+    // Mostrar modal de dificultad al inicio
+    difficultyModal.show();
 
-        // Modales
-        const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
-        const instructionsModal = new bootstrap.Modal(document.getElementById('instructionsModal'));
-
-        // Mostrar modal de dificultad al cargar la página
-        difficultyModal.show();
-
-        // Configurar botones de dificultad
-        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
-        difficultyButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Quitar selección anterior
-                difficultyButtons.forEach(btn => btn.classList.remove('selected'));
-                // Añadir selección actual
-                this.classList.add('selected');
-
-                // Establecer modo de juego
-                gameMode = this.dataset.difficulty;
-                levelDisplay.textContent = this.textContent;
-
-                // Cerrar modal de dificultad
-                difficultyModal.hide();
-
-                // Verificar si es la primera vez que se juega
-                if (!localStorage.getItem('mecanografiaInstructionsShown')) {
-                    instructionsModal.show();
-                } else {
-                    // Iniciar juego
-                    initGame();
-                }
-            });
+    // Configurar botones de dificultad
+    document.querySelectorAll('.difficulty-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            gameMode = this.dataset.difficulty;
+            levelDisplay.textContent = this.textContent;
+            
+            difficultyModal.hide();
+            
+            if (!localStorage.getItem('mecanografiaInstructionsShown')) {
+                instructionsModal.show();
+            } else {
+                initGame();
+            }
         });
+    });
 
+    // Configurar botón "Cómo jugar"
+    document.getElementById('comoJugar').addEventListener('click', function() {
+        difficultyModal.hide();
+        instructionsModal.show();
+    });
+
+    // Configurar botón "Aceptar" en instrucciones
+    document.getElementById('skipInstructions').addEventListener('click', function() {
+        localStorage.setItem('mecanografiaInstructionsShown', 'true');
+        instructionsModal.hide();
+        initGame();
+    });
+
+    // Configurar botones de salida
+    document.getElementById('exit-btn').addEventListener('click', function() {
+        window.location.href = '../view/gamesMenu.php';
+    });
+    
+    document.getElementById('exit-btn2').addEventListener('click', function() {
+        window.location.href = '../view/gamesMenu.php';
+    });
+
+    // Configurar botón de continuar
+    document.getElementById('continue-btn').addEventListener('click', function() {
+        victoryModal.hide();
+        resetGame();
+    });
+
+    // Función para inicializar el juego
+    function initGame() {
+        currentIndex = 0;
+        correctLetters = 0;
+        incorrectLetters = 0;
+        timeElapsed = 0;
+
+        showNewWord();
+        startTimer();
+
+        window.focus();
         
-        
-        // Configurar botones del modal de victoria
-        document.getElementById('continue-btn').addEventListener('click', function() {
-            const victoryModal = bootstrap.Modal.getInstance(document.getElementById('victoryModal'));
-            victoryModal.hide();
-            document.querySelector('.modal-backdrop')?.remove();
-             document.querySelector('.fade')?.remove();
-              document.querySelector('.show')?.remove();
-            resetGame();
-        });
-        
-        document.getElementById('exit-btn').addEventListener('click', function() {
-            window.location.href = '../view/gamesMenu.php';
+        resetButton.addEventListener('click', function() {
+            if (startTime !== null) {
+                saveGameResult(false, timeElapsed);
+            }
+            window.location.href = '?reset=1';
         });
 
-        document.getElementById('dontShowAgain').addEventListener('click', function() {
-            localStorage.setItem('mecanografiaInstructionsShown', 'true');
-            instructionsModal.hide();
-            initGame();
-        });
+        document.addEventListener('keydown', handleKeyPress);
+    }
 
         // Función para inicializar el juego
         function initGame() {
@@ -666,10 +684,7 @@ if (isset($_SESSION['user'])) {
             // Configurar evento de reinicio
             resetButton.addEventListener('click', function() {
                 // Solo guardar si ya se ha iniciado el juego
-                if (startTime !== null) {
-                    // Guardar resultado en la base de datos (abandono)
-                    saveGameResult(false, timeElapsed);
-                }
+              
                 
                 // Reiniciar juego
                 resetGame();
@@ -971,21 +986,31 @@ if (isset($_SESSION['user'])) {
         }
 
         // Función para reiniciar el juego
-        function resetGame() {
-            // Detener temporizador
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
+      // Función para reiniciar el juego
+function resetGame() {
+    // Detener temporizador
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
 
-            // Reiniciar estadísticas
-            totalWords = 0;
-            wordsCount.textContent = totalWords;
-            accuracyElement.textContent = '100%';
-            wpmElement.textContent = '0';
+    // Remover event listeners para evitar duplicados
+    document.removeEventListener('keydown', handleKeyPress);
+    resetButton.removeEventListener('click', resetGame);
 
-            // Reiniciar juego
-            initGame();
-        }
+    // Reiniciar estadísticas
+    totalWords = 0;
+    wordsCount.textContent = totalWords;
+    accuracyElement.textContent = '100%';
+    wpmElement.textContent = '0';
+    timerElement.textContent = '00:00';
+
+    // Limpiar el área de visualización
+    wordDisplay.innerHTML = '';
+    progressBar.style.width = '0%';
+
+    // Mostrar modal de dificultad nuevamente
+    difficultyModal.show();
+}
         
         function handleVictory() {
             // Detener el temporizador
