@@ -8,16 +8,17 @@
             </div>
             <div class="modal-body text-center">
                 <div class="level-up-icon mb-3">
-                    <img src="../img/niveles/1.png" alt="Subida de nivel" class="img-fluid" style="max-height: 150px;">
+                    <img id="levelImageDisplay" src="../img/niveles/1.png" alt="Subida de nivel" class="img-fluid" style="max-height: 150px;">
                     <div class="level-circle">
-                        <span id="newLevelDisplay">5</span>
+                        <span id="newLevelDisplay">1</span>
                     </div>
                 </div>
                 <h4 class="text-success">¡Felicidades!</h4>
-                <p>Has alcanzado el nivel <strong><span id="levelNumberDisplay">5</span></strong></p>
+                <p>Has alcanzado el nivel <strong><span id="levelNumberDisplay">1</span></strong></p>
+                <p class="fw-bold" id="levelNameDisplay">Semilla joven</p>
                 <div class="bg-light p-2 rounded">
-                     <i class="fas fa-trophy text-warning me-2"></i>
-                        <span>Sigue acumulando puntos para seguir subiendo de nivel. </span>
+                    <i class="fas fa-trophy text-warning me-2"></i>
+                    <span>Sigue acumulando puntos para seguir subiendo de nivel.</span>
                 </div>
             </div>
             <div class="modal-footer">

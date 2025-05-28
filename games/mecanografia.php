@@ -473,6 +473,7 @@ if (isset($_SESSION['user'])) {
 
     <?php include '../components/footer.php'; ?>
     <?php include '../components/modalInsignia.php'; ?>
+    <?php include '../components/modalNivel.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 </body>
@@ -1036,6 +1037,7 @@ if (isset($_SESSION['user'])) {
         }
         
         // Función para guardar puntos en la base de datos
+    // Función para guardar puntos en la base de datos
         function savePoints(points) {
             console.log('Intentando guardar puntos:', points);
             
@@ -1046,21 +1048,63 @@ if (isset($_SESSION['user'])) {
                 },
                 body: `points=${points}&game=mecanografia`
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error('Error al actualizar puntos: ' + text);
-                    });
-                }
-                return response.text();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Puntos actualizados correctamente:', data);
+                if (data.success) {
+                    console.log('Puntos actualizados correctamente:', data);
+                    
+                    // Mostrar modal de nuevo nivel si hubo subida
+                    if (data.levelUp) {
+                        showLevelUpModal(data.newLevel, data.levelName, data.levelImage);
+                    }
+                } else {
+                    console.error('Error al actualizar puntos:', data.message);
+                }
             })
             .catch(error => {
                 console.error('Error completo:', error);
             });
         }
+
+        // Función para mostrar el modal de subida de nivel
+        function showLevelUpModal(newLevel, levelName, levelImage) {
+            // Actualizar el contenido del modal con el nuevo nivel
+            document.getElementById('newLevelDisplay').textContent = newLevel;
+            document.getElementById('levelNumberDisplay').textContent = newLevel;
+            
+            // Actualizar nombre del nivel e imagen
+            document.getElementById('levelNameDisplay').textContent = levelName;
+            document.getElementById('levelImageDisplay').src = `../img/niveles/${levelImage}`;
+            
+            // Mostrar el modal
+            const levelUpModal = new bootstrap.Modal(document.getElementById('levelUpModal'));
+            createConfetti();
+            levelUpModal.show();
+            
+            // Reproducir sonido de subida de nivel
+            const levelUpSound = new Audio('../assets/level-up.mp3');
+            levelUpSound.play().catch(e => console.log('No se pudo reproducir sonido:', e));
+        }
+        // Función para crear efecto de confeti (opcional)
+function createConfetti() {
+    const colors = ['#246741', '#ff5252', '#ffab00', '#00bcd4', '#673ab7'];
+    const container = document.querySelector('.modal-content');
+    
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        container.appendChild(confetti);
+        
+        // Eliminar después de la animación
+        setTimeout(() => {
+            confetti.remove();
+        }, 5000);
+    }
+}
     });
 
     // Función para guardar el resultado del juego
