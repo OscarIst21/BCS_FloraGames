@@ -1036,7 +1036,6 @@ if (isset($_SESSION['user'])) {
             return Math.round(basePoints * accuracyMultiplier * wpmMultiplier);
         }
         
-        // Función para guardar puntos en la base de datos
     // Función para guardar puntos en la base de datos
         function savePoints(points) {
             console.log('Intentando guardar puntos:', points);
