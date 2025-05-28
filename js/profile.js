@@ -25,14 +25,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentName = document.getElementById('nombreInput').value;
         const currentAvatar = document.querySelector('.profile-pic').src;
         const currentColor = document.querySelector('.profile-pic').style.backgroundColor;
-        
+        const nameValue = currentName.trim();
         // Verificar si hay cambios en el nombre, avatar o color
         hasChanges = (currentName !== originalName) || 
                     (currentAvatar !== originalAvatar) || 
                     (currentColor !== originalColor);
         
         // Actualizar estado del botón
-        if (hasChanges) {
+        if (nameValue === '') {
+            guardarBtn.disabled = true;
+            guardarBtn.style.backgroundColor = '#cccccc'; // Gris
+            guardarBtn.style.cursor = 'not-allowed';
+        } else if (hasChanges) {
             guardarBtn.disabled = false;
             guardarBtn.style.backgroundColor = '#2E8B57'; // Verde
             guardarBtn.style.cursor = 'pointer';
@@ -41,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             guardarBtn.style.backgroundColor = '#cccccc'; // Gris
             guardarBtn.style.cursor = 'not-allowed';
         }
+
     }
     
     // Marcar el avatar actual como seleccionado al cargar la página
