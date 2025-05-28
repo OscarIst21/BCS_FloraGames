@@ -747,7 +747,7 @@ function showLevelUpModal(newLevel, levelName, levelImage) {
                 mostrarSiguiente();
                 intervalo = setInterval(function() {
                     if (!pausado) mostrarSiguiente();
-                }, 100);
+                }, 3200);
             }
         };
 
