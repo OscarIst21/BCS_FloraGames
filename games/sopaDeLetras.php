@@ -358,41 +358,150 @@ if (isset($_SESSION['user'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Obtener palabras desde PHP según la dificultad
-            <?php
-                $palabras = obtenerPalabras();
-                echo "const palabrasPorDificultad = {";
-                echo "easy: " . json_encode(array_map('mb_strtoupper', $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
-                echo "hard: " . json_encode(array_map('mb_strtoupper', $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                echo "};";
-            ?>
+    // Configurar botones de instrucciones
+    document.getElementById('comoJugar').addEventListener('click', function() {
+        difficultyModal.hide();
+        instructionsModal.show();
+    });
 
-            // DEBUG: Mostrar en consola las palabras que se traen de PHP
-            console.log("Palabras modo fácil:", palabrasPorDificultad.easy);
-            console.log("Palabras modo difícil:", palabrasPorDificultad.hard);
+    document.getElementById('skipInstructions').addEventListener('click', function() {
+        instructionsModal.hide();
+        localStorage.setItem('sopaLetrasInstructionsShown', 'true');
+        initGame(); // Esta línea faltaba para iniciar el juego después de las instrucciones
+    });
 
-            let boardSize = 15;
-            let board = [];
-            let words = [];
-            let foundWords = [];
-            let selectedCells = [];
-            let timeElapsed = 0;
-            let timerInterval;
-            let gameMode = 'easy'; // Por defecto
-            let timeLimit = 180; // Por defecto, puedes ajustar según dificultad
+    // Configurar botones de dificultad
+    const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+    difficultyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Establecer modo de juego
+            gameMode = this.dataset.difficulty === 'notime' ? 'notime' : 
+                      this.dataset.difficulty === 'hard' ? 'hard' : 'easy';
 
-            const letterBoardElement = document.getElementById('letter-board');
-            const wordListElement = document.getElementById('word-list');
-            const timerElement = document.getElementById('timer');
-            const resetButton = document.getElementById('reset-btn');
-            const levelDisplay = document.getElementById('level-display');
+            // Cerrar modal de dificultad
+            difficultyModal.hide();
 
-            // Modales
-            const difficultyModal = new bootstrap.Modal(document.getElementById('difficultyModal'));
-            const instructionsModal = new bootstrap.Modal(document.getElementById('instructionsModal'));
+            // Verificar si es la primera vez que se juega
+            if (!localStorage.getItem('sopaLetrasInstructionsShown')) {
+                instructionsModal.show();
+            } else {
+                // Iniciar juego directamente
+                initGame();
+            }
+        });
+    });
+});
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener palabras desde PHP según la dificultad
+    <?php
+        $palabras = obtenerPalabras();
+        echo "const palabrasPorDificultad = {";
+        echo "easy: " . json_encode(array_map('mb_strtoupper', $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+        echo "hard: " . json_encode(array_map('mb_strtoupper', $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        echo "};";
+    ?>
 
-            // Mostrar modal de dificultad al cargar la página
-            difficultyModal.show();
+    // Variables del juego
+    let boardSize = 15;
+    let board = [];
+    let words = [];
+    let foundWords = [];
+    let selectedCells = [];
+    let timeElapsed = 0;
+    let timerInterval;
+    let gameMode = 'easy';
+    let timeLimit = 180;
+
+    // Elementos del DOM
+    const letterBoardElement = document.getElementById('letter-board');
+    const wordListElement = document.getElementById('word-list');
+    const timerElement = document.getElementById('timer');
+    const resetButton = document.getElementById('reset-btn');
+    const levelDisplay = document.getElementById('level-display');
+
+    // Inicializar modales correctamente
+    const difficultyModalElement = document.getElementById('difficultyModal');
+    const instructionsModalElement = document.getElementById('instructionsModal');
+    
+    const difficultyModal = new bootstrap.Modal(difficultyModalElement, {
+        backdrop: 'static',
+        keyboard: false
+    });
+    
+    const instructionsModal = new bootstrap.Modal(instructionsModalElement);
+
+    // Mostrar modal de dificultad al cargar la página
+    difficultyModal.show();
+
+    // Configurar botones de dificultad
+    document.querySelectorAll('.difficulty-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            gameMode = this.dataset.difficulty;
+            console.log("Dificultad seleccionada:", gameMode);
+            
+            // Ocultar modal de dificultad
+            difficultyModal.hide();
+            
+            // Verificar si mostrar instrucciones
+            if (!localStorage.getItem('sopaLetrasInstructionsShown')) {
+                instructionsModal.show();
+            } else {
+                initGame();
+            }
+        });
+    });
+
+    // Configurar botón "Cómo jugar"
+    document.getElementById('comoJugar').addEventListener('click', function() {
+        difficultyModal.hide();
+        instructionsModal.show();
+    });
+
+    // Configurar botón "Aceptar" en instrucciones
+    document.getElementById('skipInstructions').addEventListener('click', function() {
+        localStorage.setItem('sopaLetrasInstructionsShown', 'true');
+        instructionsModal.hide();
+        initGame();
+    });
+
+    // Configurar botón "Salir"
+    document.getElementById('exit-btn').addEventListener('click', function() {
+        window.location.href = '../view/gamesMenu.php';
+    });
+
+    // Función para inicializar el juego
+    function initGame() {
+        console.log("Iniciando juego en modo:", gameMode);
+        
+        // Reiniciar variables
+        foundWords = [];
+        selectedCells = [];
+        timeElapsed = 0;
+        words = palabrasPorDificultad[gameMode] || [];
+
+        // Actualizar contador de palabras
+        document.getElementById('total-words-count').textContent = words.length;
+        document.getElementById('found-words-count').textContent = '0';
+
+        // Establecer límite de tiempo según dificultad
+        if (gameMode === 'easy') {
+            timeLimit = 180;
+        } else if (gameMode === 'hard') {
+            timeLimit = 120;
+        } else {
+            timeLimit = 0;
+        }
+
+        // Crear tablero
+        createBoard();
+        
+        // Renderizar elementos
+        renderBoard();
+        renderWordList();
+        
+        // Iniciar temporizador
+        startTimer();
+    }
 
             // Configurar botones de dificultad
             const difficultyButtons = document.querySelectorAll('.difficulty-btn');
