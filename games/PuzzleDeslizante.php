@@ -240,7 +240,9 @@ if (isset($_SESSION['puzzle_difficulty'])) {
             border-radius: 10px;
             padding: 1rem;
             margin-bottom: 1rem;
+            width: 60%;
         }
+
         .puzzle-grid {
             display: grid;
             grid-template-columns: repeat(<?php echo $_SESSION['puzzle_grid_size'] ?? 3; ?>, 1fr);
@@ -322,6 +324,33 @@ if (isset($_SESSION['puzzle_difficulty'])) {
         .navbar {
             z-index: 1030;
         }
+
+        .reference-image-container{
+            width: 20%;
+            position: relative;
+        }
+        .reference-image{
+            width: 100%;
+        }
+
+        .container{
+            display:flex;
+            justify-content: space-around;
+        }
+
+        @media (max-width: 800px){
+            .container{
+                flex-direction:column;
+                align-items: center;
+            }
+
+            .puzzle-container {
+                width: 100%;
+            }
+            .reference-image-container{
+                width: 40%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -367,6 +396,12 @@ if (isset($_SESSION['puzzle_difficulty'])) {
                     </div>
                 </div>
 
+                <div class="reference-image-container" >
+                    <h5 class="text-center mb-3" style="color: white;">Imagen de referencia</h5>
+                    <img src="../img/plantas/<?php echo $_SESSION['puzzle_image']; ?>" alt="Referencia" class="reference-image">
+                    <p class="text-center mt-2" style="color: white;"><?php echo htmlspecialchars($_SESSION['puzzle_nombre'] ?? 'Desconocida'); ?></p>
+                </div>
+
                 <div class="puzzle-container">
                     <div class="puzzle-grid" id="puzzle-grid">
                         <?php
@@ -389,11 +424,6 @@ if (isset($_SESSION['puzzle_difficulty'])) {
                         }
                         ?>
                     </div>
-                    <div class="reference-image-container" >
-            <h5 class="text-center mb-3" style="color: white;">Imagen de referencia /Trabajando en ello 👷‍♀️🏗</h5>
-            <img src="../img/plantas/<?php echo $_SESSION['puzzle_image']; ?>" alt="Referencia" class="reference-image">
-            <p class="text-center mt-2" style="color: white;"><?php echo htmlspecialchars($_SESSION['puzzle_nombre'] ?? 'Desconocida'); ?></p>
-        </div>
                 </div>
                 
                 <div class="image-selector mt-4" style="display: none;">
@@ -546,20 +576,34 @@ if (isset($_SESSION['puzzle_difficulty'])) {
                 window.location.href = '../view/gamesMenu.php';
             });
 
-            document.getElementById('musicToggle').addEventListener('click', () => {
+            document.getElementById('musicToggle').addEventListener('click', function() {
                 const audio = document.getElementById('gameMusic');
+                const icon = this.querySelector('i');
+                const headerIcon = document.querySelector('.header-secundary .fa-solid', this);
+
                 if (audio.paused) {
                     audio.play();
-                    this.querySelector('i').classList.remove('fa-volume-xmark');
-                    this.querySelector('i').classList.add('fa-volume-high');
+                    icon.classList.remove('fa-volume-xmark');
+                    icon.classList.add('fa-volume-high');
+                    // Actualizar icono en el header secundario si existe
+                    if (headerIcon) {
+                        headerIcon.classList.remove('fa-volume-xmark');
+                        headerIcon.classList.add('fa-volume-high');
+                    }
                     fetch('../config/updateMusicPreference.php?enable=1');
                 } else {
                     audio.pause();
-                    this.querySelector('i').classList.remove('fa-volume-high');
-                    this.querySelector('i').classList.add('fa-volume-xmark');
+                    icon.classList.remove('fa-volume-high');
+                    icon.classList.add('fa-volume-xmark');
+                    // Actualizar icono en el header secundario si existe
+                    if (headerIcon) {
+                        headerIcon.classList.remove('fa-volume-high');
+                        headerIcon.classList.add('fa-volume-xmark');
+                    }
                     fetch('../config/updateMusicPreference.php?enable=0');
                 }
             });
+
         }
 
         function startTimer() {
