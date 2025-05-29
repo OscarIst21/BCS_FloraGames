@@ -527,7 +527,7 @@ if (isset($_SESSION['memorama_difficulty'])) {
                 </div>
                 <div class="modal-body">
                     <p>1.- Toca dos cartas para voltearlas. Si son iguales, se quedan visibles. Si no coinciden, se voltean de nuevo.</p>
-                    <p>2.- El objetivo es encontrar todos los pares con la menor cantidad de movimientos en el menor tiempo posible.</p>
+                    <p>2.- El objetivo es encontrar todos los pares en el menor tiempo posible.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="skipInstructions">Aceptar</button>

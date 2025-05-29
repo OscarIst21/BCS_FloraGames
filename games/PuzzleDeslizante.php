@@ -389,6 +389,11 @@ if (isset($_SESSION['puzzle_difficulty'])) {
                         }
                         ?>
                     </div>
+                    <div class="reference-image-container" >
+            <h5 class="text-center mb-3" style="color: white;">Imagen de referencia /Trabajando en ello 👷‍♀️🏗</h5>
+            <img src="../img/plantas/<?php echo $_SESSION['puzzle_image']; ?>" alt="Referencia" class="reference-image">
+            <p class="text-center mt-2" style="color: white;"><?php echo htmlspecialchars($_SESSION['puzzle_nombre'] ?? 'Desconocida'); ?></p>
+        </div>
                 </div>
                 
                 <div class="image-selector mt-4" style="display: none;">
