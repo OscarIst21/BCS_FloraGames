@@ -1,0 +1,24 @@
+@font-face {
+  font-family: 'Anzer';
+  src: url('../Assets/Ancizar_Sans/AncizarSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+    margin:0;
+    position: relative;
+    min-height: 100vh;
+    font-family: "Ancizar Sans", sans-serif;
+    font-family: 'Anzer', sans-serif !important;
+}
+
+.contenedor {
+    z-index: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin: 2.5rem 5rem;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
