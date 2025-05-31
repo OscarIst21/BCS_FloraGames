@@ -32,12 +32,12 @@ function obtenerPalabras() {
     // Seleccionar palabras para cada modo, pero no más de las que existan
     $palabras = [
         'facil' => array_slice($todosNombres, 0, min(4, count($todosNombres))),
-        'dificil' => array_slice($todosNombres, 0, min(6, count($todosNombres)))
+        'dificil' => array_slice($todosNombres, 0, min(6, count($todosNombres))),
+        'notime' => array_slice($todosNombres, 0, min(5, count($todosNombres))) // Agregado para modo notime
     ];
 
     return $palabras;
 }
-
 // Variables para usuarios no autenticados
 $userId = null;
 $musicEnabled = true; // Valor predeterminado
@@ -252,7 +252,7 @@ if (isset($_SESSION['user'])) {
         </div>
         <div style="text-align:center">
             <h5 style="margin:0">Sopa de letras</h5>
-            <div class="level">Modo facil - Nivel: <span id="level-display">1</span></div>
+            <div class="level" style="display: none";>Modo facil - Nivel: <span id="level-display">1</span></div>
         </div>
         <div  style="display:flex; flex-direction:row; gap:10px">
             <div>
@@ -394,12 +394,13 @@ if (isset($_SESSION['user'])) {
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener palabras desde PHP según la dificultad
     <?php
-        $palabras = obtenerPalabras();
-        echo "const palabrasPorDificultad = {";
-        echo "easy: " . json_encode(array_map('mb_strtoupper', $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
-        echo "hard: " . json_encode(array_map('mb_strtoupper', $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        echo "};";
-    ?>
+    $palabras = obtenerPalabras();
+    echo "const palabrasPorDificultad = {";
+    echo "easy: " . json_encode(array_map('mb_strtoupper', $palabras['facil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+    echo "hard: " . json_encode(array_map('mb_strtoupper', $palabras['dificil']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . ",";
+    echo "notime: " . json_encode(array_map('mb_strtoupper', $palabras['notime']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); // Agregado
+    echo "};";
+?>
 
     // Variables del juego
     let boardSize = 15;
@@ -471,13 +472,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para inicializar el juego
     function initGame() {
-        console.log("Iniciando juego en modo:", gameMode);
-        
-        // Reiniciar variables
-        foundWords = [];
-        selectedCells = [];
-        timeElapsed = 0;
-        words = palabrasPorDificultad[gameMode] || [];
+    console.log("Iniciando juego en modo:", gameMode);
+    
+    // Reiniciar variables
+    foundWords = [];
+    selectedCells = [];
+    timeElapsed = 0;
+    
+    // Usar palabras según el modo seleccionado
+    if (gameMode === 'notime') {
+        words = palabrasPorDificultad.notime || [];
+    } else if (gameMode === 'hard') {
+        words = palabrasPorDificultad.hard || [];
+    } else {
+        words = palabrasPorDificultad.easy || [];
+    }
 
         // Actualizar contador de palabras
         document.getElementById('total-words-count').textContent = words.length;
@@ -953,7 +962,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             // Función para reiniciar el juego
             function resetGame() {
-                clearInterval(timerInterval);
+                window.location.reload();
                 initGame();
             }
         });
