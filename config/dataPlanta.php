@@ -4,6 +4,7 @@ require_once __DIR__ . '/../connection/database.php';
 $db = new Database();
 $conn = $db->getConnection();
 function getAllPlantas() {
+    global $conn;
     $stmt = $conn->prepare("SELECT * FROM ficha_planta");
     $stmt->execute();
     $plantas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -13,6 +14,7 @@ function getAllPlantas() {
 
 // Método para obtener solo los nombres científicos
 function getNombresCientificos() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, nombre_cientifico FROM ficha_planta");
     $stmt->execute();
     $nombres = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -22,6 +24,7 @@ function getNombresCientificos() {
 
 // Método para obtener la distribución
 function getDistribuciones() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, distribucion FROM ficha_planta");
     $stmt->execute();
     $distribuciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -31,6 +34,7 @@ function getDistribuciones() {
 
 // Método para obtener las fotos
 function getFotos() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, foto FROM ficha_planta");
     $stmt->execute();
     $fotos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -40,6 +44,7 @@ function getFotos() {
 
 // Método para obtener los dibujos animados
 function getDibujosAnimados() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, dibujo_animado FROM ficha_planta");
     $stmt->execute();
     $dibujos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -49,6 +54,7 @@ function getDibujosAnimados() {
 
 // Método para obtener curiosidades
 function getCuriosidades() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, curiosidad FROM ficha_planta");
     $stmt->execute();
     $curiosidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -57,6 +63,7 @@ function getCuriosidades() {
 }
 
 function getUsos() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, usos FROM ficha_planta");
     $stmt->execute();
     $usos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -66,6 +73,7 @@ function getUsos() {
 
 // Método para obtener audios
 function getAudios() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, audio FROM ficha_planta");
     $stmt->execute();
     $audios = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -75,6 +83,7 @@ function getAudios() {
 
 // Método para obtener hábitats
 function getHabitats() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, habitat FROM ficha_planta");
     $stmt->execute();
     $habitats = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -84,6 +93,7 @@ function getHabitats() {
 
 // Método para obtener características
 function getCaracteristicas() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, caracteristicas FROM ficha_planta");
     $stmt->execute();
     $caracteristicas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -93,6 +103,7 @@ function getCaracteristicas() {
 
 // Método para obtener situación
 function getSituaciones() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, situación FROM ficha_planta");
     $stmt->execute();
     $situaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -101,6 +112,7 @@ function getSituaciones() {
 }
 
 function getNombresPlantas() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, nombre_comun FROM ficha_planta");
     $stmt->execute();
     $nombres = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -123,6 +135,7 @@ function getNombresPlantas() {
 }
 
 function getCuriosidadesPlantas() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, nombre_comun, curiosidad FROM ficha_planta");
     $stmt->execute();
     $curiosidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -131,6 +144,7 @@ function getCuriosidadesPlantas() {
 }
 
 function getImagenesPlantas() {
+    global $conn;
     $stmt = $conn->prepare("SELECT id, nombre_comun, foto, dibujo_animado FROM ficha_planta");
     $stmt->execute();
     $imagenes = $stmt->fetchAll(PDO::FETCH_ASSOC);

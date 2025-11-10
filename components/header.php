@@ -83,15 +83,30 @@
             
             <!-- Separador -->
             <li class="menu-divider"></li>
+
+            <!-- AGREGAR VALIDACIÓN PARA QUE SOLO SALGA CON EL ROL DE ADMIN -->
+            <li>
+                <a href="/BCS_FloraGames/view/admin/index.php" class="side-menu-link">
+                    <i class="fa-solid fa-leaf"></i> Gestión de plantas
+                </a>
+            </li>
+            <li>
+                <a href="/BCS_FloraGames/view/admin/user.php" class="side-menu-link">
+                    <i class="fa-solid fa-users"></i> Gestión de usuarios
+                </a>
+            </li>
+
+            <!-- Separador -->
+            <li class="menu-divider"></li>
             
             <!-- Sección de usuario -->
             <?php if(isset($_SESSION['user'])): ?>
-        <li>
-            <a href="/BCS_FloraGames/view/myProfile.php" class="side-menu-link">
-                <i class="fa-solid fa-user"></i> Mi perfil
-            </a>
-        </li>
-    <?php endif; ?>
+            <li>
+                <a href="/BCS_FloraGames/view/myProfile.php" class="side-menu-link">
+                    <i class="fa-solid fa-user"></i> Mi perfil
+                </a>
+            </li>
+             <?php endif; ?>
     
      <li class="menu-divider"></li>
     <!-- Acerca de (siempre visible) -->
@@ -103,7 +118,6 @@
     
     <!-- Separador -->
     <li class="menu-divider"></li>
-    
     <?php if(isset($_SESSION['user'])): ?>
         <!-- Cerrar sesión (abajo) -->
         <li class="logout-item">
