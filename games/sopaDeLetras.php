@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Función para inicializar el juego
-    function initGame() {
+    function re {
     console.log("Iniciando juego en modo:", gameMode);
     
     // Reiniciar variables

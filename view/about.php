@@ -31,60 +31,78 @@ require_once __DIR__.'/../config/init.php';
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-bs-toggle="tab" data-bs-target="#licencias"><i class="fa-solid fa-id-badge me-2"></i>Licencias</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="tab" data-bs-target="#colaboradores"><i class="fa-solid fa-people-group me-2"></i>Colaboradores</a>
+                    </li>
                 </ul>
 
                 <div class="tab-content p-3 border border-top-0 rounded-bottom">
-                <div class="tab-pane fade show active" id="creditos">
-                    <div class="cd-info">
-                        <h5 class="cd-title"><i class="fa-solid fa-camera me-2"></i>Créditos de imágenes</h5>
-                        <p class="fw-bold  mb-0">Fotografías de las plantas: </p>
-                        <div class="d-flex justify-content-between ms-2">
-                            <p>Dr. Esli Alexis Mayer Félix </p>
-                            <p class="fst-italic">Uso autorizado para Flora Games</p>
+                    <div class="tab-pane fade show active" id="creditos">
+                        <div class="cd-info">
+                            <h5 class="cd-title"><i class="fa-solid fa-camera me-2"></i>Créditos de imágenes</h5>
+                            <p class="fw-bold  mb-0">Fotografías de las plantas: </p>
+                            <div class="d-flex justify-content-between ms-2">
+                                <p>Dr. Esli Alexis Mayer Félix </p>
+                                <p class="fst-italic">Uso autorizado para Flora Games</p>
+                            </div>
+                            <p class="fw-bold mb-0">Iconos de insignias y niveles: </p>
+                            <div class="d-flex justify-content-between ms-2">
+                                <p>Colaboradores de Flora Games </p>
+                                <p class="fst-italic">Uso exclusivo para Flora Games</p>
+                            </div>
                         </div>
-                        <p class="fw-bold mb-0">Iconos de insignias y niveles: </p>
-                         <div class="d-flex justify-content-between ms-2">
-                            <p>Colaboradores de Flora Games </p>
-                            <p class="fst-italic">Uso exclusivo para Flora Games</p>
+                        <hr>
+                        <div class="cd-info">
+                            <h5 class="cd-title"><i class="fa-solid fa-music me-2"></i>Créditos de audio</h5>
+                            <p class="fw-bold mb-0">Música de fondo: </p>
+                            <div class="d-flex justify-content-between ms-2">
+                                <p>Bunny Hop.mp3</p>
+                                <p class="fst-italic">Uso autorizado para Flora Games</p>
+                            </div>
+                            <p class="fw-bold mb-0">Audios informativos de plantas: </p>
+                            <div class="d-flex justify-content-between ms-2">
+                                <p>Colaboradores de Flora Games </p>
+                                <p class="fst-italic">Uso exclusivo para Flora Games</p>
+                            </div>
+                        </div>    
+                        <hr>
+                        <div class="cd-info">
+                            <h5 class="cd-title"><i class="fa-solid fa-book-journal-whills me-2"></i>Créditos de contenido</h5>
+                            <p class="fw-bold mb-0">Información botánica: </p>
+                            <div class="d-flex justify-content-between ms-2">
+                                <p>Flora Iconográfica de Baja California Sur</p>
+                                <p class="fst-italic">CiB, 2015</p>
+                            </div>
+                            
+                        </div>    
+                    </div>
+                    
+                    <div class="tab-pane fade" id="licencias">
+                        <div class="cd-info">
+                            <h5 class="cd-title">Licencias y Derechos de Autor</h5>
+                            <p class="fw-bold mb-0">Flora Games © 2025 </p>
+                            <p>Todos los derechos reservados. El contenido original de Flora Games, incluyendo textos, diseño, código y estructura de la aplicación están protegidos por leyes de derecho de autor.</p>
+                            <p class="fw-bold mb-0">Uso educativo </p>
+                            <p>Flora Games está diseñado con fines educativos. Se permite el uso de la plataforma en entornos educativos sin fines comerciales, siempre que se mantenga la atribución adecuada.</p>
+                            <p class="fw-bold mb-0">Términos de uso </p>
+                            <p>Al utilizar Flora Games, aceptas respetar los derechos de autor y las licencias de todos los materiales presentados. No se permite la redistribución, modificación o uso comercial sin autorización expresa.</p>
                         </div>
                     </div>
-                    <hr>
-                    <div class="cd-info">
-                        <h5 class="cd-title"><i class="fa-solid fa-music me-2"></i>Créditos de audio</h5>
-                        <p class="fw-bold mb-0">Música de fondo: </p>
-                        <div class="d-flex justify-content-between ms-2">
-                            <p>Bunny Hop.mp3</p>
-                            <p class="fst-italic">Uso autorizado para Flora Games</p>
+
+                    <div class="tab-pane fade" id="colaboradores">
+                        <div class="cd-info">
+                            <h5 class="cd-title">Colaboradores de Flora Games</h5>
+
+                            <p class="fw-bold mb-0">¿Quiénes somos?</p>
+                            <p>Flora Games es un proyecto educativo pensado para que niños, niñas y jóvenes conozcan la flora de Baja California Sur de forma divertida e interactiva. Creemos que aprender sobre nuestro entorno natural es el primer paso para protegerlo.</p>
+                            <hr>
+                            <p class="fw-bold mb-0">Miembros:</p>
+                            <p class=" mb-0">- Oscar Uriel Lopez Ortiz.</p>
+                            <p class=" mb-0">- Zanhia Arlen Lucero Cota. </p>
+                            <p class=" mb-0">- Hannia Michelle Tsui Rosendo.</p>
+                            
                         </div>
-                        <p class="fw-bold mb-0">Audios informativos de plantas: </p>
-                         <div class="d-flex justify-content-between ms-2">
-                            <p>Colaboradores de Flora Games </p>
-                            <p class="fst-italic">Uso exclusivo para Flora Games</p>
-                        </div>
-                    </div>    
-                    <hr>
-                    <div class="cd-info">
-                        <h5 class="cd-title"><i class="fa-solid fa-book-journal-whills me-2"></i>Créditos de contenido</h5>
-                        <p class="fw-bold mb-0">Información botánica: </p>
-                        <div class="d-flex justify-content-between ms-2">
-                            <p>Flora Iconográfica de Baja California Sur</p>
-                            <p class="fst-italic">CiB, 2015</p>
-                        </div>
-                        
-                    </div>    
-                </div>
-                
-                <div class="tab-pane fade" id="licencias">
-                    <div class="cd-info">
-                        <h5 class="cd-title">Licencias y Derechos de Autor</h5>
-                        <p class="fw-bold mb-0">Flora Games © 2025 </p>
-                        <p>Todos los derechos reservados. El contenido original de Flora Games, incluyendo textos, diseño, código y estructura de la aplicación están protegidos por leyes de derecho de autor</p>
-                        <p class="fw-bold mb-0">Uso educativo </p>
-                         <p>Flora Games está diseñado con fines educativos. Se permite el uso de la plataforma en entornos educativos sin fines comerciales, siempre que se mantenga la atribución adecuada.</p>
-                         <p class="fw-bold mb-0">Términos de uso </p>
-                         <p>Al utilizar Flora Games, aceptas respetar los derechos de autor y las licencias de todos los materiales presentados. No se permite la redistribución, modificación o uso comercial sin autorización expresa.</p>
                     </div>
-                </div>
                 </div>
             </div>
         </section>
