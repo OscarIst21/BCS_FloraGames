@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__.'/../../connection/database.php';
 require_once __DIR__ . '/../../config/init.php';
+require_once __DIR__ . '/../../config/checkAdmin.php';
+
+// Verificar que el usuario sea administrador
+requireAdmin();
 
 // Paginación
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

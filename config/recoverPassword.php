@@ -33,9 +33,9 @@ if (isset($_POST['send_code'])) {
     $stmt->execute([$user['id'], $token]);
 
     // Enviar correo con el token
-    // Replace the enviarCorreoToken call with:
-    // Send email with recovery link
+    error_log("Intentando enviar código de recuperación a: $email con token: $token");
     $sent = enviarCodigoRecuperacion($email, $token);
+    error_log("Resultado del envío: " . ($sent ? 'exitoso' : 'fallido'));
     
     // Always proceed to next step, but show different messages
     $_SESSION['step'] = 'verify';
@@ -43,10 +43,11 @@ if (isset($_POST['send_code'])) {
     
     if ($sent) {
         $_SESSION['flash']['email_success'] = 'Revisa tu correo electrónico';
+        error_log("Avanzando al paso verify con email: $email");
     } else {
         $_SESSION['flash']['email_error'] = 'Hubo un problema al enviar el correo, intenta nuevamente';
-        // opcionalmente vuelve al paso email:
         $_SESSION['step'] = 'email';
+        error_log("Error en envío, regresando al paso email");
     }
     header("Location: ../view/recuperatePassword.php");
     exit();

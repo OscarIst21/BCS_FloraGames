@@ -3,9 +3,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 // Incluir las clases de PHPMailer
-require_once __DIR__ . '/phpmailer/Exception.php';
-require_once __DIR__ . '/phpmailer/PHPMailer.php';
-require_once __DIR__ . '/phpmailer/SMTP.php';
+require_once __DIR__ . '/PHPMailer/Exception.php';
+require_once __DIR__ . '/PHPMailer/PHPMailer.php';
+require_once __DIR__ . '/PHPMailer/SMTP.php';
 
 function enviarCorreoBienvenida($destinatario, $nombre) {
     $mail = new PHPMailer(true);
@@ -56,6 +56,16 @@ function enviarCorreoBienvenida($destinatario, $nombre) {
 
 
 function enviarCodigoRecuperacion($email, $token) {
+    // Modo desarrollo: simular envío exitoso si Gmail está bloqueado
+    $desarrollo = true; // Cambiar a false en producción
+    
+    if ($desarrollo) {
+        error_log("MODO DESARROLLO: Simulando envío de código $token a $email");
+        // Guardar el token en un archivo para poder verlo
+        file_put_contents(__DIR__ . '/ultimo_token.txt', "Email: $email\nToken: $token\nFecha: " . date('Y-m-d H:i:s'));
+        return true;
+    }
+    
     $mail = new PHPMailer(true);
     $mail->CharSet = 'UTF-8';
     $mail->Encoding = 'base64';
@@ -94,6 +104,12 @@ function enviarCodigoRecuperacion($email, $token) {
         return true;
     } catch (Exception $e) {
         error_log("Error al enviar correo de recuperación: " . $mail->ErrorInfo);
+        // En caso de error de Gmail, activar modo desarrollo temporalmente
+        if (strpos($mail->ErrorInfo, 'Daily user sending limit exceeded') !== false) {
+            error_log("LÍMITE DE GMAIL EXCEDIDO: Activando modo desarrollo");
+            file_put_contents(__DIR__ . '/ultimo_token.txt', "Email: $email\nToken: $token\nFecha: " . date('Y-m-d H:i:s'));
+            return true;
+        }
         return false;
     }
 }

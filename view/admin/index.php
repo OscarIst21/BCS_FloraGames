@@ -3,6 +3,10 @@
 require_once __DIR__.'/../../connection/database.php';
 require_once __DIR__ . '/../../config/init.php';
 require_once __DIR__ . '/../../config/dataPlanta.php';
+require_once __DIR__ . '/../../config/checkAdmin.php';
+
+// Verificar que el usuario sea administrador
+requireAdmin();
 
 // Paginación
 

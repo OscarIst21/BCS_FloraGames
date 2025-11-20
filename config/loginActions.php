@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $password = $_POST['password'];
         $confirm_password = $_POST['confirm_password'];
 
-        // Check if email already exists
+
         $stmt = $conn->prepare("SELECT COUNT(*) FROM usuarios WHERE correo_electronico = ?");
         $stmt->execute([$correo]);
         if ($stmt->fetchColumn() > 0) {
@@ -30,21 +30,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit();
         }
 
-        // Validate passwords match
+
         if ($password !== $confirm_password) {
             $_SESSION['error'] ='Las contraseñas no coinciden';
             header("Location: ../view/register.php");
             exit();
         }
 
-        // Validate password length
+
         if (strlen($password) < 6) {
             $_SESSION['error'] =  'La contraseña debe tener al menos 6 caracteres';
             header("Location: ../view/register.php");
             exit();
         }
 
-        // Validate birthdate
+
         $birthDate = new DateTime($fecha_nacimiento);
         $today = new DateTime();
         $age = $birthDate->diff($today)->y;
@@ -55,7 +55,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit();
         }
 
-        // If all validations pass, proceed with registration
         $contrasena = password_hash($password, PASSWORD_DEFAULT);
 
         try {
@@ -79,7 +78,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION['nivel_id'] = 1;
             $_SESSION['foto_perfil'] = 'usuario0.png';
             $_SESSION['color_fondo'] = '';
-            $_SESSION['show_welcome'] = true; // Add this line for welcome modal
+            $_SESSION['rol'] = 'user'; // Rol por defecto para nuevos usuarios
+            $_SESSION['show_welcome'] = true; 
 
             // Enviar correo de bienvenida
             $correoEnviado = enviarCorreoBienvenida($correo, $nombre);
@@ -100,12 +100,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             exit();
         }
     }
-    // Login section
+
     elseif (isset($_POST['username']) && isset($_POST['password'])) {
         $login = trim($_POST['username']);
         $password = trim($_POST['password']);
 
-        // Validate empty fields
         if (empty($login) || empty($password)) {
             $_SESSION['error'] = 'Por favor, completa todos los campos';
             header("Location: ../view/login.php");
@@ -126,6 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION['nivel_id'] = $user['nivel_de_usuario_id'];
                 $_SESSION['foto_perfil'] = $user['foto_perfil']; // Añadir foto de perfil a la sesión
                 $_SESSION['color_fondo'] = $user['color_fondo']; // Añadir color de fondo a la sesión
+                $_SESSION['rol'] = isset($user['rol']) ? trim($user['rol']) : 'user'; // Añadir rol a la sesión
 
                 // Configurar cookie de "recordarme" si está marcado
                 if (isset($_POST['remember']) && $_POST['remember'] == 'on') {

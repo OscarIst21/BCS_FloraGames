@@ -84,7 +84,8 @@
             <!-- Separador -->
             <li class="menu-divider"></li>
 
-            <!-- AGREGAR VALIDACIÓN PARA QUE SOLO SALGA CON EL ROL DE ADMIN -->
+            <!-- Opciones de administración solo para admins -->
+            <?php if(isset($_SESSION['rol']) && trim($_SESSION['rol']) === 'admin'): ?>
             <li>
                 <a href="/BCS_FloraGames/view/admin/index.php" class="side-menu-link">
                     <i class="fa-solid fa-leaf"></i> Gestión de plantas
@@ -95,6 +96,7 @@
                     <i class="fa-solid fa-users"></i> Gestión de usuarios
                 </a>
             </li>
+            <?php endif; ?>
 
             <!-- Separador -->
             <li class="menu-divider"></li>
