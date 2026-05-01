@@ -1,8 +1,6 @@
 version: '3.8'
-
 services:
 
-  #Contenedor 1: Nginx
   nginx:
     image: nginx:alpine
     container_name: floragames_nginx
@@ -16,7 +14,6 @@ services:
     networks:
       - floragames_net
 
-  #Contenedor 2: PHP-FPM 
   php:
     build:
       context: .
@@ -25,7 +22,8 @@ services:
     volumes:
       - .:/var/www/html
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy      
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -35,7 +33,6 @@ services:
     networks:
       - floragames_net
 
-  #Contenedor 3: MySQL
   mysql:
     image: mysql:8.0
     container_name: floragames_mysql
@@ -49,6 +46,12 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/bcs_floragames.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:                        # ← nuevo
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - floragames_net
 
