@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+
+  #Contenedor 1: Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: floragames_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - floragames_net
+
+  #Contenedor 2: PHP-FPM 
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: floragames_php
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: bcs_floragames
+      DB_USER: floragames_user
+      DB_PASS: floragames_pass
+    networks:
+      - floragames_net
+
+  #Contenedor 3: MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: floragames_mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: bcs_floragames
+      MYSQL_USER: floragames_user
+      MYSQL_PASSWORD: floragames_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/bcs_floragames.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - floragames_net
+
+networks:
+  floragames_net:
+    driver: bridge
+
+volumes:
+  mysql_data:

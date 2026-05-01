@@ -4,7 +4,7 @@ require_once __DIR__ . '/../connection/database.php';
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['usuario_id'])) {
-    header("Location: /BCS_FloraGames/view/login.php");
+    header("Location: /view/login.php");
     exit();
 }
 
@@ -73,13 +73,13 @@ try {
     }
     
     // Redirigir de vuelta al perfil
-    header("Location: /BCS_FloraGames/view/myProfile.php?actualizado=1");
+    header("Location: /view/myProfile.php?actualizado=1");
     exit();
     
 } catch (PDOException $e) {
     // Registrar el error y redirigir con mensaje de error
     error_log("Error al actualizar perfil: " . $e->getMessage());
-    header("Location: /BCS_FloraGames/view/myProfile.php?error=1");
+    header("Location: /view/myProfile.php?error=1");
     exit();
 }
 ?>

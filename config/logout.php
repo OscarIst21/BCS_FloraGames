@@ -34,6 +34,6 @@ $_SESSION['sweet_alert'] = [
     'text' => 'Has cerrado sesión correctamente.'
 ];
 
-header("Location: /BCS_FloraGames/view/login.php");
+header("Location: /view/login.php");
 exit();
 ?>

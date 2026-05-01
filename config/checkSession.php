@@ -30,7 +30,7 @@ function requireLogin() {
             'title' => 'Acceso restringido',
             'text' => 'Debes iniciar sesión para acceder a esta página'
         ];
-        header("Location: /BCS_FloraGames/view/login.php");
+        header("Location: /view/login.php");
         exit();
     }
 }
@@ -38,7 +38,7 @@ function requireLogin() {
 // Protección de rutas para usuarios no logueados (como el login)
 function requireNoLogin() {
     if (isset($_SESSION['user'])) {
-        header("Location: /BCS_FloraGames/index.php");
+        header("Location: /index.php");
         exit();
     }
 }

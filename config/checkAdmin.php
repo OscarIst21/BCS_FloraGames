@@ -7,14 +7,14 @@ function isAdmin() {
 // Redirigir si no es admin
 function requireAdmin() {
     if (!isset($_SESSION['user'])) {
-        header("Location: /BCS_FloraGames/view/login.php");
+        header("Location: /view/login.php");
         exit();
     }
     
     if (!isAdmin()) {
         // Para depuración temporal
         $_SESSION['error'] = 'Acceso denegado. Solo administradores pueden acceder a esta página.';
-        header("Location: /BCS_FloraGames/index.php");
+        header("Location: /index.php");
         exit();
     }
 }

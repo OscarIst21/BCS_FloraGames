@@ -5,7 +5,7 @@ include_once '../config/dataSuccess.php';
 
 // Verificar si el usuario está autenticado
 if (!isset($_SESSION['user'])) {
-    header("Location: /BCS_FloraGames/view/login.php");
+    header("Location: /view/login.php");
     exit();
 }
 

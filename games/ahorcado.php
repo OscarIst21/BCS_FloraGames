@@ -533,7 +533,7 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'reset_session') {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="comoJugar">¿Cómo jugar?</button>
-                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn">Salir</a>
+                    <a href="/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn">Salir</a>
                 </div>
             </div>
         </div>
@@ -556,7 +556,7 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'reset_session') {
                 </div>
                 <div class="modal-footer">
                     <a href="?reset=1" class="btn btn-success">Jugar de nuevo</a>
-                    <a href="/BCS_FloraGames/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn2">Salir</a>
+                    <a href="/view/gamesMenu.php" class="btn btn-secondary" id="exit-btn2">Salir</a>
                 </div>
             </div>
         </div>
@@ -803,7 +803,7 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === 'reset_session') {
             document.getElementById('exit-btn2').addEventListener('click', function() {
                 victoryModal.hide();
                 setTimeout(() => {
-                    window.location.href = '/BCS_FloraGames/view/gamesMenu.php';
+                    window.location.href = '/view/gamesMenu.php';
                 }, 300);
             });
         });

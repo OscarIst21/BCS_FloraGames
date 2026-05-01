@@ -7,8 +7,8 @@
         
         <!-- Logo -->
       <div>
-        <a href="/BCS_FloraGames/index.php">
-            <img style="max-width: 12rem; margin-bottom: 8px;" src="/BCS_FloraGames/img/logoFG.png" alt="Flora Games">
+        <a href="/index.php">
+            <img style="max-width: 12rem; margin-bottom: 8px;" src="/img/logoFG.png" alt="Flora Games">
         </a>
     </div>
 
@@ -16,10 +16,10 @@
 
     <div class="user-section">
             <?php if(isset($_SESSION['user'])): ?>
-                    <a href="/BCS_FloraGames/view/myProfile.php"><button class="btn btn-access  d-flex align-items-center"style="color: white;">
+                    <a href="/view/myProfile.php"><button class="btn btn-access  d-flex align-items-center"style="color: white;">
                         <?php if(!empty($_SESSION['foto_perfil'])): ?>
                             <div class="profile-image-container" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>  border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-                                <img src="/BCS_FloraGames/img/foto_de_Perfil/<?php echo $_SESSION['foto_perfil']; ?>" class="rounded-circle" width="30" height="30" alt="Foto de perfil">
+                                <img src="/img/foto_de_Perfil/<?php echo $_SESSION['foto_perfil']; ?>" class="rounded-circle" width="30" height="30" alt="Foto de perfil">
                             </div>
                         <?php else: ?>
                             <div class="rounded-circle" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>  height: 32px; display: flex; justify-content: center; align-items: center;">
@@ -30,7 +30,7 @@
                         
                     </button></a>
             <?php else: ?>
-                <button  class="btn btn_access" onclick="window.location.href='/BCS_FloraGames/view/login.php'">
+                <button  class="btn btn_access" onclick="window.location.href='/view/login.php'">
                    <span>Acceder </span><i class="fa-regular fa-circle-user ms-1"></i>
                 </button>
             <?php endif; ?>
@@ -43,7 +43,7 @@
                 <div class="user-profile">
                     <?php if(!empty($_SESSION['foto_perfil'])): ?>
                         <div class="profile-image-container" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>">
-                            <img src="/BCS_FloraGames/img/foto_de_Perfil/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil">
+                            <img src="/img/foto_de_Perfil/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil">
                         </div>
                     <?php else: ?>
                         <div class="profile-icon" style="<?php echo !empty($_SESSION['color_fondo']) ? 'background-color: '.$_SESSION['color_fondo'].';' : ''; ?>">
@@ -61,22 +61,22 @@
         <ul class="side-menu-items">
             <!-- Sección principal -->
             <li>
-                <a href="/BCS_FloraGames/index.php" class="side-menu-link">
+                <a href="/index.php" class="side-menu-link">
                     <i class="fa-solid fa-house"></i> Inicio
                 </a>
             </li>
             <li>
-                <a href="/BCS_FloraGames/view/learning.php" class="side-menu-link">
+                <a href="/view/learning.php" class="side-menu-link">
                     <i class="fa-solid fa-seedling"></i> Aprendizaje
                 </a>
             </li>
             <li>
-                <a href="/BCS_FloraGames/view/gamesMenu.php" class="side-menu-link">
+                <a href="/view/gamesMenu.php" class="side-menu-link">
                     <i class="fa-solid fa-gamepad"></i> Juegos
                 </a>
             </li>
             <li>
-                <a href="/BCS_FloraGames/view/mySuccesses.php" class="side-menu-link">
+                <a href="/view/mySuccesses.php" class="side-menu-link">
                     <i class="fa-solid fa-ranking-star"></i> Ranking
                 </a>
             </li>
@@ -87,12 +87,12 @@
             <!-- Opciones de administración solo para admins -->
             <?php if(isset($_SESSION['rol']) && trim($_SESSION['rol']) === 'admin'): ?>
             <li>
-                <a href="/BCS_FloraGames/view/admin/index.php" class="side-menu-link">
+                <a href="/view/admin/index.php" class="side-menu-link">
                     <i class="fa-solid fa-leaf"></i> Gestión de plantas
                 </a>
             </li>
             <li>
-                <a href="/BCS_FloraGames/view/admin/user.php" class="side-menu-link">
+                <a href="/view/admin/user.php" class="side-menu-link">
                     <i class="fa-solid fa-users"></i> Gestión de usuarios
                 </a>
             </li>
@@ -104,7 +104,7 @@
             <!-- Sección de usuario -->
             <?php if(isset($_SESSION['user'])): ?>
             <li>
-                <a href="/BCS_FloraGames/view/myProfile.php" class="side-menu-link">
+                <a href="/view/myProfile.php" class="side-menu-link">
                     <i class="fa-solid fa-user"></i> Mi perfil
                 </a>
             </li>
@@ -113,7 +113,7 @@
      <li class="menu-divider"></li>
     <!-- Acerca de (siempre visible) -->
     <li>
-        <a href="/BCS_FloraGames/view/about.php" class="side-menu-link">
+        <a href="/view/about.php" class="side-menu-link">
             <i class="fa-solid fa-info"></i> Acerca de
         </a>
     </li>
@@ -123,13 +123,13 @@
     <?php if(isset($_SESSION['user'])): ?>
         <!-- Cerrar sesión (abajo) -->
         <li class="logout-item">
-            <a href="/BCS_FloraGames/config/logout.php" class="side-menu-link logout-link">
+            <a href="/config/logout.php" class="side-menu-link logout-link">
                 <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
             </a>
         </li>
     <?php else: ?>
         <li>
-            <a href="/BCS_FloraGames/view/login.php" class="side-menu-link">
+            <a href="/view/login.php" class="side-menu-link">
                 <i class="fa-regular fa-circle-user"></i> Iniciar sesión
             </a>
         </li>

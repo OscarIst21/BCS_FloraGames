@@ -4,7 +4,7 @@ if(!isset($_SESSION)) {
 }
 
 if(isset($_SESSION['user'])) {
-    header("Location: /BCS_FloraGames/index.php");
+    header("Location: /index.php");
     exit();
 }
 ?>
