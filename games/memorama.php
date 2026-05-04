@@ -352,7 +352,7 @@ if (isset($_SESSION['memorama_difficulty'])) {
             border-radius: 8px;
         }
         .cardMemory .front {
-            background-image: url("/BCS_FLORAGAMES/img/frontalMemorama.png");
+            background-image: url("/img/frontalMemorama.png");
             transform: rotateY(0deg);
             background-size: contain;
             background-origin: border-box;

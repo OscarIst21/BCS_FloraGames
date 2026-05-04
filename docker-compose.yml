@@ -37,7 +37,7 @@ services:
     image: mysql:8.0
     container_name: floragames_mysql
     ports:
-      - "3306:3306"
+      - "3310:3306"
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: bcs_floragames
